@@ -17,6 +17,12 @@
       "default": "./dist/server/index.js"
     }
   },
+  "files": [
+    "admin",
+    "server",
+    "dist",
+    "package.json"
+  ],
   "scripts": {
     "build": "strapi-plugin build",
     "watch": "strapi-plugin watch",

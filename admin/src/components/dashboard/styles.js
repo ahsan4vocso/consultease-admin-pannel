@@ -465,6 +465,9 @@ export const TableContainer = styled.div`
     max-height: ${props.maxHeight};
     overflow-y: auto;
   `}
+  ${props => props.minHeight && css`
+    min-height: ${props.minHeight};
+  `}
 `;
 
 export const Table = styled.table`

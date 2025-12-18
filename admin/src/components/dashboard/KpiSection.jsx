@@ -1,0 +1,80 @@
+import React from 'react';
+import * as Style from "./styles";
+import KpiCard from "./KpiCard";
+import { useStreamData } from "../../hooks/dashboard";
+import { minutesToMMSS } from "../../utils/helper";
+
+export default function KpiSection() {
+    // Stream data
+    const { stats = {} } = useStreamData() || {};
+
+    return (
+        <Style.KpiSection>
+            <Style.KpiGrid>
+                <KpiCard
+                    label="Ongoing calls"
+                    value={stats.liveCalls}
+                    tone="emerald"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
+                        `?filters[$and][0][callStatus][$eq]=ongoing` +
+                        `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
+                        `&page=1`, '_blank')}
+                />
+                <KpiCard
+                    label="Total calls today"
+                    value={stats.callsToday}
+                    chip="Including free & paid"
+                    tone="sky"
+                />
+            </Style.KpiGrid>
+
+
+            <Style.KpiGrid>
+                <KpiCard
+                    label="Declined calls"
+                    value={stats.declinedCalls}
+                    tone="amber"
+                    style={{ cursor: stats.declinedCalls && 'pointer' }}
+                    onClick={() => stats.declinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
+                        `?filters[$and][0][callStatus][$eq]=declined` +
+                        `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
+                        `&page=1`, '_blank')}
+                />
+                <KpiCard
+                    label="Completed calls"
+                    value={stats.completedCalls}
+                    tone="amber"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => stats.completedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
+                        `?filters[$and][0][callStatus][$eq]=completed` +
+                        `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
+                        `&page=1`, '_blank')}
+                />
+            </Style.KpiGrid>
+            <Style.KpiGrid>
+                <KpiCard
+                    label="Experts online"
+                    value={stats.expertsOnline}
+                    tone="rose"
+                    onClick={() =>
+                        stats.expertsOnline > 0 &&
+                        window.open(
+                            `/admin/content-manager/collection-types/api::expert-profile.expert-profile` +
+                            `?filters[$and][0][isActive][$eq]=true` +
+                            `&sort=createdAt:DESC` +
+                            `&page=1` +
+                            `&pageSize=100`,
+                            "_blank"
+                        )
+                    }
+                />
+                <KpiCard
+                    label="Total call duration"
+                    value={minutesToMMSS(stats.avgDuration)}
+                    tone="emerald"
+                />
+            </Style.KpiGrid>
+        </Style.KpiSection>
+    );
+}
