@@ -39,7 +39,7 @@ const index = {
         defaultMessage: PLUGIN_ID
       },
       Component: async () => {
-        const { App } = await Promise.resolve().then(() => require("../_chunks/App-C9WmcbdA.js"));
+        const { App } = await Promise.resolve().then(() => require("../_chunks/App-BVRH8wyd.js"));
         return App;
       }
     });
@@ -64,4 +64,3 @@ const index = {
   }
 };
 module.exports = index;
-//# sourceMappingURL=index.js.map

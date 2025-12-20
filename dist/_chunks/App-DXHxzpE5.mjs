@@ -763,7 +763,7 @@ const getDateRange = (filter) => {
 const useCompletedCalls = (page = 1, filter = "60min", liveCalls) => {
   const { get } = useFetchClient();
   const { start, end } = getDateRange(filter);
-  const api = `/api/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
+  const api = `/api/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
   const { data, ...rest } = useQuery({
     queryKey: ["completed-calls", page, filter, liveCalls],
     enabled: liveCalls !== void 0,
@@ -777,7 +777,7 @@ const useCompletedCalls = (page = 1, filter = "60min", liveCalls) => {
 const useCategoryStats = (filter = "today", liveCalls) => {
   const { get } = useFetchClient();
   const { start, end } = getDateRange(filter);
-  const api = `/api/category-stats?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}`;
+  const api = `/api/category-stats?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}`;
   return useQuery({
     queryKey: ["category-stats", filter, liveCalls],
     enabled: liveCalls !== void 0,
@@ -812,7 +812,7 @@ function EmptyState({ title, subtitle, icon = "📭" }) {
   ] });
 }
 function minutesToMMSS(minutes) {
-  if (minutes == null || isNaN(minutes)) return "00:00";
+  if (minutes == null || isNaN(minutes)) return "---";
   const totalSeconds = Math.round(minutes * 60);
   if (minutes >= 60) {
     const hh = Math.floor(totalSeconds / 3600);
@@ -1003,7 +1003,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.caller }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.expert }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatTimeAMPM(call.startTime) }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatTimeAMPM(call.startTime) || "---" }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
             /* @__PURE__ */ jsxs(Td, { children: [
               " ",
@@ -1268,4 +1268,3 @@ const App = () => {
 export {
   App
 };
-//# sourceMappingURL=App-DEgTSzVH.mjs.map
