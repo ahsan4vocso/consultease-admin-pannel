@@ -34,8 +34,8 @@ export const useCompletedCalls = (page = 1, filter = '60min', liveCalls) => {
     const { get } = useFetchClient();
     const { start, end } = getDateRange(filter);
 
-    // Filters based on createdAt to capture calls MADE in that window
-    const api = `/api/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
+    // Filters based on startTime to capture calls MADE in that window
+    const api = `/api/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
 
     const { data, ...rest } = useQuery({
         queryKey: ["completed-calls", page, filter, liveCalls],
@@ -52,7 +52,7 @@ export const useCompletedCalls = (page = 1, filter = '60min', liveCalls) => {
 export const useCategoryStats = (filter = 'today', liveCalls) => {
     const { get } = useFetchClient();
     const { start, end } = getDateRange(filter);
-    const api = `/api/category-stats?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}`;
+    const api = `/api/category-stats?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}`;
 
     return useQuery({
         queryKey: ["category-stats", filter, liveCalls],
