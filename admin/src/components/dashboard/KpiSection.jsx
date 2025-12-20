@@ -1,12 +1,8 @@
-import React from 'react';
 import * as Style from "./styles";
 import KpiCard from "./KpiCard";
-import { useStreamData } from "../../hooks/dashboard";
 import { minutesToMMSS } from "../../utils/helper";
 
-export default function KpiSection() {
-    // Stream data
-    const { stats = {} } = useStreamData() || {};
+export default function KpiSection({ stats = {} }) {
 
     return (
         <Style.KpiSection>
@@ -18,7 +14,7 @@ export default function KpiSection() {
                     style={{ cursor: 'pointer' }}
                     onClick={() => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=ongoing` +
-                        `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
+                        `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date().toISOString().split("T")[0] + "T00:00:00.000Z")}` +
                         `&page=1`, '_blank')}
                 />
                 <KpiCard

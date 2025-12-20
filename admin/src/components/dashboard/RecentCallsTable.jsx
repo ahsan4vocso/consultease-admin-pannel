@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import * as Style from "./styles";
 import EmptyState from "./EmptyState";
 import { useCompletedCalls } from "../../hooks/dashboard";
 import { formatTimeAMPM, formatDurationFromMinutes } from "../../utils/helper";
 
-export default function RecentCallsTable() {
+export default function RecentCallsTable({ liveCalls }) {
     const [page, setPage] = useState(1);
     const [callsFilter, setCallsFilter] = useState('60min');
-
-    const { data: recentCalls = [], meta = {} } = useCompletedCalls(page, callsFilter) || {};
+    const { data: recentCalls = [], meta = {} } = useCompletedCalls(page, callsFilter, liveCalls) || {};
 
     const handleNextPage = () => {
         if (page < (meta.pagination?.pageCount || 1)) setPage((prev) => prev + 1);
@@ -80,9 +79,9 @@ export default function RecentCallsTable() {
                                 </td>
                             </tr>
                         ) : (
-                            recentCalls.map((call) => (
+                            recentCalls.map((call, idx) => (
                                 <Style.Tr
-                                    key={call.id}
+                                    key={idx}
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, '_blank')}
                                 >

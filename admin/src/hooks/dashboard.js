@@ -30,7 +30,7 @@ const getDateRange = (filter) => {
     return { start: start.toISOString(), end: now.toISOString() };
 };
 
-export const useCompletedCalls = (page = 1, filter = '60min') => {
+export const useCompletedCalls = (page = 1, filter = '60min', liveCalls) => {
     const { get } = useFetchClient();
     const { start, end } = getDateRange(filter);
 
@@ -38,7 +38,8 @@ export const useCompletedCalls = (page = 1, filter = '60min') => {
     const api = `/api/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
 
     const { data, ...rest } = useQuery({
-        queryKey: ["completed-calls", page, filter],
+        queryKey: ["completed-calls", page, filter, liveCalls],
+        enabled: liveCalls !== undefined,
         queryFn: async () => {
             const { data } = await get(api);
             return data;
@@ -48,13 +49,14 @@ export const useCompletedCalls = (page = 1, filter = '60min') => {
     return { data: data?.data, meta: data?.meta || {}, ...rest };
 };
 
-export const useCategoryStats = (filter = 'today') => {
+export const useCategoryStats = (filter = 'today', liveCalls) => {
     const { get } = useFetchClient();
     const { start, end } = getDateRange(filter);
     const api = `/api/category-stats?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}`;
 
     return useQuery({
-        queryKey: ["category-stats", filter],
+        queryKey: ["category-stats", filter, liveCalls],
+        enabled: liveCalls !== undefined,
         queryFn: async () => {
             const { data } = await get(api);
             return data;

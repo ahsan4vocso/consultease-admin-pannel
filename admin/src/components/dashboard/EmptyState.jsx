@@ -1,4 +1,3 @@
-import React from 'react';
 import * as Style from "./styles";
 
 export default function EmptyState({ title, subtitle, icon = "📭" }) {

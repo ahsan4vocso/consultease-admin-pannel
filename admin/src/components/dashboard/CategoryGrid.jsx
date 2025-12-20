@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import * as Style from "./styles";
 import EmptyState from "./EmptyState";
 import { useCategoryStats } from "../../hooks/dashboard";
 import { formatDurationFromMinutes } from "../../utils/helper";
 
-export default function CategoryGrid() {
+export default function CategoryGrid({ liveCalls }) {
     const [dateFilter, setDateFilter] = useState('today');
-    const { data: categoryStats = [] } = useCategoryStats(dateFilter);
+    const { data: categoryStats = [] } = useCategoryStats(dateFilter, liveCalls);
 
     return (
         <Style.Card>
             <Style.CardHeader>
                 <div>
-                    <Style.CardTitle>Category Mix aaa</Style.CardTitle>
+                    <Style.CardTitle>Category Mix</Style.CardTitle>
                     <Style.CardSubtitle>Call distribution by topics</Style.CardSubtitle>
                 </div>
                 <Style.FilterContainer>

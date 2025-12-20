@@ -1,10 +1,11 @@
-import React from 'react';
 import * as Style from "./styles";
 import EmptyState from "./EmptyState";
-import { formatTimeAMPM } from "../../utils/helper";
+import { formatTimeAMPM, minutesToMMSS } from "../../utils/helper";
 import { VideoCall, VoiceCall } from "../Icons";
+import { useMovingTime } from "../../hooks/useFormater";
 
 export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
+    const currMovingTime = useMovingTime();
 
     return (
         <Style.TableSection>
@@ -26,6 +27,7 @@ export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                             <Style.Th>Caller</Style.Th>
                             <Style.Th>Expert</Style.Th>
                             <Style.Th>Start Time</Style.Th>
+                            <Style.Th>Duration</Style.Th>
                             <Style.Th>Category</Style.Th>
                             <Style.Th>Status</Style.Th>
                         </tr>
@@ -52,6 +54,7 @@ export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                                     <Style.Td fontSize="1.4rem" color="#1e293b">{call.caller}</Style.Td>
                                     <Style.Td fontSize="1.4rem" color="#1e293b">{call.expert}</Style.Td>
                                     <Style.Td fontSize="1.4rem" color="#1e293b">{formatTimeAMPM(call.startTime)}</Style.Td>
+                                    <Style.Td fontSize="1.4rem" color="#1e293b">{minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1000 * 60))}</Style.Td>
                                     <Style.Td> <Style.CategoryBadge>{call.category}</Style.CategoryBadge></Style.Td>
 
                                     <Style.Td>
@@ -64,7 +67,7 @@ export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                                                     backgroundColor: "currentColor",
                                                 }}
                                             />
-                                            {call.status === "pending" ? "Ringing" : call.status}
+                                            {call.status === "pending" ? "Calling" : call.status}
                                         </Style.StatusBadge>
                                     </Style.Td>
                                 </Style.Tr>

@@ -764,12 +764,13 @@ const getDateRange = (filter) => {
   start.setHours(0, 0, 0, 0);
   return { start: start.toISOString(), end: now.toISOString() };
 };
-const useCompletedCalls = (page = 1, filter = "60min") => {
+const useCompletedCalls = (page = 1, filter = "60min", liveCalls) => {
   const { get } = admin.useFetchClient();
   const { start, end } = getDateRange(filter);
   const api = `/api/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
   const { data, ...rest } = reactQuery.useQuery({
-    queryKey: ["completed-calls", page, filter],
+    queryKey: ["completed-calls", page, filter, liveCalls],
+    enabled: liveCalls !== void 0,
     queryFn: async () => {
       const { data: data2 } = await get(api);
       return data2;
@@ -777,12 +778,13 @@ const useCompletedCalls = (page = 1, filter = "60min") => {
   });
   return { data: data?.data, meta: data?.meta || {}, ...rest };
 };
-const useCategoryStats = (filter = "today") => {
+const useCategoryStats = (filter = "today", liveCalls) => {
   const { get } = admin.useFetchClient();
   const { start, end } = getDateRange(filter);
   const api = `/api/category-stats?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}`;
   return reactQuery.useQuery({
-    queryKey: ["category-stats", filter],
+    queryKey: ["category-stats", filter, liveCalls],
+    enabled: liveCalls !== void 0,
     queryFn: async () => {
       const { data } = await get(api);
       return data;
@@ -847,13 +849,13 @@ function formatDurationFromMinutes(minutes) {
   if (secs > 0) parts.push(`${secs}sec`);
   return parts.join(", ");
 }
-function CategoryGrid() {
+function CategoryGrid({ liveCalls }) {
   const [dateFilter, setDateFilter] = react.useState("today");
-  const { data: categoryStats = [] } = useCategoryStats(dateFilter);
+  const { data: categoryStats = [] } = useCategoryStats(dateFilter, liveCalls);
   return /* @__PURE__ */ jsxRuntime.jsxs(Card, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(CardHeader, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Category Mix aaa" }),
+        /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Category Mix" }),
         /* @__PURE__ */ jsxRuntime.jsx(CardSubtitle, { children: "Call distribution by topics" })
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(FilterContainer, { children: [
@@ -955,7 +957,16 @@ const VideoCall = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style,
   /* @__PURE__ */ jsxRuntime.jsx("path", { fill: "currentColor", d: "M8,12h22c2.2,0,4,1.8,4,4v16c0,2.2-1.8,4-4,4H8c-2.2,0-4-1.8-4-4V16C4,13.8,5.8,12,8,12z" }),
   /* @__PURE__ */ jsxRuntime.jsx("polygon", { fill: "currentColor", points: "44,35 34,29 34,19 44,13" })
 ] });
+const useMovingTime = () => {
+  const [now, setNow] = react.useState(Date.now());
+  react.useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1e3);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+};
 function LiveCallsTable({ stats = {}, liveCalls = [] }) {
+  const currMovingTime = useMovingTime();
   return /* @__PURE__ */ jsxRuntime.jsxs(TableSection, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(TableHeader, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
@@ -976,6 +987,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Caller" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Expert" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Start Time" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Duration" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Category" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Status" })
       ] }) }),
@@ -996,6 +1008,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.caller }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.expert }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatTimeAMPM(call.startTime) }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
             /* @__PURE__ */ jsxRuntime.jsxs(Td, { children: [
               " ",
               /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category })
@@ -1012,7 +1025,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                   }
                 }
               ),
-              call.status === "pending" ? "Ringing" : call.status
+              call.status === "pending" ? "Calling" : call.status
             ] }) })
           ]
         },
@@ -1021,10 +1034,10 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
     ] }) })
   ] });
 }
-function RecentCallsTable() {
+function RecentCallsTable({ liveCalls }) {
   const [page, setPage] = react.useState(1);
   const [callsFilter, setCallsFilter] = react.useState("60min");
-  const { data: recentCalls = [], meta = {} } = useCompletedCalls(page, callsFilter) || {};
+  const { data: recentCalls = [], meta = {} } = useCompletedCalls(page, callsFilter, liveCalls) || {};
   const handleNextPage = () => {
     if (page < (meta.pagination?.pageCount || 1)) setPage((prev) => prev + 1);
   };
@@ -1092,7 +1105,7 @@ function RecentCallsTable() {
             "week": "No calls completed this week."
           }[callsFilter]
         }
-      ) }) }) : recentCalls.map((call) => /* @__PURE__ */ jsxRuntime.jsxs(
+      ) }) }) : recentCalls.map((call, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
         Tr,
         {
           style: { cursor: "pointer" },
@@ -1106,7 +1119,7 @@ function RecentCallsTable() {
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.rating ? /* @__PURE__ */ jsxRuntime.jsx(RatingStars, { children: "★".repeat(call.rating) }) : /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "1.2rem" }, children: "---" }) })
           ]
         },
-        call.id
+        idx
       )) })
     ] }) }),
     meta.pagination?.pageCount > 1 && /* @__PURE__ */ jsxRuntime.jsxs(PaginationContainer, { children: [
@@ -1160,8 +1173,7 @@ function KpiCard({ label, value, tone = "emerald", ...rest }) {
     /* @__PURE__ */ jsxRuntime.jsx(KpiIconBox, { tone, children: "⚡" })
   ] }) });
 }
-function KpiSection() {
-  const { stats = {} } = useStreamData() || {};
+function KpiSection({ stats = {} }) {
   return /* @__PURE__ */ jsxRuntime.jsxs(KpiSection$1, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(KpiGrid, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(
@@ -1171,7 +1183,7 @@ function KpiSection() {
           value: stats.liveCalls,
           tone: "emerald",
           style: { cursor: "pointer" },
-          onClick: () => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=ongoing&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
+          onClick: () => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=ongoing&filters[$and][1][createdAt][$gte]=${encodeURIComponent((/* @__PURE__ */ new Date()).toISOString().split("T")[0] + "T00:00:00.000Z")}&page=1`, "_blank")
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(
@@ -1231,17 +1243,17 @@ function KpiSection() {
   ] });
 }
 function CallsLiveDashboard() {
-  const { stats = {}, liveCalls = [] } = useStreamData() || {};
+  const { stats = {}, liveCalls } = useStreamData() || {};
   return /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer, { children: [
     /* @__PURE__ */ jsxRuntime.jsx(Header, { stats }),
     /* @__PURE__ */ jsxRuntime.jsx(Main, { children: /* @__PURE__ */ jsxRuntime.jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(KpiSection, {}),
-        /* @__PURE__ */ jsxRuntime.jsx(CategoryGrid, {})
+        /* @__PURE__ */ jsxRuntime.jsx(KpiSection, { stats }),
+        /* @__PURE__ */ jsxRuntime.jsx(CategoryGrid, { liveCalls: liveCalls?.length })
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
         /* @__PURE__ */ jsxRuntime.jsx(LiveCallsTable, { stats, liveCalls }),
-        /* @__PURE__ */ jsxRuntime.jsx(RecentCallsTable, {})
+        /* @__PURE__ */ jsxRuntime.jsx(RecentCallsTable, { liveCalls: liveCalls?.length })
       ] })
     ] }) })
   ] });

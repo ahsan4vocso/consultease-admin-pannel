@@ -9,28 +9,26 @@ import KpiSection from "./KpiSection";
 // import ExpertsSnapshot from "./ExpertsSnapshot";
 
 export default function CallsLiveDashboard() {
-    // Stream data
-    const { stats = {}, liveCalls = [] } = useStreamData() || {};
+    const { stats = {}, liveCalls } = useStreamData() || {}; // Stream data
+
 
     return (
         <Style.DashboardContainer>
             <Header stats={stats} />
 
             <Style.Main>
-                {/* Left = stats, Right = records */}
                 <Style.GridContainer>
                     <Style.Column>
-                        <KpiSection />
-                        <CategoryGrid />
+                        <KpiSection stats={stats} />
+                        <CategoryGrid liveCalls={liveCalls?.length} />
 
                         {/* <ExpertsSnapshot /> */}
                         {/* <TopConsultants /> */}
                     </Style.Column>
 
-                    {/* RIGHT COLUMN: Records (live + recent calls) */}
                     <Style.Column>
                         <LiveCallsTable stats={stats} liveCalls={liveCalls} />
-                        <RecentCallsTable />
+                        <RecentCallsTable liveCalls={liveCalls?.length} />
                     </Style.Column>
                 </Style.GridContainer>
             </Style.Main>
