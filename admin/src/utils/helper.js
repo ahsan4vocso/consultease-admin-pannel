@@ -1,5 +1,5 @@
 export function minutesToMMSS(minutes) {
-    if (minutes == null || isNaN(minutes)) return "00:00";
+    if (minutes == null || isNaN(minutes)) return "---";
 
     const totalSeconds = Math.round(minutes * 60);
 

@@ -812,7 +812,7 @@ function EmptyState({ title, subtitle, icon = "📭" }) {
   ] });
 }
 function minutesToMMSS(minutes) {
-  if (minutes == null || isNaN(minutes)) return "00:00";
+  if (minutes == null || isNaN(minutes)) return "---";
   const totalSeconds = Math.round(minutes * 60);
   if (minutes >= 60) {
     const hh = Math.floor(totalSeconds / 3600);
@@ -1003,7 +1003,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.caller }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.expert }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatTimeAMPM(call.startTime) }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatTimeAMPM(void 0) || "---" }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
             /* @__PURE__ */ jsxs(Td, { children: [
               " ",
@@ -1268,4 +1268,4 @@ const App = () => {
 export {
   App
 };
-//# sourceMappingURL=App-DEgTSzVH.mjs.map
+//# sourceMappingURL=App-DPqhFAwu.mjs.map

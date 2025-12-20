@@ -812,7 +812,7 @@ function EmptyState({ title, subtitle, icon = "📭" }) {
   ] });
 }
 function minutesToMMSS(minutes) {
-  if (minutes == null || isNaN(minutes)) return "00:00";
+  if (minutes == null || isNaN(minutes)) return "---";
   const totalSeconds = Math.round(minutes * 60);
   if (minutes >= 60) {
     const hh = Math.floor(totalSeconds / 3600);
@@ -1268,4 +1268,4 @@ const App = () => {
 export {
   App
 };
-//# sourceMappingURL=App-DEgTSzVH.mjs.map
+//# sourceMappingURL=App-C6mFOCVM.mjs.map

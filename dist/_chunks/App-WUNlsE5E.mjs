@@ -812,7 +812,7 @@ function EmptyState({ title, subtitle, icon = "📭" }) {
   ] });
 }
 function minutesToMMSS(minutes) {
-  if (minutes == null || isNaN(minutes)) return "00:00";
+  if (minutes == null || isNaN(minutes)) return "---";
   const totalSeconds = Math.round(minutes * 60);
   if (minutes >= 60) {
     const hh = Math.floor(totalSeconds / 3600);
@@ -1004,7 +1004,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.caller }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.expert }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatTimeAMPM(call.startTime) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: minutesToMMSS((currMovingTime - (/* @__PURE__ */ new Date(void 0)).getTime()) / (1e3 * 60)) }),
             /* @__PURE__ */ jsxs(Td, { children: [
               " ",
               /* @__PURE__ */ jsx(CategoryBadge, { children: call.category })
@@ -1268,4 +1268,4 @@ const App = () => {
 export {
   App
 };
-//# sourceMappingURL=App-DEgTSzVH.mjs.map
+//# sourceMappingURL=App-WUNlsE5E.mjs.map
