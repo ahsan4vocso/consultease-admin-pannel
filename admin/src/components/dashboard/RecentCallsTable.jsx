@@ -85,13 +85,13 @@ export default function RecentCallsTable({ liveCalls }) {
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, '_blank')}
                                 >
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{call.caller}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{call.expert}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">
+                                    <Style.Td fontSize="1.4rem">{call.caller}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{call.expert}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">
                                         <Style.CategoryBadge>{call.category || 'Other'}</Style.CategoryBadge>
                                     </Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#334155">{formatTimeAMPM(call.time)}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{formatDurationFromMinutes(call.duration)}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{formatTimeAMPM(call.time)}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{formatDurationFromMinutes(call.duration)}</Style.Td>
                                     <Style.Td fontSize="1.4rem">
                                         {call.rating ? <Style.RatingStars>{"★".repeat(call.rating)}</Style.RatingStars> : <span style={{ fontSize: "1.2rem" }}>---</span>}
                                     </Style.Td>

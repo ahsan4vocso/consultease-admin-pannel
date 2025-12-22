@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { useTheme } from 'styled-components';
 import * as Style from "./styles";
 import EmptyState from "./EmptyState";
 import { useCategoryStats } from "../../hooks/dashboard";
@@ -8,6 +9,7 @@ import { formatDurationFromMinutes } from "../../utils/helper";
 export default function CategoryGrid({ liveCalls }) {
     const [dateFilter, setDateFilter] = useState('today');
     const { data: categoryStats = [] } = useCategoryStats(dateFilter, liveCalls);
+    const theme = useTheme();
 
     return (
         <Style.Card>
@@ -78,18 +80,19 @@ export default function CategoryGrid({ liveCalls }) {
                                 dataKey="name"
                                 tickLine={false}
                                 axisLine={false}
-                                tick={{ fontSize: 10, fill: "#64748b" }}
+                                tick={{ fontSize: 10, fill: theme.colors.neutral500 }}
                             />
                             <YAxis hide axisLine={false} tickLine={false} />
                             <Tooltip
-                                cursor={{ fill: "#f8fafc" }}
+                                cursor={{ fill: theme.colors.neutral100 }}
                                 contentStyle={{
-                                    backgroundColor: "#ffffff",
-                                    border: "1px solid #e2e8f0",
+                                    backgroundColor: theme.colors.neutral0,
+                                    border: `1px solid ${theme.colors.neutral150}`,
                                     borderRadius: 8,
                                     fontSize: 11,
-                                    color: "#0f172a",
+                                    color: theme.colors.neutral800,
                                 }}
+                                itemStyle={{ color: theme.colors.neutral800 }}
                                 formatter={(value, name) => {
                                     if (name === "totalCalls") return [value, "Total Calls"];
                                     if (name === "calls") return [value, "Calls"];
@@ -100,7 +103,7 @@ export default function CategoryGrid({ liveCalls }) {
                                     return [value, name];
                                 }}
                             />
-                            <Bar dataKey="totalCalls" radius={[6, 6, 0, 0]} fill="#22c594ff" />
+                            <Bar dataKey="totalCalls" radius={[6, 6, 0, 0]} fill={theme.colors.success600} />
                         </BarChart>
                     </ResponsiveContainer>
                 </Style.ChartContainer>}

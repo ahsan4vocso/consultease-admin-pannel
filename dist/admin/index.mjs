@@ -38,7 +38,7 @@ const index = {
         defaultMessage: PLUGIN_ID
       },
       Component: async () => {
-        const { App } = await import("../_chunks/App-DXHxzpE5.mjs");
+        const { App } = await import("../_chunks/App-SGNHFNPo.mjs");
         return App;
       }
     });
@@ -65,3 +65,4 @@ const index = {
 export {
   index as default
 };
+//# sourceMappingURL=index.mjs.map

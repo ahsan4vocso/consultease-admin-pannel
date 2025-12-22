@@ -49,12 +49,12 @@ export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, '_blank')}
                                 >
-                                    <Style.Td fontFamily="monospace" color="#64748b" >{call.id}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{call.type == "voiceCall" ? <VoiceCall style={{ width: "20px", height: "20px", color: "#5272a3ff" }} /> : <VideoCall style={{ width: "20px", height: "20px", color: "#219bacff" }} />}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{call.caller}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{call.expert}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{formatTimeAMPM(call.startTime) || "---"}</Style.Td>
-                                    <Style.Td fontSize="1.4rem" color="#1e293b">{minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1000 * 60))}</Style.Td>
+                                    <Style.Td fontFamily="monospace">{call.id}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{call.type == "voiceCall" ? <VoiceCall style={{ width: "20px", height: "20px", color: "#5272a3ff" }} /> : <VideoCall style={{ width: "20px", height: "20px", color: "#219bacff" }} />}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{call.caller}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{call.expert}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{formatTimeAMPM(call.startTime) || "---"}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1000 * 60))}</Style.Td>
                                     <Style.Td> <Style.CategoryBadge>{call.category}</Style.CategoryBadge></Style.Td>
 
                                     <Style.Td>
