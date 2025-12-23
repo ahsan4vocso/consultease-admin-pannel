@@ -54,7 +54,7 @@ export function numberShortner(value, decimals = 1) {
 
 
 export function formatDurationFromMinutes(minutes) {
-    if (!Number.isFinite(minutes) || minutes <= 0) return "0 sec";
+    if (!Number.isFinite(minutes) || minutes <= 0) return "---";
 
     const totalSeconds = Math.round(minutes * 60);
 

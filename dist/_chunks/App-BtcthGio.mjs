@@ -1,11 +1,12 @@
-import { jsx, jsxs } from "react/jsx-runtime";
+import { jsxs, jsx } from "react/jsx-runtime";
 import { useFetchClient, Page } from "@strapi/strapi/admin";
 import { Routes, Route } from "react-router-dom";
 import { Main as Main$1 } from "@strapi/design-system";
 import { useIntl } from "react-intl";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import styled, { css, keyframes } from "styled-components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import styled, { css, keyframes, useTheme } from "styled-components";
+import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick } from "./index-DSN0pIzz.mjs";
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar } from "recharts";
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
@@ -33,14 +34,14 @@ const HeaderLeft = styled.div`
   gap: 0.75rem;
 `;
 const IconBox = styled.div`
-  padding: 8px;
+  padding: 10px;
   border-radius: 0.75rem;
-  background-color: ${({ theme }) => theme.colors.success100};
+  background-color: ${({ theme }) => theme.colors.primary100};
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.7rem;
-  color: ${({ theme }) => theme.colors.success600};
+  color: ${({ theme }) => theme.colors.primary600};
 `;
 const TitleBox = styled.div``;
 const Title = styled.h1`
@@ -60,7 +61,7 @@ const MetaText = styled.p`
   color: ${({ theme }) => theme.colors.neutral400};
   margin-top: 0.125rem;
 `;
-styled.div`
+const HeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -478,7 +479,7 @@ const StatusBadge = styled.span`
   `}
   ${(props) => /completed/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary600};
+    color: ${({ theme }) => theme.colors.neutral800};
     border-color: ${({ theme }) => theme.colors.primary200};
   `}
 `;
@@ -692,56 +693,412 @@ const PaginationInfo = styled.span`
 const FilterContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background-color: ${({ theme }) => theme.colors.neutral100};
-  padding: 0.25rem;
-  border-radius: 9999px;
+  gap: 0.25rem;
+  background: ${({ theme }) => theme.colors.neutral0};
+  padding: 0.35rem;
+  border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 `;
 const FilterButton = styled.button`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 11px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 500;
-  color: ${({ theme }) => theme.colors.neutral500};
-  background-color: transparent;
-  border: none;
+  color: ${(props) => props.theme.colors.neutral500};
+  background-color: ${(props) => props.active ? props.theme.colors.primary100 : "transparent"};
+  border: 1px solid ${(props) => props.active ? props.theme.colors.primary200 : "transparent"};
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background-color: ${(props) => props.active ? props.theme.colors.primary100 : props.theme.colors.neutral100};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+const CustomRangeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid ${({ theme }) => theme.colors.neutral150};
+  animation: fadeIn 0.3s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+`;
+const DateInput = styled.input`
+  border-radius: 8px;
+  font-size: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  padding: 0.4rem 0.6rem;
+  outline: none;
+  color: ${({ theme }) => theme.colors.neutral700};
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.primary500};
+    box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.primary100};
+  }
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5);
+    &:hover { filter: invert(0.3); }
+  }
+`;
+const DateLabel = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.colors.neutral400};
+  letter-spacing: 0.025em;
+`;
+styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+const DropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+const DropdownButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral700};
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
+    border-color: ${({ theme }) => theme.colors.primary500};
+    background: ${({ theme }) => theme.colors.neutral100};
+  }
+`;
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 200px;
+  padding: 4px;
+`;
+const DropdownItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: ${({ theme }) => theme.colors.neutral700};
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.neutral100};
+  }
+`;
+const TickIcon = styled.span`
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+styled.button`
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid transparent;
+
+  ${({ active, status, theme }) => {
+  if (!active) return css`
+      background: ${theme.colors.neutral0};
+      color: ${theme.colors.neutral600};
+      border: 1px solid ${theme.colors.neutral200};
+      &:hover {
+        background: ${theme.colors.neutral100};
+      }
+    `;
+  switch (status) {
+    case "completed":
+      return css`
+          background: ${theme.colors.success100};
+          color: ${theme.colors.success600};
+          border-color: ${theme.colors.success200};
+        `;
+    case "declined":
+    case "missed":
+    case "busy":
+      return css`
+          background: ${theme.colors.danger100};
+          color: ${theme.colors.danger600};
+          border-color: ${theme.colors.danger200};
+        `;
+    case "force complete by admin":
+      return css`
+          background: ${theme.colors.secondary100};
+          color: ${theme.colors.secondary600};
+          border-color: ${theme.colors.secondary200};
+        `;
+    default:
+      return css`
+          background: ${theme.colors.primary100};
+          color: ${theme.colors.primary600};
+          border-color: ${theme.colors.primary200};
+        `;
+  }
+}}
+`;
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+const ModalContent = styled.div`
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 450px;
+  overflow: hidden;
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+`;
+const ModalHeader = styled.div`
+  padding: 20px 24px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+`;
+const ModalBody = styled.div`
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+const ModalFooter = styled.div`
+  padding: 16px 24px;
+  border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+`;
+const DataRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral100};
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+const DataLabel = styled.span`
+  color: ${({ theme }) => theme.colors.neutral500};
+  font-size: 13px;
+  font-weight: 500;
+`;
+const DataValue = styled.span`
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.neutral400};
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.neutral100};
     color: ${({ theme }) => theme.colors.neutral800};
   }
-
-  ${(props) => props.active && css`
+`;
+const ModalButton = styled.button`
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  
+  ${(props) => props.variant === "secondary" && css`
     background-color: ${({ theme }) => theme.colors.neutral0};
+    border-color: ${({ theme }) => theme.colors.neutral200};
     color: ${({ theme }) => theme.colors.neutral800};
-    box-shadow: ${({ theme }) => theme.shadows.filterShadow};
-    font-weight: 600;
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.neutral100};
+      border-color: ${({ theme }) => theme.colors.neutral300};
+    }
+  `}
+
+  ${(props) => props.variant === "primary" && css`
+    background-color: ${({ theme }) => theme.colors.primary600};
+    color: #ffffff;
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.primary700};
+    }
+  `}
+
+  ${(props) => props.variant === "danger" && css`
+    background-color: ${({ theme }) => theme.colors.danger100};
+    border-color: ${({ theme }) => theme.colors.danger200};
+    color: ${({ theme }) => theme.colors.danger600};
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.danger200};
+    }
   `}
 `;
-function Header({ stats }) {
-  const droppedRate = stats.callsToday ? ((stats.declinedCalls || 0 / stats.callsToday) * 100).toFixed(1) : 0;
-  return /* @__PURE__ */ jsx(Header$1, { children: /* @__PURE__ */ jsxs(HeaderLeft, { children: [
-    /* @__PURE__ */ jsx(IconBox, { children: "📞" }),
-    /* @__PURE__ */ jsxs(TitleBox, { children: [
-      /* @__PURE__ */ jsx(Title, { children: "Live Calls Dashboard" }),
-      /* @__PURE__ */ jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
-      /* @__PURE__ */ jsxs(MetaText, { children: [
-        stats.callsToday,
-        " calls today • ",
-        stats.declinedCalls,
-        " declined (",
-        droppedRate,
-        "%)"
+function Header({ stats, filter, onFilterChange }) {
+  const droppedRate = stats.callsToday ? (stats.declinedCalls / stats.callsToday * 100).toFixed(1) : 0;
+  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+  const savedStart = localStorage.getItem("dashboard_start_date");
+  const savedEnd = localStorage.getItem("dashboard_end_date");
+  console.log("📅 [Header] Initializing dates:", {
+    from: savedStart || today,
+    to: savedEnd || today,
+    source: savedStart ? "localStorage" : "default"
+  });
+  const [startDate, setStartDate] = useState(savedStart || today);
+  const [endDate, setEndDate] = useState(savedEnd || today);
+  useEffect(() => {
+    if (startDate) localStorage.setItem("dashboard_start_date", startDate);
+    if (endDate) localStorage.setItem("dashboard_end_date", endDate);
+  }, [startDate, endDate]);
+  useEffect(() => {
+    if (filter === "custom" && startDate && endDate) {
+      onFilterChange("custom", { start: startDate, end: endDate });
+    }
+  }, [startDate, endDate, filter]);
+  const handlePresetChange = (preset) => {
+    onFilterChange(preset);
+  };
+  return /* @__PURE__ */ jsxs(Header$1, { children: [
+    /* @__PURE__ */ jsxs(HeaderLeft, { children: [
+      /* @__PURE__ */ jsx(IconBox, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "32px", height: "32px" } }) }),
+      /* @__PURE__ */ jsxs(TitleBox, { children: [
+        /* @__PURE__ */ jsx(Title, { children: "Live Calls Dashboard" }),
+        /* @__PURE__ */ jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
+        /* @__PURE__ */ jsxs(MetaText, { children: [
+          stats.callsToday,
+          " calls today • ",
+          stats.declinedCalls,
+          " declined (",
+          droppedRate,
+          "%)"
+        ] })
       ] })
-    ] })
-  ] }) });
+    ] }),
+    /* @__PURE__ */ jsx(HeaderRight, { children: /* @__PURE__ */ jsxs(FilterContainer, { children: [
+      ["60min", "today", "yesterday", "week"].map((preset) => /* @__PURE__ */ jsx(
+        FilterButton,
+        {
+          active: filter === preset,
+          onClick: () => handlePresetChange(preset),
+          children: preset === "60min" ? "60 Minutes" : preset.charAt(0).toUpperCase() + preset.slice(1)
+        },
+        preset
+      )),
+      /* @__PURE__ */ jsx(
+        FilterButton,
+        {
+          active: filter === "custom",
+          onClick: () => handlePresetChange("custom"),
+          children: "Custom Range"
+        }
+      ),
+      filter === "custom" && /* @__PURE__ */ jsxs(CustomRangeContainer, { children: [
+        /* @__PURE__ */ jsx(DateLabel, { children: "From" }),
+        /* @__PURE__ */ jsx(
+          DateInput,
+          {
+            type: "date",
+            value: startDate,
+            onChange: (e) => setStartDate(e.target.value)
+          }
+        ),
+        /* @__PURE__ */ jsx(DateLabel, { children: "To" }),
+        /* @__PURE__ */ jsx(
+          DateInput,
+          {
+            type: "date",
+            value: endDate,
+            onChange: (e) => setEndDate(e.target.value)
+          }
+        )
+      ] })
+    ] }) })
+  ] });
 }
-const getDateRange = (filter) => {
+const getDateRange = (filter, customRange) => {
   const now = /* @__PURE__ */ new Date();
   let start = /* @__PURE__ */ new Date();
   let end = /* @__PURE__ */ new Date();
+  if (filter === "custom" && customRange?.start && customRange?.end) {
+    return {
+      start: new Date(customRange.start).toISOString(),
+      end: new Date(new Date(customRange.end).setHours(23, 59, 59, 999)).toISOString()
+    };
+  }
   if (filter === "60min") {
     start = new Date(now.getTime() - 60 * 60 * 1e3);
     return { start: start.toISOString(), end: now.toISOString() };
@@ -760,12 +1117,18 @@ const getDateRange = (filter) => {
   start.setHours(0, 0, 0, 0);
   return { start: start.toISOString(), end: now.toISOString() };
 };
-const useCompletedCalls = (page = 1, filter = "60min", liveCalls) => {
+const useCompletedCalls = (page = 1, filter = "60min", liveCalls, customRange, statuses = []) => {
   const { get } = useFetchClient();
-  const { start, end } = getDateRange(filter);
-  const api = `/api/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
+  const { start, end } = getDateRange(filter, customRange);
+  let statusFilter = "";
+  if (statuses.length > 0) {
+    statusFilter = statuses.map((status, index) => `&filters[callStatus][$in][${index}]=${status}`).join("");
+  } else {
+    statusFilter = "&filters[callStatus][$notIn][0]=pending&filters[callStatus][$notIn][1]=ongoing";
+  }
+  const api = `/admin-pannel/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
   const { data, ...rest } = useQuery({
-    queryKey: ["completed-calls", page, filter, liveCalls],
+    queryKey: ["completed-calls", page, filter, liveCalls, customRange, statuses],
     enabled: liveCalls !== void 0,
     queryFn: async () => {
       const { data: data2 } = await get(api);
@@ -774,12 +1137,12 @@ const useCompletedCalls = (page = 1, filter = "60min", liveCalls) => {
   });
   return { data: data?.data, meta: data?.meta || {}, ...rest };
 };
-const useCategoryStats = (filter = "today", liveCalls) => {
+const useCategoryStats = (filter = "today", liveCalls, customRange) => {
   const { get } = useFetchClient();
-  const { start, end } = getDateRange(filter);
-  const api = `/api/category-stats?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}`;
+  const { start, end } = getDateRange(filter, customRange);
+  const api = `/admin-pannel/category-stats?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}`;
   return useQuery({
-    queryKey: ["category-stats", filter, liveCalls],
+    queryKey: ["category-stats", filter, liveCalls, customRange],
     enabled: liveCalls !== void 0,
     queryFn: async () => {
       const { data } = await get(api);
@@ -834,7 +1197,7 @@ function formatTimeAMPM(dateInput) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
 }
 function formatDurationFromMinutes(minutes) {
-  if (!Number.isFinite(minutes) || minutes <= 0) return "0 sec";
+  if (!Number.isFinite(minutes) || minutes <= 0) return "---";
   const totalSeconds = Math.round(minutes * 60);
   const hrs = Math.floor(totalSeconds / 3600);
   const mins = Math.floor(totalSeconds % 3600 / 60);
@@ -845,42 +1208,14 @@ function formatDurationFromMinutes(minutes) {
   if (secs > 0) parts.push(`${secs}sec`);
   return parts.join(", ");
 }
-function CategoryGrid({ liveCalls }) {
-  const [dateFilter, setDateFilter] = useState("today");
-  const { data: categoryStats = [] } = useCategoryStats(dateFilter, liveCalls);
+function CategoryGrid({ liveCalls, filter, customRange }) {
+  const { data: categoryStats = [] } = useCategoryStats(filter, liveCalls, customRange);
+  const theme = useTheme();
   return /* @__PURE__ */ jsxs(Card, { children: [
-    /* @__PURE__ */ jsxs(CardHeader, { children: [
-      /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx(CardTitle, { children: "Category Mix" }),
-        /* @__PURE__ */ jsx(CardSubtitle, { children: "Call distribution by topics" })
-      ] }),
-      /* @__PURE__ */ jsxs(FilterContainer, { children: [
-        /* @__PURE__ */ jsx(
-          FilterButton,
-          {
-            active: dateFilter === "today",
-            onClick: () => setDateFilter("today"),
-            children: "Today"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          FilterButton,
-          {
-            active: dateFilter === "yesterday",
-            onClick: () => setDateFilter("yesterday"),
-            children: "Yesterday"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          FilterButton,
-          {
-            active: dateFilter === "week",
-            onClick: () => setDateFilter("week"),
-            children: "Week"
-          }
-        )
-      ] })
-    ] }),
+    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs("div", { children: [
+      /* @__PURE__ */ jsx(CardTitle, { children: "Calls by Category" }),
+      /* @__PURE__ */ jsx(CardSubtitle, { children: "Call distribution by topics" })
+    ] }) }),
     /* @__PURE__ */ jsx(CategoryGrid$1, { children: categoryStats.length === 0 ? /* @__PURE__ */ jsx("div", { style: { gridColumn: "1 / -1" }, children: /* @__PURE__ */ jsx(
       EmptyState,
       {
@@ -889,7 +1224,7 @@ function CategoryGrid({ liveCalls }) {
           today: "There are no calls for today.",
           yesterday: "There are no calls for yesterday.",
           week: "There are no calls for this week."
-        }[dateFilter],
+        }[filter],
         icon: "📊"
       }
     ) }) : categoryStats.map((row) => /* @__PURE__ */ jsxs(CategoryItem, { children: [
@@ -911,28 +1246,29 @@ function CategoryGrid({ liveCalls }) {
         /* @__PURE__ */ jsx("span", { children: row.avgRating.toFixed(2) })
       ] }) })
     ] }, row.name)) }),
-    categoryStats.length > 1 && /* @__PURE__ */ jsx(ChartContainer, { children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data: categoryStats, barSize: 18, children: [
+    categoryStats.length > 1 && /* @__PURE__ */ jsx(ChartContainer, { children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data: categoryStats, barSize: 25, children: [
       /* @__PURE__ */ jsx(
         XAxis,
         {
           dataKey: "name",
           tickLine: false,
           axisLine: false,
-          tick: { fontSize: 10, fill: "currentColor" }
+          tick: { fontSize: 10, fill: theme.colors.neutral500 }
         }
       ),
       /* @__PURE__ */ jsx(YAxis, { hide: true, axisLine: false, tickLine: false }),
       /* @__PURE__ */ jsx(
         Tooltip,
         {
-          cursor: { fill: "var(--neutral100)" },
+          cursor: { fill: theme.colors.neutral100 },
           contentStyle: {
-            backgroundColor: "var(--neutral0)",
-            border: "1px solid var(--neutral150)",
+            backgroundColor: theme.colors.neutral0,
+            border: `1px solid ${theme.colors.neutral150}`,
             borderRadius: 8,
             fontSize: 11,
-            color: "var(--neutral800)"
+            color: theme.colors.neutral800
           },
+          itemStyle: { color: theme.colors.neutral800 },
           formatter: (value, name) => {
             if (name === "totalCalls") return [value, "Total Calls"];
             if (name === "calls") return [value, "Calls"];
@@ -944,15 +1280,10 @@ function CategoryGrid({ liveCalls }) {
           }
         }
       ),
-      /* @__PURE__ */ jsx(Bar, { dataKey: "totalCalls", radius: [6, 6, 0, 0], fill: "#22c594ff" })
+      /* @__PURE__ */ jsx(Bar, { dataKey: "totalCalls", radius: [6, 6, 0, 0], fill: theme.colors.success600 })
     ] }) }) })
   ] });
 }
-const VoiceCall = ({ style }) => /* @__PURE__ */ jsx("svg", { style, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ jsx("path", { d: "M14.5562 15.5477L14.1007 16.0272C14.1007 16.0272 13.0181 17.167 10.0631 14.0559C7.10812 10.9448 8.1907 9.80507 8.1907 9.80507L8.47752 9.50311C9.18407 8.75924 9.25068 7.56497 8.63424 6.6931L7.37326 4.90961C6.61028 3.8305 5.13596 3.68795 4.26145 4.60864L2.69185 6.26114C2.25823 6.71766 1.96765 7.30945 2.00289 7.96594C2.09304 9.64546 2.81071 13.259 6.81536 17.4752C11.0621 21.9462 15.0468 22.1239 16.6763 21.9631C17.1917 21.9122 17.6399 21.6343 18.0011 21.254L19.4217 19.7584C20.3806 18.7489 20.1102 17.0182 18.8833 16.312L16.9728 15.2123C16.1672 14.7486 15.1858 14.8848 14.5562 15.5477Z", fill: "currentColor" }) });
-const VideoCall = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 48 48", version: "1", xmlns: "http://www.w3.org/2000/svg", "enable-background": "new 0 0 48 48", children: [
-  /* @__PURE__ */ jsx("path", { fill: "currentColor", d: "M8,12h22c2.2,0,4,1.8,4,4v16c0,2.2-1.8,4-4,4H8c-2.2,0-4-1.8-4-4V16C4,13.8,5.8,12,8,12z" }),
-  /* @__PURE__ */ jsx("polygon", { fill: "currentColor", points: "44,35 34,29 34,19 44,13" })
-] });
 const useMovingTime = () => {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -963,6 +1294,26 @@ const useMovingTime = () => {
 };
 function LiveCallsTable({ stats = {}, liveCalls = [] }) {
   const currMovingTime = useMovingTime();
+  const theme = useTheme();
+  const { post } = useFetchClient();
+  const [selectedCall, setSelectedCall] = useState(null);
+  const closeModal = () => setSelectedCall(null);
+  const handleRedirect = () => {
+    if (selectedCall) {
+      window.open(`/admin/content-manager/collection-types/api::call.call/${selectedCall.documentId}`, "_blank");
+      closeModal();
+    }
+  };
+  const handleDeclineCall = async () => {
+    if (selectedCall) {
+      try {
+        await post("/admin-pannel/callend", { callId: selectedCall.id });
+      } catch (error) {
+        console.error("🔔 [LiveCallsTable] Failed to decline call:", error);
+      }
+      closeModal();
+    }
+  };
   return /* @__PURE__ */ jsxs(TableSection, { children: [
     /* @__PURE__ */ jsxs(TableHeader, { children: [
       /* @__PURE__ */ jsxs("div", { children: [
@@ -987,7 +1338,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
         /* @__PURE__ */ jsx(Th, { children: "Category" }),
         /* @__PURE__ */ jsx(Th, { children: "Status" })
       ] }) }),
-      /* @__PURE__ */ jsx("tbody", { children: liveCalls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "7", children: /* @__PURE__ */ jsx(
+      /* @__PURE__ */ jsx("tbody", { children: liveCalls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "8", children: /* @__PURE__ */ jsx(
         EmptyState,
         {
           title: "No live calls",
@@ -997,14 +1348,14 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
         Tr,
         {
           style: { cursor: "pointer" },
-          onClick: () => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, "_blank"),
+          onClick: () => setSelectedCall(call),
           children: [
-            /* @__PURE__ */ jsx(Td, { fontFamily: "monospace", color: "#64748b", children: call.id }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.caller }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.expert }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatTimeAMPM(call.startTime) || "---" }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
+            /* @__PURE__ */ jsx(Td, { fontFamily: "monospace", children: call.id }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
             /* @__PURE__ */ jsxs(Td, { children: [
               " ",
               /* @__PURE__ */ jsx(CategoryBadge, { children: call.category })
@@ -1027,58 +1378,129 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
         },
         call.id
       )) })
+    ] }) }),
+    selectedCall && /* @__PURE__ */ jsx(ModalOverlay, { onClick: closeModal, children: /* @__PURE__ */ jsxs(ModalContent, { onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ jsxs(ModalHeader, { children: [
+        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
+          /* @__PURE__ */ jsx("div", { style: {
+            backgroundColor: selectedCall.type === "voiceCall" ? theme.colors.primary100 : theme.colors.success100,
+            color: selectedCall.type === "voiceCall" ? theme.colors.primary600 : theme.colors.success600,
+            padding: "8px",
+            borderRadius: "12px",
+            display: "flex"
+          }, children: selectedCall.type === "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "24px", height: "24px" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "24px", height: "24px" } }) }),
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx(CardTitle, { style: { fontSize: "16px" }, children: "Call Details" }),
+            /* @__PURE__ */ jsxs(CardSubtitle, { style: { fontSize: "11px" }, children: [
+              "ID: ",
+              selectedCall.id
+            ] })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx(CloseButton, { onClick: closeModal, children: /* @__PURE__ */ jsx(Cross, { style: { width: "20px", height: "20px" } }) })
+      ] }),
+      /* @__PURE__ */ jsxs(ModalBody, { children: [
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Caller" }),
+          /* @__PURE__ */ jsx(DataValue, { children: selectedCall.caller })
+        ] }),
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Expert" }),
+          /* @__PURE__ */ jsx(DataValue, { children: selectedCall.expert })
+        ] }),
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Category" }),
+          /* @__PURE__ */ jsx(DataValue, { children: /* @__PURE__ */ jsx(CategoryBadge, { children: selectedCall.category }) })
+        ] }),
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Start Time" }),
+          /* @__PURE__ */ jsx(DataValue, { children: formatTimeAMPM(selectedCall.startTime) })
+        ] }),
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Duration" }),
+          /* @__PURE__ */ jsx(DataValue, { children: minutesToMMSS((currMovingTime - new Date(selectedCall.startTime).getTime()) / (1e3 * 60)) })
+        ] }),
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Status" }),
+          /* @__PURE__ */ jsx(DataValue, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: selectedCall.status, children: [
+            /* @__PURE__ */ jsx("span", { style: { width: 6, height: 6, borderRadius: "50%", backgroundColor: "currentColor" } }),
+            selectedCall.status === "pending" ? "Calling" : selectedCall.status
+          ] }) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(ModalFooter, { children: [
+        /* @__PURE__ */ jsx(ModalButton, { variant: "danger", onClick: handleDeclineCall, children: "Decline Call" }),
+        /* @__PURE__ */ jsx(ModalButton, { variant: "primary", onClick: handleRedirect, children: "View Details" })
+      ] })
     ] }) })
   ] });
 }
-function RecentCallsTable({ liveCalls }) {
+const STATUS_OPTIONS = [
+  { label: "Completed", value: "completed" },
+  { label: "Declined", value: "declined" },
+  { label: "Missed", value: "missed" },
+  { label: "Busy", value: "busy" },
+  { label: "Force Completed", value: "force complete by admin" }
+];
+function RecentCallsTable({ liveCalls, filter, customRange }) {
   const [page, setPage] = useState(1);
-  const [callsFilter, setCallsFilter] = useState("60min");
-  const { data: recentCalls = [], meta = {} } = useCompletedCalls(page, callsFilter, liveCalls) || {};
+  const [selectedStatuses, setSelectedStatuses] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef(null);
+  const { data: recentCalls = [], meta = {} } = useCompletedCalls(
+    page,
+    filter,
+    liveCalls,
+    customRange,
+    selectedStatuses
+  ) || {};
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const handleNextPage = () => {
     if (page < (meta.pagination?.pageCount || 1)) setPage((prev) => prev + 1);
   };
   const handlePrevPage = () => {
     if (page > 1) setPage((prev) => prev - 1);
   };
+  const toggleStatus = (status) => {
+    setPage(1);
+    setSelectedStatuses(
+      (prev) => prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
+    );
+  };
   return /* @__PURE__ */ jsxs(TableSection, { children: [
     /* @__PURE__ */ jsxs(TableHeader, { children: [
       /* @__PURE__ */ jsxs("div", { children: [
-        /* @__PURE__ */ jsx(CardTitle, { children: "Completed calls" }),
-        /* @__PURE__ */ jsx(CardSubtitle, { children: "Duration & rating snapshot." })
+        /* @__PURE__ */ jsx(CardTitle, { children: "Call Activity" }),
+        /* @__PURE__ */ jsxs(CardSubtitle, { children: [
+          "All closed calls snapshot. ",
+          meta.pagination?.total ? `Total calls: ${meta.pagination?.total}` : ""
+        ] })
       ] }),
-      /* @__PURE__ */ jsxs(FilterContainer, { children: [
-        /* @__PURE__ */ jsx(
-          FilterButton,
+      /* @__PURE__ */ jsxs(DropdownContainer, { ref: filterRef, children: [
+        /* @__PURE__ */ jsxs(DropdownButton, { onClick: () => setIsFilterOpen(!isFilterOpen), children: [
+          "Filter ",
+          selectedStatuses.length > 0 && `(${selectedStatuses.length})`,
+          /* @__PURE__ */ jsx(ChevronDown, {})
+        ] }),
+        isFilterOpen && /* @__PURE__ */ jsx(DropdownMenu, { children: STATUS_OPTIONS.map((opt) => /* @__PURE__ */ jsxs(
+          DropdownItem,
           {
-            active: callsFilter === "60min",
-            onClick: () => setCallsFilter("60min"),
-            children: "60 Min"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          FilterButton,
-          {
-            active: callsFilter === "today",
-            onClick: () => setCallsFilter("today"),
-            children: "Today"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          FilterButton,
-          {
-            active: callsFilter === "yesterday",
-            onClick: () => setCallsFilter("yesterday"),
-            children: "Yesterday"
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          FilterButton,
-          {
-            active: callsFilter === "week",
-            onClick: () => setCallsFilter("week"),
-            children: "Week"
-          }
-        )
+            onClick: () => toggleStatus(opt.value),
+            children: [
+              opt.label,
+              selectedStatuses.includes(opt.value) && /* @__PURE__ */ jsx(TickIcon, { children: /* @__PURE__ */ jsx(Tick, {}) })
+            ]
+          },
+          opt.value
+        )) })
       ] })
     ] }),
     /* @__PURE__ */ jsx(TableContainer, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxs(Table, { children: [
@@ -1088,9 +1510,10 @@ function RecentCallsTable({ liveCalls }) {
         /* @__PURE__ */ jsx(Th, { children: "Category" }),
         /* @__PURE__ */ jsx(Th, { children: "Start Time" }),
         /* @__PURE__ */ jsx(Th, { children: "Duration" }),
+        /* @__PURE__ */ jsx(Th, { children: "Status" }),
         /* @__PURE__ */ jsx(Th, { children: "Rating" })
       ] }) }),
-      /* @__PURE__ */ jsx("tbody", { children: recentCalls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "6", children: /* @__PURE__ */ jsx(
+      /* @__PURE__ */ jsx("tbody", { children: recentCalls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "7", children: /* @__PURE__ */ jsx(
         EmptyState,
         {
           title: "No completed calls",
@@ -1098,8 +1521,9 @@ function RecentCallsTable({ liveCalls }) {
             "60min": "No calls in the last 60 minutes.",
             "today": "No calls completed today.",
             "yesterday": "No calls completed yesterday.",
-            "week": "No calls completed this week."
-          }[callsFilter]
+            "week": "No calls completed this week.",
+            "custom": "No calls found for the selected range and criteria."
+          }[filter]
         }
       ) }) }) : recentCalls.map((call, idx) => /* @__PURE__ */ jsxs(
         Tr,
@@ -1107,11 +1531,25 @@ function RecentCallsTable({ liveCalls }) {
           style: { cursor: "pointer" },
           onClick: () => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, "_blank"),
           children: [
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.caller }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: call.expert }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: /* @__PURE__ */ jsx(CategoryBadge, { children: call.category || "Other" }) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#334155", children: formatTimeAMPM(call.time) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", color: "#1e293b", children: formatDurationFromMinutes(call.duration) }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(CategoryBadge, { children: call.category || "Other" }) }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: formatTimeAMPM(call.time) || "----" }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
+            /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: call.status, children: [
+              /* @__PURE__ */ jsx(
+                "span",
+                {
+                  style: {
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    backgroundColor: "currentColor"
+                  }
+                }
+              ),
+              call.status === "pending" ? "Calling" : call.status
+            ] }) }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.rating ? /* @__PURE__ */ jsx(RatingStars, { children: "★".repeat(call.rating) }) : /* @__PURE__ */ jsx("span", { style: { fontSize: "1.2rem" }, children: "---" }) })
           ]
         },
@@ -1240,16 +1678,36 @@ function KpiSection({ stats = {} }) {
 }
 function CallsLiveDashboard() {
   const { stats = {}, liveCalls } = useStreamData() || {};
+  const [timeFilter, setTimeFilter] = useState("60min");
+  const [customRange, setCustomRange] = useState({ start: "", end: "" });
+  const handleFilterChange = (filter, custom) => {
+    setTimeFilter(filter);
+    if (custom) setCustomRange(custom);
+  };
   return /* @__PURE__ */ jsxs(DashboardContainer, { children: [
-    /* @__PURE__ */ jsx(Header, { stats }),
+    /* @__PURE__ */ jsx(Header, { stats, filter: timeFilter, onFilterChange: handleFilterChange }),
     /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxs(Column, { children: [
         /* @__PURE__ */ jsx(KpiSection, { stats }),
-        /* @__PURE__ */ jsx(CategoryGrid, { liveCalls: liveCalls?.length })
+        /* @__PURE__ */ jsx(
+          CategoryGrid,
+          {
+            liveCalls: liveCalls?.length,
+            filter: timeFilter,
+            customRange
+          }
+        )
       ] }),
       /* @__PURE__ */ jsxs(Column, { children: [
         /* @__PURE__ */ jsx(LiveCallsTable, { stats, liveCalls }),
-        /* @__PURE__ */ jsx(RecentCallsTable, { liveCalls: liveCalls?.length })
+        /* @__PURE__ */ jsx(
+          RecentCallsTable,
+          {
+            liveCalls: liveCalls?.length,
+            filter: timeFilter,
+            customRange
+          }
+        )
       ] })
     ] }) })
   ] });
@@ -1268,4 +1726,3 @@ const App = () => {
 export {
   App
 };
-//# sourceMappingURL=App-VZstUuVr.mjs.map

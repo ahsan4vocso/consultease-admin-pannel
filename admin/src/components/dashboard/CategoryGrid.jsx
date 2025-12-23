@@ -6,38 +6,17 @@ import EmptyState from "./EmptyState";
 import { useCategoryStats } from "../../hooks/dashboard";
 import { formatDurationFromMinutes } from "../../utils/helper";
 
-export default function CategoryGrid({ liveCalls }) {
-    const [dateFilter, setDateFilter] = useState('today');
-    const { data: categoryStats = [] } = useCategoryStats(dateFilter, liveCalls);
+export default function CategoryGrid({ liveCalls, filter, customRange }) {
+    const { data: categoryStats = [] } = useCategoryStats(filter, liveCalls, customRange);
     const theme = useTheme();
 
     return (
         <Style.Card>
             <Style.CardHeader>
                 <div>
-                    <Style.CardTitle>Category Mix</Style.CardTitle>
+                    <Style.CardTitle>Calls by Category</Style.CardTitle>
                     <Style.CardSubtitle>Call distribution by topics</Style.CardSubtitle>
                 </div>
-                <Style.FilterContainer>
-                    <Style.FilterButton
-                        active={dateFilter === 'today'}
-                        onClick={() => setDateFilter('today')}
-                    >
-                        Today
-                    </Style.FilterButton>
-                    <Style.FilterButton
-                        active={dateFilter === 'yesterday'}
-                        onClick={() => setDateFilter('yesterday')}
-                    >
-                        Yesterday
-                    </Style.FilterButton>
-                    <Style.FilterButton
-                        active={dateFilter === 'week'}
-                        onClick={() => setDateFilter('week')}
-                    >
-                        Week
-                    </Style.FilterButton>
-                </Style.FilterContainer>
             </Style.CardHeader>
 
             <Style.CategoryGrid>
@@ -49,7 +28,7 @@ export default function CategoryGrid({ liveCalls }) {
                                 today: "There are no calls for today.",
                                 yesterday: "There are no calls for yesterday.",
                                 week: "There are no calls for this week."
-                            }[dateFilter]}
+                            }[filter]}
                             icon="📊"
                         />
                     </div>
@@ -75,7 +54,7 @@ export default function CategoryGrid({ liveCalls }) {
             {categoryStats.length > 1 &&
                 <Style.ChartContainer>
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={categoryStats} barSize={18}>
+                        <BarChart data={categoryStats} barSize={25}>
                             <XAxis
                                 dataKey="name"
                                 tickLine={false}

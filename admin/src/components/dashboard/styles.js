@@ -32,14 +32,14 @@ export const HeaderLeft = styled.div`
 `;
 
 export const IconBox = styled.div`
-  padding: 8px;
+  padding: 10px;
   border-radius: 0.75rem;
-  background-color: ${({ theme }) => theme.colors.success100};
+  background-color: ${({ theme }) => theme.colors.primary100};
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.7rem;
-  color: ${({ theme }) => theme.colors.success600};
+  color: ${({ theme }) => theme.colors.primary600};
 `;
 
 export const TitleBox = styled.div``;
@@ -543,7 +543,7 @@ export const StatusBadge = styled.span`
   `}
   ${props => /completed/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary600};
+    color: ${({ theme }) => theme.colors.neutral800};
     border-color: ${({ theme }) => theme.colors.primary200};
   `}
 `;
@@ -781,33 +781,342 @@ export const PaginationInfo = styled.span`
 export const FilterContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background-color: ${({ theme }) => theme.colors.neutral100};
-  padding: 0.25rem;
-  border-radius: 9999px;
+  gap: 0.25rem;
+  background: ${({ theme }) => theme.colors.neutral0};
+  padding: 0.35rem;
+  border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 `;
 
 export const FilterButton = styled.button`
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 11px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 500;
-  color: ${({ theme }) => theme.colors.neutral500};
-  background-color: transparent;
-  border: none;
+  color: ${props => props.theme.colors.neutral500};
+  background-color: ${props => props.active ? props.theme.colors.primary100 : 'transparent'};
+  border: 1px solid ${props => props.active ? props.theme.colors.primary200 : 'transparent'};
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background-color: ${props => props.active ? props.theme.colors.primary100 : props.theme.colors.neutral100};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+export const CustomRangeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid ${({ theme }) => theme.colors.neutral150};
+  animation: fadeIn 0.3s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+`;
+
+export const DateInput = styled.input`
+  border-radius: 8px;
+  font-size: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  padding: 0.4rem 0.6rem;
+  outline: none;
+  color: ${({ theme }) => theme.colors.neutral700};
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.colors.primary500};
+    box-shadow: 0 0 0 2px ${({ theme }) => theme.colors.primary100};
+  }
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.5);
+    &:hover { filter: invert(0.3); }
+  }
+`;
+
+export const DateLabel = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.colors.neutral400};
+  letter-spacing: 0.025em;
+`;
+
+export const StatusFilterContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+`;
+
+export const DropdownContainer = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+export const DropdownButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral700};
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
+    border-color: ${({ theme }) => theme.colors.primary500};
+    background: ${({ theme }) => theme.colors.neutral100};
+  }
+`;
+
+export const DropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 200px;
+  padding: 4px;
+`;
+
+export const DropdownItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: ${({ theme }) => theme.colors.neutral700};
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.neutral100};
+  }
+`;
+
+export const TickIcon = styled.span`
+  display: flex;
+  align-items: center;
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+
+export const StatusPill = styled.button`
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid transparent;
+
+  ${({ active, status, theme }) => {
+    if (!active) return css`
+      background: ${theme.colors.neutral0};
+      color: ${theme.colors.neutral600};
+      border: 1px solid ${theme.colors.neutral200};
+      &:hover {
+        background: ${theme.colors.neutral100};
+      }
+    `;
+
+    switch (status) {
+      case 'completed':
+        return css`
+          background: ${theme.colors.success100};
+          color: ${theme.colors.success600};
+          border-color: ${theme.colors.success200};
+        `;
+      case 'declined':
+      case 'missed':
+      case 'busy':
+        return css`
+          background: ${theme.colors.danger100};
+          color: ${theme.colors.danger600};
+          border-color: ${theme.colors.danger200};
+        `;
+      case 'force complete by admin':
+        return css`
+          background: ${theme.colors.secondary100};
+          color: ${theme.colors.secondary600};
+          border-color: ${theme.colors.secondary200};
+        `;
+      default:
+        return css`
+          background: ${theme.colors.primary100};
+          color: ${theme.colors.primary600};
+          border-color: ${theme.colors.primary200};
+        `;
+    }
+  }}
+`;
+
+// --- Modal ---
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+
+export const ModalContent = styled.div`
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 450px;
+  overflow: hidden;
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+`;
+
+export const ModalHeader = styled.div`
+  padding: 20px 24px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+`;
+
+export const ModalBody = styled.div`
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+export const ModalFooter = styled.div`
+  padding: 16px 24px;
+  border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+`;
+
+export const DataRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral100};
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+export const DataLabel = styled.span`
+  color: ${({ theme }) => theme.colors.neutral500};
+  font-size: 13px;
+  font-weight: 500;
+`;
+
+export const DataValue = styled.span`
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: ${({ theme }) => theme.colors.neutral400};
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.neutral100};
     color: ${({ theme }) => theme.colors.neutral800};
   }
+`;
 
-  ${props => props.active && css`
+export const ModalButton = styled.button`
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  
+  ${props => props.variant === 'secondary' && css`
     background-color: ${({ theme }) => theme.colors.neutral0};
+    border-color: ${({ theme }) => theme.colors.neutral200};
     color: ${({ theme }) => theme.colors.neutral800};
-    box-shadow: ${({ theme }) => theme.shadows.filterShadow};
-    font-weight: 600;
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.neutral100};
+      border-color: ${({ theme }) => theme.colors.neutral300};
+    }
+  `}
+
+  ${props => props.variant === 'primary' && css`
+    background-color: ${({ theme }) => theme.colors.primary600};
+    color: #ffffff;
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.primary700};
+    }
+  `}
+
+  ${props => props.variant === 'danger' && css`
+    background-color: ${({ theme }) => theme.colors.danger100};
+    border-color: ${({ theme }) => theme.colors.danger200};
+    color: ${({ theme }) => theme.colors.danger600};
+    &:hover {
+      background-color: ${({ theme }) => theme.colors.danger200};
+    }
   `}
 `;
 

@@ -1,7 +1,7 @@
 import { getTranslation } from './utils/getTranslation';
 import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
-import { PluginIcon } from './components/PluginIcon';
+import { PluginIcon } from './components/Icons';
 
 
 

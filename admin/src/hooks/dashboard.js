@@ -2,10 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { useFetchClient } from "@strapi/strapi/admin";
 import { useEffect, useState } from "react";
 
-const getDateRange = (filter) => {
+const getDateRange = (filter, customRange) => {
     const now = new Date();
     let start = new Date();
     let end = new Date();
+
+    if (filter === 'custom' && customRange?.start && customRange?.end) {
+        return {
+            start: new Date(customRange.start).toISOString(),
+            end: new Date(new Date(customRange.end).setHours(23, 59, 59, 999)).toISOString()
+        };
+    }
 
     if (filter === '60min') {
         start = new Date(now.getTime() - 60 * 60 * 1000);
@@ -30,15 +37,23 @@ const getDateRange = (filter) => {
     return { start: start.toISOString(), end: now.toISOString() };
 };
 
-export const useCompletedCalls = (page = 1, filter = '60min', liveCalls) => {
-    const { get } = useFetchClient();
-    const { start, end } = getDateRange(filter);
 
-    // Filters based on startTime to capture calls MADE in that window
-    const api = `/api/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}&pagination[page]=${page}&pagination[pageSize]=20`;
+export const useCompletedCalls = (page = 1, filter = '60min', liveCalls, customRange, statuses = []) => {
+    const { get } = useFetchClient();
+    const { start, end } = getDateRange(filter, customRange);
+    // Build the query string with multiple status filters if provided
+    let statusFilter = '';
+    if (statuses.length > 0) {
+        statusFilter = statuses.map((status, index) => `&filters[callStatus][$in][${index}]=${status}`).join('');
+    } else {
+        // Default: exclude pending and ongoing
+        statusFilter = '&filters[callStatus][$notIn][0]=pending&filters[callStatus][$notIn][1]=ongoing';
+    }
+
+    const api = `/admin-pannel/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
 
     const { data, ...rest } = useQuery({
-        queryKey: ["completed-calls", page, filter, liveCalls],
+        queryKey: ["completed-calls", page, filter, liveCalls, customRange, statuses],
         enabled: liveCalls !== undefined,
         queryFn: async () => {
             const { data } = await get(api);
@@ -49,13 +64,13 @@ export const useCompletedCalls = (page = 1, filter = '60min', liveCalls) => {
     return { data: data?.data, meta: data?.meta || {}, ...rest };
 };
 
-export const useCategoryStats = (filter = 'today', liveCalls) => {
+export const useCategoryStats = (filter = 'today', liveCalls, customRange) => {
     const { get } = useFetchClient();
-    const { start, end } = getDateRange(filter);
-    const api = `/api/category-stats?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}`;
+    const { start, end } = getDateRange(filter, customRange);
+    const api = `/admin-pannel/category-stats?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}`;
 
     return useQuery({
-        queryKey: ["category-stats", filter, liveCalls],
+        queryKey: ["category-stats", filter, liveCalls, customRange],
         enabled: liveCalls !== undefined,
         queryFn: async () => {
             const { data } = await get(api);

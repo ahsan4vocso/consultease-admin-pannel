@@ -1,13 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as Style from "./styles";
 import EmptyState from "./EmptyState";
 import { useCompletedCalls } from "../../hooks/dashboard";
-import { formatTimeAMPM, formatDurationFromMinutes } from "../../utils/helper";
+import { formatTimeAMPM, minutesToMMSS } from "../../utils/helper";
+import { ChevronDown, Tick } from "../../components/Icons";
 
-export default function RecentCallsTable({ liveCalls }) {
+const STATUS_OPTIONS = [
+    { label: 'Completed', value: 'completed' },
+    { label: 'Declined', value: 'declined' },
+    { label: 'Missed', value: 'missed' },
+    { label: 'Busy', value: 'busy' },
+    { label: 'Force Completed', value: 'force complete by admin' }
+];
+
+export default function RecentCallsTable({ liveCalls, filter, customRange }) {
     const [page, setPage] = useState(1);
-    const [callsFilter, setCallsFilter] = useState('60min');
-    const { data: recentCalls = [], meta = {} } = useCompletedCalls(page, callsFilter, liveCalls) || {};
+    const [selectedStatuses, setSelectedStatuses] = useState([]);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const filterRef = useRef(null);
+
+    const { data: recentCalls = [], meta = {} } = useCompletedCalls(
+        page,
+        filter,
+        liveCalls,
+        customRange,
+        selectedStatuses
+    ) || {};
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setIsFilterOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleNextPage = () => {
         if (page < (meta.pagination?.pageCount || 1)) setPage((prev) => prev + 1);
@@ -17,40 +45,49 @@ export default function RecentCallsTable({ liveCalls }) {
         if (page > 1) setPage((prev) => prev - 1);
     };
 
+    const toggleStatus = (status) => {
+        setPage(1); // Reset to first page on filter change
+        setSelectedStatuses(prev =>
+            prev.includes(status)
+                ? prev.filter(s => s !== status)
+                : [...prev, status]
+        );
+    };
+
     return (
         <Style.TableSection>
             <Style.TableHeader>
                 <div>
-                    <Style.CardTitle>Completed calls</Style.CardTitle>
-                    <Style.CardSubtitle>Duration & rating snapshot.</Style.CardSubtitle>
+                    <Style.CardTitle>Call Activity</Style.CardTitle>
+                    <Style.CardSubtitle>All closed calls snapshot. {meta.pagination?.total ? `Total calls: ${meta.pagination?.total}` : ''}</Style.CardSubtitle>
                 </div>
-                <Style.FilterContainer>
-                    <Style.FilterButton
-                        active={callsFilter === '60min'}
-                        onClick={() => setCallsFilter('60min')}
-                    >
-                        60 Min
-                    </Style.FilterButton>
-                    <Style.FilterButton
-                        active={callsFilter === 'today'}
-                        onClick={() => setCallsFilter('today')}
-                    >
-                        Today
-                    </Style.FilterButton>
-                    <Style.FilterButton
-                        active={callsFilter === 'yesterday'}
-                        onClick={() => setCallsFilter('yesterday')}
-                    >
-                        Yesterday
-                    </Style.FilterButton>
-                    <Style.FilterButton
-                        active={callsFilter === 'week'}
-                        onClick={() => setCallsFilter('week')}
-                    >
-                        Week
-                    </Style.FilterButton>
-                </Style.FilterContainer>
+
+                <Style.DropdownContainer ref={filterRef}>
+                    <Style.DropdownButton onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                        Filter {selectedStatuses.length > 0 && `(${selectedStatuses.length})`}
+                        <ChevronDown />
+                    </Style.DropdownButton>
+
+                    {isFilterOpen && (
+                        <Style.DropdownMenu>
+                            {STATUS_OPTIONS.map(opt => (
+                                <Style.DropdownItem
+                                    key={opt.value}
+                                    onClick={() => toggleStatus(opt.value)}
+                                >
+                                    {opt.label}
+                                    {selectedStatuses.includes(opt.value) && (
+                                        <Style.TickIcon>
+                                            <Tick />
+                                        </Style.TickIcon>
+                                    )}
+                                </Style.DropdownItem>
+                            ))}
+                        </Style.DropdownMenu>
+                    )}
+                </Style.DropdownContainer>
             </Style.TableHeader>
+
             <Style.TableContainer maxHeight="450px" minHeight="200px">
                 <Style.Table>
                     <Style.Thead>
@@ -60,21 +97,23 @@ export default function RecentCallsTable({ liveCalls }) {
                             <Style.Th>Category</Style.Th>
                             <Style.Th>Start Time</Style.Th>
                             <Style.Th>Duration</Style.Th>
+                            <Style.Th>Status</Style.Th>
                             <Style.Th>Rating</Style.Th>
                         </tr>
                     </Style.Thead>
                     <tbody>
                         {recentCalls.length === 0 ? (
                             <tr>
-                                <td colSpan="6">
+                                <td colSpan="7">
                                     <EmptyState
                                         title="No completed calls"
                                         subtitle={{
                                             '60min': "No calls in the last 60 minutes.",
                                             'today': "No calls completed today.",
                                             'yesterday': "No calls completed yesterday.",
-                                            'week': "No calls completed this week."
-                                        }[callsFilter]}
+                                            'week': "No calls completed this week.",
+                                            'custom': "No calls found for the selected range and criteria."
+                                        }[filter]}
                                     />
                                 </td>
                             </tr>
@@ -90,8 +129,21 @@ export default function RecentCallsTable({ liveCalls }) {
                                     <Style.Td fontSize="1.4rem">
                                         <Style.CategoryBadge>{call.category || 'Other'}</Style.CategoryBadge>
                                     </Style.Td>
-                                    <Style.Td fontSize="1.4rem">{formatTimeAMPM(call.time)}</Style.Td>
-                                    <Style.Td fontSize="1.4rem">{formatDurationFromMinutes(call.duration)}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{formatTimeAMPM(call.time) || '----'}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{minutesToMMSS(call.duration)}</Style.Td>
+                                    <Style.Td>
+                                        <Style.StatusBadge status={call.status}>
+                                            <span
+                                                style={{
+                                                    width: 6,
+                                                    height: 6,
+                                                    borderRadius: "50%",
+                                                    backgroundColor: "currentColor",
+                                                }}
+                                            />
+                                            {call.status === "pending" ? "Calling" : call.status}
+                                        </Style.StatusBadge>
+                                    </Style.Td>
                                     <Style.Td fontSize="1.4rem">
                                         {call.rating ? <Style.RatingStars>{"★".repeat(call.rating)}</Style.RatingStars> : <span style={{ fontSize: "1.2rem" }}>---</span>}
                                     </Style.Td>
