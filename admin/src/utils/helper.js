@@ -32,6 +32,26 @@ export function formatTimeAMPM(dateInput) {
     return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
 }
 
+export function formatDateTime(dateInput) {
+    if (!dateInput) return "---";
+
+    const date = new Date(dateInput);
+    if (isNaN(date.getTime())) return "---";
+
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const strTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${ampm}`;
+
+    return `${day} ${month} ${year}, ${strTime}`;
+}
+
 export function numberShortner(value, decimals = 1) {
     if (value == null || isNaN(value)) return "0";
 

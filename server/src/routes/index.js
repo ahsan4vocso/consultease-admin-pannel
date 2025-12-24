@@ -1,4 +1,3 @@
-// src/plugins/admin-pannel/server/src/routes/index.js
 'use strict';
 
 export default {
@@ -7,30 +6,27 @@ export default {
         routes: [
             {
                 method: "GET",
+                path: "/stream",
+                handler: "dashboard.stream",
+                config: { policies: [], auth: false },
+            },
+            {
+                method: "GET",
                 path: "/category-stats",
                 handler: "dashboard.categoryStats",
-                config: {
-                    policies: [],
-                    // auth: false,
-                },
+                config: { policies: [] },
             },
             {
                 method: "GET",
                 path: "/recent-calls",
                 handler: "dashboard.recentCalls",
-                config: {
-                    policies: [],
-                    // auth: false,
-                },
+                config: { policies: [], auth: false },
             },
             {
                 method: 'POST',
                 path: '/callend',
                 handler: 'dashboard.Callend',
-                config: {
-                    policies: [],
-                    // auth: false,
-                },
+                config: { policies: [] },
             },
         ],
     },

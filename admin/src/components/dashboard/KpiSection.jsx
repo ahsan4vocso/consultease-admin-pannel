@@ -12,6 +12,10 @@ export default function KpiSection({ stats = {} }) {
                     value={stats.liveCalls}
                     tone="emerald"
                     style={{ cursor: 'pointer' }}
+                    chartData={[
+                        { name: 'Voice', value: stats.voiceCalls || 0 },
+                        { name: 'Video', value: stats.videoCalls || 0 }
+                    ]}
                     onClick={() => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=ongoing` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date().toISOString().split("T")[0] + "T00:00:00.000Z")}` +
@@ -32,6 +36,10 @@ export default function KpiSection({ stats = {} }) {
                     value={stats.declinedCalls}
                     tone="amber"
                     style={{ cursor: stats.declinedCalls && 'pointer' }}
+                    chartData={[
+                        { name: 'Voice', value: stats.declinedVoice || 0 },
+                        { name: 'Video', value: stats.declinedVideo || 0 }
+                    ]}
                     onClick={() => stats.declinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=declined` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +

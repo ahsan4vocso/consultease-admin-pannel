@@ -1,6 +1,8 @@
 import * as Style from "./styles";
 
-export default function KpiCard({ label, value, tone = "emerald", ...rest }) {
+import ActiveShapePieChart from "./ActiveShapePieChart";
+
+export default function KpiCard({ label, value, tone = "emerald", chartData, ...rest }) {
     return (
         <Style.KpiCardContainer {...rest}>
             <Style.KpiTop>
@@ -23,7 +25,17 @@ export default function KpiCard({ label, value, tone = "emerald", ...rest }) {
                     </Style.KpiLabel>
                     <Style.KpiValue>{value}</Style.KpiValue>
                 </Style.KpiInfo>
+                {/* {(chartData || false) && chartData.some(d => d.value > 0) ? (
+                    <ActiveShapePieChart
+                        data={chartData}
+                        width={80} // Enough width for offsets
+                        height={60}
+                        innerRadius={12}
+                        outerRadius={20}
+                    />
+                ) : ( */}
                 <Style.KpiIconBox tone={tone}>⚡</Style.KpiIconBox>
+                {/* )} */}
             </Style.KpiTop>
         </Style.KpiCardContainer>
     );

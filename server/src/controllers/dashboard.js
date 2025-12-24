@@ -328,6 +328,25 @@ async function loadPlatformInfo(strapi, options = {}) {
 
 
 const dashboard = ({ strapi }) => ({
+  async stream(ctx) {
+    ctx.set("Content-Type", "text/event-stream");
+    ctx.set("Cache-Control", "no-cache");
+    ctx.set("Connection", "keep-alive");
+    ctx.status = 200;
+
+    await strapi.plugin('admin-pannel').service("liveCallsService").callsData(ctx.res);
+
+    const hb = setInterval(() => {
+      try { ctx.res.write(`: ping ${Date.now()}\n\n`); } catch { }
+    }, 15000);
+
+    ctx.req.on('close', () => {
+      clearInterval(hb);
+      strapi.plugin('admin-pannel').service('sse').removeClient(ctx.res);
+    });
+
+    ctx.respond = false;
+  },
 
   // ----------------------------------------------------------
   // GET /api/call/recent-calls 
@@ -360,20 +379,22 @@ const dashboard = ({ strapi }) => ({
           caller: true,
           receiver: { populate: { expert: true } },
           categories: true,
+          review: { fields: ["rating"] },
         },
         sort: { createdAt: "desc" },
       });
 
       const recentCalls = calls.map((call) => ({
+        id: call.id,
+        type: call.type,
         documentId: call.documentId,
         time: call.startTime,
         duration: call.duration,
         caller: call.caller?.name,
         expert: call.receiver?.name,
         category: call.categories?.[0]?.name,
-        rating: call.receiver?.expert?.averageRating,
+        rating: call.review?.rating,
         revenue: call.totalCost || 0,
-        type: call.type,
         status: call.callStatus,
       }));
 
@@ -402,20 +423,16 @@ const dashboard = ({ strapi }) => ({
   // ----------------------------------------------------------
   async categoryStats(ctx) {
     try {
-      const baseFilters = { callStatus: { $in: ["completed"] } };
+      // const baseFilters = { callStatus: { $in: ["completed",] } };
       const clientFilters = ctx.query?.filters || {};
-      const filters = { ...clientFilters, ...baseFilters };
+      const filters = { ...clientFilters };
 
       const calls = await strapi.entityService.findMany("api::call.call", {
         filters,
         fields: ["duration", "totalCost", "type"],
         populate: {
           categories: { fields: ["name"] },
-          receiver: {
-            populate: {
-              expert: { fields: ["averageRating"] },
-            },
-          },
+          review: { fields: ["rating"] },
         },
       });
 
@@ -426,7 +443,7 @@ const dashboard = ({ strapi }) => ({
 
         const minutes = Number(row.duration || 0);
         // const revenue = Number(row.totalCost || 0);
-        const rating = Number(row.receiver?.expert?.averageRating);
+        const rating = Number(row.review?.rating);
         const hasRating = Number.isFinite(rating);
         const type = row.type;
 
@@ -456,15 +473,17 @@ const dashboard = ({ strapi }) => ({
         }
       }
 
-      const results = Array.from(map.values()).map((x) => ({
-        name: x.name,
-        calls: x.calls,
-        videoCalls: x.videoCalls,
-        totalCalls: x.calls + x.videoCalls,
-        minutes: Math.ceil(x.minutes),
-        // revenue: x.revenue,
-        avgRating: x._ratingCount ? Number((x._ratingSum / x._ratingCount).toFixed(1)) : 0,
-      }));
+      const results = Array.from(map.values())
+        .map((x) => ({
+          name: x.name,
+          calls: x.calls,
+          videoCalls: x.videoCalls,
+          totalCalls: x.calls + x.videoCalls,
+          minutes: Math.ceil(x.minutes),
+          // revenue: x.revenue,
+          avgRating: x._ratingCount ? Number((x._ratingSum / x._ratingCount).toFixed(1)) : 0,
+        }))
+        .sort((a, b) => b.totalCalls - a.totalCalls);
 
       return ctx.send(results);
 

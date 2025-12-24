@@ -46,7 +46,7 @@ const index = {
         defaultMessage: PLUGIN_ID
       },
       Component: async () => {
-        const { App } = await import("./App-BtcthGio.mjs");
+        const { App } = await import("./App-C0xR3vFR.mjs");
         return App;
       }
     });

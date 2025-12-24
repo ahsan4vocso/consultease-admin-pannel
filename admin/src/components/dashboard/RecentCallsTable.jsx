@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import * as Style from "./styles";
 import EmptyState from "./EmptyState";
 import { useCompletedCalls } from "../../hooks/dashboard";
-import { formatTimeAMPM, minutesToMMSS } from "../../utils/helper";
-import { ChevronDown, Tick } from "../../components/Icons";
+import { formatTimeAMPM, minutesToMMSS, formatDateTime } from "../../utils/helper";
+import { ChevronDown, Tick, VideoCall, VoiceCall } from "../../components/Icons";
 
 const STATUS_OPTIONS = [
     { label: 'Completed', value: 'completed' },
@@ -92,6 +92,8 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
                 <Style.Table>
                     <Style.Thead>
                         <tr>
+                            <Style.Th>Call Id</Style.Th>
+                            <Style.Th>Type</Style.Th>
                             <Style.Th>Caller</Style.Th>
                             <Style.Th>Expert</Style.Th>
                             <Style.Th>Category</Style.Th>
@@ -124,12 +126,14 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, '_blank')}
                                 >
+                                    <Style.Td fontSize="1.4rem">{call.id}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{call.type == "voiceCall" ? <VoiceCall style={{ width: "20px", height: "20px", color: "#5272a3ff" }} /> : <VideoCall style={{ width: "20px", height: "20px", color: "#219bacff" }} />}</Style.Td>
                                     <Style.Td fontSize="1.4rem">{call.caller}</Style.Td>
                                     <Style.Td fontSize="1.4rem">{call.expert}</Style.Td>
                                     <Style.Td fontSize="1.4rem">
                                         <Style.CategoryBadge>{call.category || 'Other'}</Style.CategoryBadge>
                                     </Style.Td>
-                                    <Style.Td fontSize="1.4rem">{formatTimeAMPM(call.time) || '----'}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{formatDateTime(call.time)}</Style.Td>
                                     <Style.Td fontSize="1.4rem">{minutesToMMSS(call.duration)}</Style.Td>
                                     <Style.Td>
                                         <Style.StatusBadge status={call.status}>

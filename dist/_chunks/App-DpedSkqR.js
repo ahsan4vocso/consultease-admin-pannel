@@ -8,7 +8,7 @@ const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
 const react = require("react");
 const styled = require("styled-components");
-const index = require("./index-uMQ07Dfr.js");
+const index = require("./index-BXiady_2.js");
 const recharts = require("recharts");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
@@ -1156,8 +1156,9 @@ const useCategoryStats = (filter = "today", liveCalls, customRange) => {
 };
 const useStreamData = () => {
   const [liveData, setLiveData] = react.useState();
+  console.log(window.strapi?.backendURL);
   react.useEffect(() => {
-    const eventSource = new EventSource(`${window.strapi?.backendURL}/api/stream`);
+    const eventSource = new EventSource(`${window.strapi?.backendURL}/admin-pannel/stream`);
     eventSource.onmessage = function(event) {
       const data = JSON.parse(event.data);
       setLiveData(data);
@@ -1200,6 +1201,21 @@ function formatTimeAMPM(dateInput) {
   hours = hours % 12 || 12;
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
 }
+function formatDateTime(dateInput) {
+  if (!dateInput) return "---";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "---";
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "short" });
+  const year = date.getFullYear();
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const strTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
+  return `${day} ${month} ${year}, ${strTime}`;
+}
 function formatDurationFromMinutes(minutes) {
   if (!Number.isFinite(minutes) || minutes <= 0) return "---";
   const totalSeconds = Math.round(minutes * 60);
@@ -1212,6 +1228,56 @@ function formatDurationFromMinutes(minutes) {
   if (secs > 0) parts.push(`${secs}sec`);
   return parts.join(", ");
 }
+const CHART_COLORS = {
+  voice: "#7476f1ff",
+  video: "#48ecbbff"
+};
+const CustomTooltip = ({ active, payload, label, theme }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
+      backgroundColor: theme.colors.neutral0,
+      border: `1px solid ${theme.colors.neutral150}`,
+      padding: "12px",
+      borderRadius: "8px",
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+      minWidth: "150px"
+    }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("p", { style: {
+        fontWeight: 600,
+        marginBottom: "8px",
+        fontSize: "12px",
+        color: theme.colors.neutral800,
+        borderBottom: `1px solid ${theme.colors.neutral150}`,
+        paddingBottom: "4px"
+      }, children: label }),
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "4px" }, children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: CHART_COLORS.voice, fontSize: "11px", fontWeight: 600 }, children: [
+          "Voice Calls: ",
+          data.calls
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: CHART_COLORS.video, fontSize: "11px", fontWeight: 600 }, children: [
+          "Video Calls: ",
+          data.videoCalls
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px", marginTop: "4px", borderTop: `1px solid ${theme.colors.neutral100}`, paddingTop: "4px" }, children: [
+          "Total: ",
+          data.totalCalls
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px" }, children: [
+          "Minutes: ",
+          data.minutes
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px" }, children: [
+          "Avg Rating: ",
+          data.avgRating,
+          " ★"
+        ] })
+      ] })
+    ] });
+  }
+  return null;
+};
 function CategoryGrid({ liveCalls, filter, customRange }) {
   const { data: categoryStats = [] } = useCategoryStats(filter, liveCalls, customRange);
   const theme = styled.useTheme();
@@ -1250,41 +1316,22 @@ function CategoryGrid({ liveCalls, filter, customRange }) {
         /* @__PURE__ */ jsxRuntime.jsx("span", { children: row.avgRating.toFixed(2) })
       ] }) })
     ] }, row.name)) }),
-    categoryStats.length > 1 && /* @__PURE__ */ jsxRuntime.jsx(ChartContainer, { children: /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.BarChart, { data: categoryStats, barSize: 25, children: [
+    categoryStats.length > 1 && /* @__PURE__ */ jsxRuntime.jsx(ChartContainer, { style: { height: "350px" }, children: /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.BarChart, { data: categoryStats, barSize: 25, margin: { top: 10, right: 10, left: 0, bottom: 40 }, children: [
       /* @__PURE__ */ jsxRuntime.jsx(
         recharts.XAxis,
         {
           dataKey: "name",
           tickLine: false,
           axisLine: false,
-          tick: { fontSize: 10, fill: theme.colors.neutral500 }
+          tick: { fontSize: 10, fill: theme.colors.neutral500, angle: -45, textAnchor: "end" },
+          height: 60,
+          interval: 0
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.YAxis, { hide: true, axisLine: false, tickLine: false }),
-      /* @__PURE__ */ jsxRuntime.jsx(
-        recharts.Tooltip,
-        {
-          cursor: { fill: theme.colors.neutral100 },
-          contentStyle: {
-            backgroundColor: theme.colors.neutral0,
-            border: `1px solid ${theme.colors.neutral150}`,
-            borderRadius: 8,
-            fontSize: 11,
-            color: theme.colors.neutral800
-          },
-          itemStyle: { color: theme.colors.neutral800 },
-          formatter: (value, name) => {
-            if (name === "totalCalls") return [value, "Total Calls"];
-            if (name === "calls") return [value, "Calls"];
-            if (name === "minutes") return [value, "Minutes"];
-            if (name === "revenue")
-              return [`₹${Number(value).toLocaleString("en-IN")}`, "Revenue"];
-            if (name === "avgRating") return [value, "Avg rating"];
-            return [value, name];
-          }
-        }
-      ),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "totalCalls", radius: [6, 6, 0, 0], fill: theme.colors.success600 })
+      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip, { theme }), cursor: { fill: theme.colors.neutral100 } }),
+      /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "calls", radius: [6, 6, 0, 0], fill: CHART_COLORS.voice }),
+      /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "videoCalls", radius: [6, 6, 0, 0], fill: CHART_COLORS.video })
     ] }) }) })
   ] });
 }
@@ -1509,6 +1556,8 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
     ] }),
     /* @__PURE__ */ jsxRuntime.jsx(TableContainer, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxRuntime.jsxs(Table, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(Thead, { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Call Id" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Type" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Caller" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Expert" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Category" }),
@@ -1535,10 +1584,12 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
           style: { cursor: "pointer" },
           onClick: () => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, "_blank"),
           children: [
+            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.id }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.caller }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.expert }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category || "Other" }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: formatTimeAMPM(call.time) || "----" }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: formatDateTime(call.time) }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: call.status, children: [
               /* @__PURE__ */ jsxRuntime.jsx(
@@ -1586,7 +1637,7 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
     ] })
   ] });
 }
-function KpiCard({ label, value, tone = "emerald", ...rest }) {
+function KpiCard({ label, value, tone = "emerald", chartData, ...rest }) {
   return /* @__PURE__ */ jsxRuntime.jsx(KpiCardContainer, { ...rest, children: /* @__PURE__ */ jsxRuntime.jsxs(KpiTop, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(KpiInfo, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(KpiLabel, { children: /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "0.5rem" }, children: [
@@ -1621,6 +1672,10 @@ function KpiSection({ stats = {} }) {
           value: stats.liveCalls,
           tone: "emerald",
           style: { cursor: "pointer" },
+          chartData: [
+            { name: "Voice", value: stats.voiceCalls || 0 },
+            { name: "Video", value: stats.videoCalls || 0 }
+          ],
           onClick: () => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=ongoing&filters[$and][1][createdAt][$gte]=${encodeURIComponent((/* @__PURE__ */ new Date()).toISOString().split("T")[0] + "T00:00:00.000Z")}&page=1`, "_blank")
         }
       ),
@@ -1642,6 +1697,10 @@ function KpiSection({ stats = {} }) {
           value: stats.declinedCalls,
           tone: "amber",
           style: { cursor: stats.declinedCalls && "pointer" },
+          chartData: [
+            { name: "Voice", value: stats.declinedVoice || 0 },
+            { name: "Video", value: stats.declinedVideo || 0 }
+          ],
           onClick: () => stats.declinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=declined&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
         }
       ),

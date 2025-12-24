@@ -1,5 +1,7 @@
-import service from './service';
+import liveCallsService from './liveCallsService';
+import sse from './sse';
 
 export default {
-  service,
+  liveCallsService,
+  sse,
 };

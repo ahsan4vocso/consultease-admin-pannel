@@ -3,6 +3,17 @@ const bootstrap = ({ strapi }) => {
 const destroy = ({ strapi }) => {
 };
 const register = ({ strapi }) => {
+  strapi.documents.use(async (context, next) => {
+    const result = await next();
+    if ((context.uid === "api::call.call" || context.uid === "api::expert-profile.expert-profile") && (context.action === "create" || context.action === "update")) {
+      try {
+        await strapi.plugin("admin-pannel").service("liveCallsService").callsData();
+      } catch (error) {
+        strapi.log.error("Error in liveCallsService middleware:", error);
+      }
+    }
+    return result;
+  });
 };
 const config = {
   default: {},
@@ -280,6 +291,26 @@ async function loadPlatformInfo(strapi, options = {}) {
   }
 }
 const dashboard = ({ strapi }) => ({
+  async stream(ctx) {
+    ctx.set("Content-Type", "text/event-stream");
+    ctx.set("Cache-Control", "no-cache");
+    ctx.set("Connection", "keep-alive");
+    ctx.status = 200;
+    await strapi.plugin("admin-pannel").service("liveCallsService").callsData(ctx.res);
+    const hb = setInterval(() => {
+      try {
+        ctx.res.write(`: ping ${Date.now()}
+
+`);
+      } catch {
+      }
+    }, 15e3);
+    ctx.req.on("close", () => {
+      clearInterval(hb);
+      strapi.plugin("admin-pannel").service("sse").removeClient(ctx.res);
+    });
+    ctx.respond = false;
+  },
   // ----------------------------------------------------------
   // GET /api/call/recent-calls 
   // ----------------------------------------------------------
@@ -306,20 +337,22 @@ const dashboard = ({ strapi }) => ({
         populate: {
           caller: true,
           receiver: { populate: { expert: true } },
-          categories: true
+          categories: true,
+          review: { fields: ["rating"] }
         },
         sort: { createdAt: "desc" }
       });
       const recentCalls = calls.map((call) => ({
+        id: call.id,
+        type: call.type,
         documentId: call.documentId,
         time: call.startTime,
         duration: call.duration,
         caller: call.caller?.name,
         expert: call.receiver?.name,
         category: call.categories?.[0]?.name,
-        rating: call.receiver?.expert?.averageRating,
+        rating: call.review?.rating,
         revenue: call.totalCost || 0,
-        type: call.type,
         status: call.callStatus
       }));
       return ctx.send({
@@ -345,26 +378,21 @@ const dashboard = ({ strapi }) => ({
   // ----------------------------------------------------------
   async categoryStats(ctx) {
     try {
-      const baseFilters = { callStatus: { $in: ["completed"] } };
       const clientFilters = ctx.query?.filters || {};
-      const filters = { ...clientFilters, ...baseFilters };
+      const filters = { ...clientFilters };
       const calls = await strapi.entityService.findMany("api::call.call", {
         filters,
         fields: ["duration", "totalCost", "type"],
         populate: {
           categories: { fields: ["name"] },
-          receiver: {
-            populate: {
-              expert: { fields: ["averageRating"] }
-            }
-          }
+          review: { fields: ["rating"] }
         }
       });
       const map = /* @__PURE__ */ new Map();
       for (const row of calls) {
         const categoryName = row.categories?.[0]?.name?.trim() || "Others";
         const minutes = Number(row.duration || 0);
-        const rating = Number(row.receiver?.expert?.averageRating);
+        const rating = Number(row.review?.rating);
         const hasRating = Number.isFinite(rating);
         const type = row.type;
         if (!map.has(categoryName)) {
@@ -395,7 +423,7 @@ const dashboard = ({ strapi }) => ({
         minutes: Math.ceil(x.minutes),
         // revenue: x.revenue,
         avgRating: x._ratingCount ? Number((x._ratingSum / x._ratingCount).toFixed(1)) : 0
-      }));
+      })).sort((a, b) => b.totalCalls - a.totalCalls);
       return ctx.send(results);
     } catch (error) {
       strapi.log.error("categoryStats error", error);
@@ -738,41 +766,108 @@ const routes = {
     routes: [
       {
         method: "GET",
+        path: "/stream",
+        handler: "dashboard.stream",
+        config: { policies: [], auth: false }
+      },
+      {
+        method: "GET",
         path: "/category-stats",
         handler: "dashboard.categoryStats",
-        config: {
-          policies: []
-          // auth: false,
-        }
+        config: { policies: [] }
       },
       {
         method: "GET",
         path: "/recent-calls",
         handler: "dashboard.recentCalls",
-        config: {
-          policies: []
-          // auth: false,
-        }
+        config: { policies: [], auth: false }
       },
       {
         method: "POST",
         path: "/callend",
         handler: "dashboard.Callend",
-        config: {
-          policies: []
-          // auth: false,
-        }
+        config: { policies: [] }
       }
     ]
   }
 };
-const service = ({ strapi }) => ({
-  getWelcomeMessage() {
-    return "Welcome to Strapi 🚀";
+const liveCallsService = ({ strapi }) => ({
+  async callsData(res) {
+    try {
+      const date = /* @__PURE__ */ new Date();
+      const today = date.setHours(0, 0, 0, 0);
+      const calls = await strapi.entityService.findMany("api::call.call", {
+        filters: { createdAt: { $gte: today } },
+        populate: { caller: true, receiver: true, categories: true },
+        sort: { createdAt: "desc" }
+      });
+      const reviews = await strapi.entityService.findMany("api::review.review", { fields: ["rating"] });
+      const experts = await strapi.entityService.findMany("api::expert-profile.expert-profile");
+      const stats = {
+        liveCalls: calls.filter((call) => call.callStatus === "ongoing").length,
+        voiceCalls: calls.filter((call) => call.type === "voiceCall").length,
+        videoCalls: calls.filter((call) => call.type === "videoCall").length,
+        expertsOnline: experts.filter((expert) => expert.isActive).length,
+        totalExperts: experts.length,
+        callsToday: calls.length,
+        declinedCalls: calls.filter((call) => call.callStatus === "declined").length,
+        completedCalls: calls.filter((call) => call.callStatus === "completed").length,
+        avgDuration: calls.reduce((total, call) => total + call.duration, 0),
+        avgCallRevenue: Math.round(calls.reduce((total, call) => total + call.totalCost, 0)),
+        avgRating: (reviews.reduce((total, review) => total + review.rating, 0) / reviews.length)?.toFixed(1)
+      };
+      const liveCalls = calls.filter((call) => /ongoing|pending/i.test(call.callStatus)).slice(0, 8).map((call) => {
+        return {
+          id: call.id,
+          documentId: call.documentId,
+          caller: call.caller?.name,
+          expert: call.receiver?.name,
+          type: call.type,
+          startTime: call.startTime,
+          status: call.callStatus,
+          duration: call.duration,
+          category: call.categories?.[0]?.name
+        };
+      });
+      if (res) {
+        res.write(`data: ${JSON.stringify({ stats, liveCalls })}
+
+`);
+        strapi.plugin("admin-pannel").service("sse").addClient(res);
+      } else {
+        strapi.plugin("admin-pannel").service("sse").broadcast({ stats, liveCalls });
+      }
+    } catch (error) {
+      strapi.log.error("dashboardData error", error);
+      return { error: error || "dashboardData failed" };
+    }
   }
 });
+const sseService = ({ strapi }) => {
+  const clients = /* @__PURE__ */ new Set();
+  return {
+    addClient(res) {
+      clients.add(res);
+    },
+    removeClient(res) {
+      clients.delete(res);
+    },
+    broadcast(data) {
+      for (const client of clients) {
+        if (client.destroyed || client.writableEnded) {
+          clients.delete(client);
+          continue;
+        }
+        client.write(`data: ${JSON.stringify(data)}
+
+`);
+      }
+    }
+  };
+};
 const services = {
-  service
+  liveCallsService,
+  sse: sseService
 };
 const index = {
   bootstrap,
