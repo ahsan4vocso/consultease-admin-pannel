@@ -80,7 +80,7 @@ export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                                     <Style.Td fontSize="1.4rem">{call.caller}</Style.Td>
                                     <Style.Td fontSize="1.4rem">{call.expert}</Style.Td>
                                     <Style.Td fontSize="1.4rem">{formatTimeAMPM(call.startTime) || "---"}</Style.Td>
-                                    <Style.Td fontSize="1.4rem">{minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1000 * 60))}</Style.Td>
+                                    <Style.Td fontSize="1.4rem">{call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1000 * 60)) : "---"}</Style.Td>
                                     <Style.Td> <Style.CategoryBadge>{call.category}</Style.CategoryBadge></Style.Td>
 
                                     <Style.Td>

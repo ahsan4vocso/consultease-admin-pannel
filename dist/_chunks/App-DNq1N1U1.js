@@ -8,7 +8,7 @@ const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
 const react = require("react");
 const styled = require("styled-components");
-const index = require("./index-C5EhuBaB.js");
+const index = require("./index-CzxGzYoi.js");
 const recharts = require("recharts");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
@@ -1406,7 +1406,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.caller }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.expert }),
             /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
             /* @__PURE__ */ jsxRuntime.jsxs(Td, { children: [
               " ",
               /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category })

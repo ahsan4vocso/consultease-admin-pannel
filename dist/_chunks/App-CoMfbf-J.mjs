@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 import styled, { css, keyframes, useTheme } from "styled-components";
-import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick } from "./index-B8CRgxut.mjs";
+import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick } from "./index-DaLp65DI.mjs";
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar } from "recharts";
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
@@ -1402,7 +1402,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.caller }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.expert }),
             /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) }),
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
             /* @__PURE__ */ jsxs(Td, { children: [
               " ",
               /* @__PURE__ */ jsx(CategoryBadge, { children: call.category })
