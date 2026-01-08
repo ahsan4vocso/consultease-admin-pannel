@@ -47,7 +47,7 @@ const index = {
         defaultMessage: PLUGIN_ID
       },
       Component: async () => {
-        const { App } = await Promise.resolve().then(() => require("./App-DpedSkqR.js"));
+        const { App } = await Promise.resolve().then(() => require("./App-D_87uOYY.js"));
         return App;
       }
     });
@@ -78,4 +78,4 @@ exports.Tick = Tick;
 exports.VideoCall = VideoCall;
 exports.VoiceCall = VoiceCall;
 exports.index = index;
-//# sourceMappingURL=index-BXiady_2.js.map
+//# sourceMappingURL=index-BatNSJPj.js.map

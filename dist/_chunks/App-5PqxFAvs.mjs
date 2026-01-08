@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 import styled, { css, keyframes, useTheme } from "styled-components";
-import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick } from "./index-BsBh4wpy.mjs";
+import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick } from "./index-B8CRgxut.mjs";
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar } from "recharts";
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
@@ -1126,7 +1126,7 @@ const useCompletedCalls = (page = 1, filter = "60min", liveCalls, customRange, s
   } else {
     statusFilter = "&filters[callStatus][$notIn][0]=pending&filters[callStatus][$notIn][1]=ongoing";
   }
-  const api = `/admin-pannel/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
+  const api = `/admin-pannel/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
   const { data, ...rest } = useQuery({
     queryKey: ["completed-calls", page, filter, liveCalls, customRange, statuses],
     enabled: liveCalls !== void 0,
@@ -1785,4 +1785,4 @@ const App = () => {
 export {
   App
 };
-//# sourceMappingURL=App-C0xR3vFR.mjs.map
+//# sourceMappingURL=App-5PqxFAvs.mjs.map

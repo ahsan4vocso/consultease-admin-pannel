@@ -38,6 +38,8 @@ const getDateRange = (filter, customRange) => {
 };
 
 
+
+
 export const useCompletedCalls = (page = 1, filter = '60min', liveCalls, customRange, statuses = []) => {
     const { get } = useFetchClient();
     const { start, end } = getDateRange(filter, customRange);
@@ -50,7 +52,7 @@ export const useCompletedCalls = (page = 1, filter = '60min', liveCalls, customR
         statusFilter = '&filters[callStatus][$notIn][0]=pending&filters[callStatus][$notIn][1]=ongoing';
     }
 
-    const api = `/admin-pannel/recent-calls?filters[startTime][$gte]=${encodeURIComponent(start)}&filters[startTime][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
+    const api = `/admin-pannel/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
 
     const { data, ...rest } = useQuery({
         queryKey: ["completed-calls", page, filter, liveCalls, customRange, statuses],
@@ -63,6 +65,8 @@ export const useCompletedCalls = (page = 1, filter = '60min', liveCalls, customR
 
     return { data: data?.data, meta: data?.meta || {}, ...rest };
 };
+
+
 
 export const useCategoryStats = (filter = 'today', liveCalls, customRange) => {
     const { get } = useFetchClient();

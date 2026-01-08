@@ -46,7 +46,7 @@ const index = {
         defaultMessage: PLUGIN_ID
       },
       Component: async () => {
-        const { App } = await import("./App-C0xR3vFR.mjs");
+        const { App } = await import("./App-DEfBfIiF.mjs");
         return App;
       }
     });
@@ -79,4 +79,4 @@ export {
   ChevronDown as b,
   index as i
 };
-//# sourceMappingURL=index-BsBh4wpy.mjs.map
+//# sourceMappingURL=index-CQKz_BBg.mjs.map

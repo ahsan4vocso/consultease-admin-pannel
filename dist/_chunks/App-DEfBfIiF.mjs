@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 import styled, { css, keyframes, useTheme } from "styled-components";
-import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick } from "./index-BsBh4wpy.mjs";
+import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick } from "./index-CQKz_BBg.mjs";
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar } from "recharts";
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
@@ -1554,7 +1554,7 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
       /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs("tr", { children: [
         /* @__PURE__ */ jsx(Th, { children: "Call Id" }),
         /* @__PURE__ */ jsx(Th, { children: "Type" }),
-        /* @__PURE__ */ jsx(Th, { children: "Caller" }),
+        /* @__PURE__ */ jsx(Th, { children: "Caller hi" }),
         /* @__PURE__ */ jsx(Th, { children: "Expert" }),
         /* @__PURE__ */ jsx(Th, { children: "Category" }),
         /* @__PURE__ */ jsx(Th, { children: "Start Time" }),
@@ -1785,4 +1785,4 @@ const App = () => {
 export {
   App
 };
-//# sourceMappingURL=App-C0xR3vFR.mjs.map
+//# sourceMappingURL=App-DEfBfIiF.mjs.map
