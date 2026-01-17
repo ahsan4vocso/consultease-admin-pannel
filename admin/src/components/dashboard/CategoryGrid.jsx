@@ -11,8 +11,6 @@ const CHART_COLORS = {
     video: '#48ecbbff',
 };
 
-const RADIAN = Math.PI / 180;
-
 const CustomTooltip = ({ active, payload, label, theme }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;

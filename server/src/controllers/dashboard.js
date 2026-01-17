@@ -1,22 +1,5 @@
-const DEFAULT_LOGO_URL = "https://callingappdev.s3.ap-south-1.amazonaws.com/avatars/CE_Logo_Icon_e8fa8dff79.png";
 const LIST_DELIMITER_REGEX = /[\n,]/;
 
-const toAbsoluteUrl = (url) => {
-  if (!url) return null;
-  if (/^https?:\/\//i.test(url)) return url;
-  const baseUrl = process.env.STRAPI_ADMIN_BACKEND_URL || process.env.STRAPI_BACKEND_URL || process.env.STRAPI_URL || "";
-  if (!baseUrl) return url;
-  const normalizedBase = baseUrl.replace(/\/$/, "");
-  const normalizedPath = String(url).replace(/^\//, "");
-  return `${normalizedBase}/${normalizedPath}`;
-};
-
-const normalizeBlocksField = (value) => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  if (value?.document && Array.isArray(value.document)) return value.document;
-  return [];
-};
 
 const sanitizeDataPayload = (data) => {
   if (!data || typeof data !== "object") return undefined;
@@ -72,51 +55,6 @@ const isInvalidFirebaseTokenError = (error) => {
   return typeof message === "string" && message.toLowerCase().includes("requested entity was not found");
 };
 
-const buildFallback = (overrides = {}) => ({
-  name: process.env.PLATFORM_NAME || "Consultease",
-  supportEmail: process.env.PLATFORM_SUPPORT_EMAIL || "support@consultease.com",
-  logo: DEFAULT_LOGO_URL,
-  companyProfile: null,
-  monthlyStatementBottomContent: [],
-  ...overrides,
-});
-
-const resolveMediaUrl = (media) => {
-  const entry = extractMediaEntry(media);
-  if (!entry) {
-    return null;
-  }
-
-  const url =
-    entry.url ||
-    entry.formats?.large?.url ||
-    entry.formats?.medium?.url ||
-    entry.formats?.small?.url ||
-    entry.formats?.thumbnail?.url ||
-    null;
-
-  return toAbsoluteUrl(url);
-};
-
-const extractMediaEntry = (media) => {
-  if (!media) {
-    return null;
-  }
-
-  if (Array.isArray(media)) {
-    return extractMediaEntry(media[0]);
-  }
-
-  if (media?.data) {
-    return extractMediaEntry(media.data);
-  }
-
-  if (media?.attributes) {
-    return extractMediaEntry(media.attributes);
-  }
-
-  return media;
-};
 
 async function sendToTokens(
   tokens,
@@ -224,6 +162,99 @@ const uniqueTokens = (tokens) => {
   return Array.from(new Set(tokens.filter(Boolean)));
 };
 
+const DEFAULT_LOGO_URL =
+  "https://callingappdev.s3.ap-south-1.amazonaws.com/avatars/CE_Logo_Icon_e8fa8dff79.png";
+
+const buildFallback = (overrides = {}) => ({
+  name: process.env.PLATFORM_NAME || "Consultease",
+  supportEmail: process.env.PLATFORM_SUPPORT_EMAIL || "support@consultease.com",
+  logo: DEFAULT_LOGO_URL,
+  companyProfile: null,
+  monthlyStatementBottomContent: [],
+  ...overrides,
+});
+
+const toAbsoluteUrl = (url) => {
+  if (!url) {
+    return null;
+  }
+
+  // Already absolute
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+
+  const baseUrl =
+    process.env.STRAPI_ADMIN_BACKEND_URL ||
+    process.env.STRAPI_BACKEND_URL ||
+    process.env.STRAPI_URL ||
+    "";
+
+  if (!baseUrl) {
+    // Fallback: return as-is if no base URL is configured
+    return url;
+  }
+
+  // Ensure exactly one slash between baseUrl and path
+  const normalizedBase = baseUrl.replace(/\/$/, "");
+  const normalizedPath = String(url).replace(/^\//, "");
+
+  return `${normalizedBase}/${normalizedPath}`;
+};
+
+const extractMediaEntry = (media) => {
+  if (!media) {
+    return null;
+  }
+
+  if (Array.isArray(media)) {
+    return extractMediaEntry(media[0]);
+  }
+
+  if (media?.data) {
+    return extractMediaEntry(media.data);
+  }
+
+  if (media?.attributes) {
+    return extractMediaEntry(media.attributes);
+  }
+
+  return media;
+};
+
+const resolveMediaUrl = (media) => {
+  const entry = extractMediaEntry(media);
+  if (!entry) {
+    return null;
+  }
+
+  const url =
+    entry.url ||
+    entry.formats?.large?.url ||
+    entry.formats?.medium?.url ||
+    entry.formats?.small?.url ||
+    entry.formats?.thumbnail?.url ||
+    null;
+
+  return toAbsoluteUrl(url);
+};
+
+const normalizeBlocksField = (value) => {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (value?.document && Array.isArray(value.document)) {
+    return value.document;
+  }
+
+  return [];
+};
+
 async function loadPlatformInfo(strapi, options = {}) {
   if (!strapi) {
     throw new Error("A Strapi instance is required to load platform info");
@@ -261,7 +292,7 @@ async function loadPlatformInfo(strapi, options = {}) {
       logo: true,
       company_profile: {
         populate: {
-          wallet: true,
+          wallets: true,
           expert: true,
           gst_detail: {
             populate: {
@@ -293,6 +324,13 @@ async function loadPlatformInfo(strapi, options = {}) {
     if (!config) {
       return fallback;
     }
+
+    // Resolve wallets
+    const cpWallets = config.company_profile?.wallets || [];
+    // Prefer EARNINGS_WALLET for the main platform wallet ref
+    const earningsWallet = cpWallets.find(w => w.wallet_type === "EARNINGS_WALLET");
+    const primaryWallet = earningsWallet || cpWallets[0] || null;
+
     let companyProfile = {
       name: config.company_profile?.name || fallback.name,
       supportEmail: config.supportEmail || "abc@xyz.com",
@@ -303,7 +341,8 @@ async function loadPlatformInfo(strapi, options = {}) {
         config.monthly_statement_bottom_content ||
         config.monthly_statment_bottom_content
       ),
-      wallet: config.company_profile?.wallet || null,
+      wallet: primaryWallet, // Backwards compatibility / Main usage
+      wallets: cpWallets,    // Expose all if needed
       gstDetail: config.company_profile?.gst_detail || null,
       expert: config.company_profile?.expert || null,
       is_live: config.company_profile?.documentId ? true : false,
@@ -325,6 +364,42 @@ async function loadPlatformInfo(strapi, options = {}) {
     };
   }
 }
+
+
+// Helper to get or create a specific wallet type for a user
+const getWallet = async (userId, type) => {
+  if (!userId) return null;
+
+  // Try to find existing wallet of this type
+  const wallets = await strapi.entityService.findMany("api::wallet.wallet", {
+    filters: {
+      user: userId,
+      wallet_type: type
+    },
+    limit: 1,
+  });
+
+  if (wallets && wallets.length > 0) {
+    return wallets[0];
+  }
+
+  // Create if not exists (Auto-create logic similar to lifecycles)
+  // Default non-active for safety, or active? Lifecycles use active: true
+  try {
+    const newWallet = await strapi.entityService.create("api::wallet.wallet", {
+      data: {
+        user: userId,
+        balance: 0,
+        isActive: true,
+        wallet_type: type
+      },
+    });
+    return newWallet;
+  } catch (err) {
+    strapi.log.error(`Failed to create ${type} wallet for user ${userId}:`, err);
+    return null;
+  }
+};
 
 
 const dashboard = ({ strapi }) => ({
@@ -536,8 +611,8 @@ const dashboard = ({ strapi }) => ({
         callId,
         {
           populate: {
-            caller: { populate: ["wallet"] },
-            receiver: { populate: ["wallet", "expert", "expert.rates"] },
+            caller: { populate: ["wallets"] },
+            receiver: { populate: ["wallets", "expert", "expert.rates"] },
           },
         }
       );
@@ -558,11 +633,10 @@ const dashboard = ({ strapi }) => ({
       // Handle "Pending" Calls (Never Started) -> Mark as Declined
       if ((!startTime || isNaN(startTime.getTime())) && existingCall.callStatus === "pending") {
         console.log("🔔 [Callend] Call never started (pending). Marking as declined.");
-
         const declinedMetadata = {
           reason: "Call ended before start (Declined/Missed)",
           endedByInfo,
-          callStatus: "declined",
+          callStatus: "force complete by admin",
           callerId: existingCall.caller.id,
           receiverId: existingCall.receiver.id,
           callerName: existingCall.caller.name,
@@ -576,7 +650,7 @@ const dashboard = ({ strapi }) => ({
           callId,
           {
             data: {
-              callStatus: "declined",
+              callStatus: "force complete by admin",
               endTime: endTime || new Date(),
               duration: 0,
               totalCost: 0,
@@ -584,8 +658,8 @@ const dashboard = ({ strapi }) => ({
               metadata: declinedMetadata
             },
             populate: {
-              caller: { populate: ["wallet"] },
-              receiver: { populate: ["wallet"] }
+              caller: { populate: ["wallets"] },
+              receiver: { populate: ["wallets"] }
             }
           }
         );
@@ -658,30 +732,32 @@ const dashboard = ({ strapi }) => ({
         console.warn("🔔 [Callend] Pricing config missing");
         return ctx.badRequest("Pricing config not found.");
       }
-
-      const companyProfile = resolvePopulatedEntry(platformInfo?.companyProfile);
-      const adminWallet = resolvePopulatedEntry(companyProfile?.wallet);
+      //f
+      const adminWallet = resolvePopulatedEntry(platformInfo?.wallet);
       if (!adminWallet?.id) {
-        console.warn("🔔 [Callend] Admin wallet missing", { companyProfileId: companyProfile?.id, adminWalletId: adminWallet?.id });
-        return ctx.badRequest("Admin wallet not found.");
+        const companyProfile = resolvePopulatedEntry(platformInfo?.companyProfile);
+        console.warn("🔔 [Callend] Admin wallet missing in platformInfo", {
+          companyProfileId: companyProfile?.id,
+          platformInfoWallet: platformInfo?.wallet
+        });
+        return ctx.badRequest("Admin wallet `not found.");
       }
-
       const caller = existingCall.caller;
       const receiver = existingCall.receiver;
-      const callerWallet = caller.wallet;
-      let receiverWallet = receiver.wallet;
+
+      // 3.1 Resolving Wallets with specific types
+      // Client pays from CASH_WALLET
+      const callerWallet = await getWallet(caller.id, "CASH_WALLET");
+      // Expert receives in EARNINGS_WALLET
+      const receiverWallet = await getWallet(receiver.id, "EARNINGS_WALLET");
 
       if (!callerWallet) {
-        console.warn("🔔 [Callend] Caller wallet missing", caller.id);
+        console.warn("🔔 [Callend] Caller CASH_WALLET missing", caller.id);
         return ctx.badRequest("Caller wallet not found.");
       }
       if (!receiverWallet) {
-        receiverWallet = await strapi.entityService.create(
-          "api::wallet.wallet",
-          {
-            data: { balance: 0, user: receiver.id, transactions: [] },
-          }
-        );
+        console.warn("🔔 [Callend] Receiver EARNINGS_WALLET missing/failed create", receiver.id);
+        return ctx.badRequest("Receiver wallet error.");
       }
 
       // Step 4: Commission & Payout Calculation
@@ -740,8 +816,8 @@ const dashboard = ({ strapi }) => ({
             metadata: commonMetadata, // Sync metadata
           },
           populate: {
-            caller: { populate: ["wallet"] },
-            receiver: { populate: ["wallet"] }
+            caller: { populate: ["wallets"] },
+            receiver: { populate: ["wallets"] }
           }
         }
       );

@@ -1,16 +1,16 @@
 "use strict";
-const bootstrap = ({ strapi }) => {
+const bootstrap = ({ strapi: strapi2 }) => {
 };
-const destroy = ({ strapi }) => {
+const destroy = ({ strapi: strapi2 }) => {
 };
-const register = ({ strapi }) => {
-  strapi.documents.use(async (context, next) => {
+const register = ({ strapi: strapi2 }) => {
+  strapi2.documents.use(async (context, next) => {
     const result = await next();
     if ((context.uid === "api::call.call" || context.uid === "api::expert-profile.expert-profile") && (context.action === "create" || context.action === "update")) {
       try {
-        await strapi.plugin("admin-pannel").service("liveCallsService").callsData();
+        await strapi2.plugin("admin-pannel").service("liveCallsService").callsData();
       } catch (error) {
-        strapi.log.error("Error in liveCallsService middleware:", error);
+        strapi2.log.error("Error in liveCallsService middleware:", error);
       }
     }
     return result;
@@ -22,23 +22,7 @@ const config = {
   }
 };
 const contentTypes = {};
-const DEFAULT_LOGO_URL = "https://callingappdev.s3.ap-south-1.amazonaws.com/avatars/CE_Logo_Icon_e8fa8dff79.png";
 const LIST_DELIMITER_REGEX = /[\n,]/;
-const toAbsoluteUrl = (url) => {
-  if (!url) return null;
-  if (/^https?:\/\//i.test(url)) return url;
-  const baseUrl = process.env.STRAPI_ADMIN_BACKEND_URL || process.env.STRAPI_BACKEND_URL || process.env.STRAPI_URL || "";
-  if (!baseUrl) return url;
-  const normalizedBase = baseUrl.replace(/\/$/, "");
-  const normalizedPath = String(url).replace(/^\//, "");
-  return `${normalizedBase}/${normalizedPath}`;
-};
-const normalizeBlocksField = (value) => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  if (value?.document && Array.isArray(value.document)) return value.document;
-  return [];
-};
 const sanitizeDataPayload = (data) => {
   if (!data || typeof data !== "object") return void 0;
   return Object.fromEntries(
@@ -89,37 +73,6 @@ const isInvalidFirebaseTokenError = (error) => {
   if (code && INVALID_FCM_CODES.has(code)) return true;
   const message = error.message || error.errorInfo?.message;
   return typeof message === "string" && message.toLowerCase().includes("requested entity was not found");
-};
-const buildFallback = (overrides = {}) => ({
-  name: process.env.PLATFORM_NAME || "Consultease",
-  supportEmail: process.env.PLATFORM_SUPPORT_EMAIL || "support@consultease.com",
-  logo: DEFAULT_LOGO_URL,
-  companyProfile: null,
-  monthlyStatementBottomContent: [],
-  ...overrides
-});
-const resolveMediaUrl = (media) => {
-  const entry = extractMediaEntry(media);
-  if (!entry) {
-    return null;
-  }
-  const url = entry.url || entry.formats?.large?.url || entry.formats?.medium?.url || entry.formats?.small?.url || entry.formats?.thumbnail?.url || null;
-  return toAbsoluteUrl(url);
-};
-const extractMediaEntry = (media) => {
-  if (!media) {
-    return null;
-  }
-  if (Array.isArray(media)) {
-    return extractMediaEntry(media[0]);
-  }
-  if (media?.data) {
-    return extractMediaEntry(media.data);
-  }
-  if (media?.attributes) {
-    return extractMediaEntry(media.attributes);
-  }
-  return media;
 };
 async function sendToTokens(tokens, { notification, data, android, apns, ttlSeconds = 300 }) {
   const safeData = sanitizeDataPayload(data);
@@ -212,13 +165,72 @@ const uniqueTokens = (tokens) => {
   if (!Array.isArray(tokens)) return [];
   return Array.from(new Set(tokens.filter(Boolean)));
 };
-async function loadPlatformInfo(strapi, options = {}) {
-  if (!strapi) {
+const DEFAULT_LOGO_URL = "https://callingappdev.s3.ap-south-1.amazonaws.com/avatars/CE_Logo_Icon_e8fa8dff79.png";
+const buildFallback = (overrides = {}) => ({
+  name: process.env.PLATFORM_NAME || "Consultease",
+  supportEmail: process.env.PLATFORM_SUPPORT_EMAIL || "support@consultease.com",
+  logo: DEFAULT_LOGO_URL,
+  companyProfile: null,
+  monthlyStatementBottomContent: [],
+  ...overrides
+});
+const toAbsoluteUrl = (url) => {
+  if (!url) {
+    return null;
+  }
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+  const baseUrl = process.env.STRAPI_ADMIN_BACKEND_URL || process.env.STRAPI_BACKEND_URL || process.env.STRAPI_URL || "";
+  if (!baseUrl) {
+    return url;
+  }
+  const normalizedBase = baseUrl.replace(/\/$/, "");
+  const normalizedPath = String(url).replace(/^\//, "");
+  return `${normalizedBase}/${normalizedPath}`;
+};
+const extractMediaEntry = (media) => {
+  if (!media) {
+    return null;
+  }
+  if (Array.isArray(media)) {
+    return extractMediaEntry(media[0]);
+  }
+  if (media?.data) {
+    return extractMediaEntry(media.data);
+  }
+  if (media?.attributes) {
+    return extractMediaEntry(media.attributes);
+  }
+  return media;
+};
+const resolveMediaUrl = (media) => {
+  const entry = extractMediaEntry(media);
+  if (!entry) {
+    return null;
+  }
+  const url = entry.url || entry.formats?.large?.url || entry.formats?.medium?.url || entry.formats?.small?.url || entry.formats?.thumbnail?.url || null;
+  return toAbsoluteUrl(url);
+};
+const normalizeBlocksField = (value) => {
+  if (!value) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (value?.document && Array.isArray(value.document)) {
+    return value.document;
+  }
+  return [];
+};
+async function loadPlatformInfo(strapi2, options = {}) {
+  if (!strapi2) {
     throw new Error("A Strapi instance is required to load platform info");
   }
   const fallback = buildFallback(options.fallback);
-  const logger = options.logger || strapi.log;
-  const model = typeof strapi.contentType === "function" && strapi.contentType("api::app-config.app-config") || typeof strapi.getModel === "function" && strapi.getModel("api::app-config.app-config") || {};
+  const logger = options.logger || strapi2.log;
+  const model = typeof strapi2.contentType === "function" && strapi2.contentType("api::app-config.app-config") || typeof strapi2.getModel === "function" && strapi2.getModel("api::app-config.app-config") || {};
   const attrs = model.attributes || {};
   const bottomContentField = (() => {
     if ("monthly_statement_bottom_content" in attrs) {
@@ -237,7 +249,7 @@ async function loadPlatformInfo(strapi, options = {}) {
       logo: true,
       company_profile: {
         populate: {
-          wallet: true,
+          wallets: true,
           expert: true,
           gst_detail: {
             populate: {
@@ -257,13 +269,16 @@ async function loadPlatformInfo(strapi, options = {}) {
     if (shouldPopulateBottomContent) {
       populate[bottomContentField] = true;
     }
-    const config2 = await strapi.documents("api::app-config.app-config").findFirst({
+    const config2 = await strapi2.documents("api::app-config.app-config").findFirst({
       status: "published",
       populate
     });
     if (!config2) {
       return fallback;
     }
+    const cpWallets = config2.company_profile?.wallets || [];
+    const earningsWallet = cpWallets.find((w) => w.wallet_type === "EARNINGS_WALLET");
+    const primaryWallet = earningsWallet || cpWallets[0] || null;
     let companyProfile = {
       name: config2.company_profile?.name || fallback.name,
       supportEmail: config2.supportEmail || "abc@xyz.com",
@@ -272,7 +287,10 @@ async function loadPlatformInfo(strapi, options = {}) {
       monthlyStatementBottomContent: normalizeBlocksField(
         bottomContentField && config2[bottomContentField] || config2.monthly_statement_bottom_content || config2.monthly_statment_bottom_content
       ),
-      wallet: config2.company_profile?.wallet || null,
+      wallet: primaryWallet,
+      // Backwards compatibility / Main usage
+      wallets: cpWallets,
+      // Expose all if needed
       gstDetail: config2.company_profile?.gst_detail || null,
       expert: config2.company_profile?.expert || null,
       is_live: config2.company_profile?.documentId ? true : false
@@ -291,13 +309,40 @@ async function loadPlatformInfo(strapi, options = {}) {
     };
   }
 }
-const dashboard = ({ strapi }) => ({
+const getWallet = async (userId, type) => {
+  if (!userId) return null;
+  const wallets = await strapi.entityService.findMany("api::wallet.wallet", {
+    filters: {
+      user: userId,
+      wallet_type: type
+    },
+    limit: 1
+  });
+  if (wallets && wallets.length > 0) {
+    return wallets[0];
+  }
+  try {
+    const newWallet = await strapi.entityService.create("api::wallet.wallet", {
+      data: {
+        user: userId,
+        balance: 0,
+        isActive: true,
+        wallet_type: type
+      }
+    });
+    return newWallet;
+  } catch (err) {
+    strapi.log.error(`Failed to create ${type} wallet for user ${userId}:`, err);
+    return null;
+  }
+};
+const dashboard = ({ strapi: strapi2 }) => ({
   async stream(ctx) {
     ctx.set("Content-Type", "text/event-stream");
     ctx.set("Cache-Control", "no-cache");
     ctx.set("Connection", "keep-alive");
     ctx.status = 200;
-    await strapi.plugin("admin-pannel").service("liveCallsService").callsData(ctx.res);
+    await strapi2.plugin("admin-pannel").service("liveCallsService").callsData(ctx.res);
     const hb = setInterval(() => {
       try {
         ctx.res.write(`: ping ${Date.now()}
@@ -308,7 +353,7 @@ const dashboard = ({ strapi }) => ({
     }, 15e3);
     ctx.req.on("close", () => {
       clearInterval(hb);
-      strapi.plugin("admin-pannel").service("sse").removeClient(ctx.res);
+      strapi2.plugin("admin-pannel").service("sse").removeClient(ctx.res);
     });
     ctx.respond = false;
   },
@@ -323,7 +368,7 @@ const dashboard = ({ strapi }) => ({
       const baseFilters = { callStatus: { $notIn: ["pending", "ongoing"] } };
       const clientFilters = ctx.query?.filters || {};
       const filters = { ...baseFilters, ...clientFilters };
-      const total = await strapi.entityService.count("api::call.call", { filters });
+      const total = await strapi2.entityService.count("api::call.call", { filters });
       if (ctx.query?.pagination?.pageSize) {
         page = Math.max(1, Number(ctx.query?.pagination?.page) || 1);
         pageSize = Math.min(50, Math.max(1, Number(ctx.query?.pagination?.pageSize)));
@@ -332,7 +377,7 @@ const dashboard = ({ strapi }) => ({
           limit: pageSize
         };
       }
-      const calls = await strapi.entityService.findMany("api::call.call", {
+      const calls = await strapi2.entityService.findMany("api::call.call", {
         filters,
         ...pagination,
         populate: {
@@ -368,7 +413,7 @@ const dashboard = ({ strapi }) => ({
         } : { pagination: { total } }
       });
     } catch (error) {
-      strapi.log.error("recentCalls error", error);
+      strapi2.log.error("recentCalls error", error);
       return ctx.internalServerError(
         error.message || "recentCalls failed"
       );
@@ -381,7 +426,7 @@ const dashboard = ({ strapi }) => ({
     try {
       const clientFilters = ctx.query?.filters || {};
       const filters = { ...clientFilters };
-      const calls = await strapi.entityService.findMany("api::call.call", {
+      const calls = await strapi2.entityService.findMany("api::call.call", {
         filters,
         fields: ["duration", "totalCost", "type"],
         populate: {
@@ -427,7 +472,7 @@ const dashboard = ({ strapi }) => ({
       })).sort((a, b) => b.totalCalls - a.totalCalls);
       return ctx.send(results);
     } catch (error) {
-      strapi.log.error("categoryStats error", error);
+      strapi2.log.error("categoryStats error", error);
       return ctx.internalServerError(error.message || "categoryStats failed");
     }
   },
@@ -452,18 +497,18 @@ const dashboard = ({ strapi }) => ({
         console.warn("🔔 [Callend] Missing callId");
         return ctx.badRequest("callId is required");
       }
-      const platformInfo = await loadPlatformInfo(strapi, { logger: strapi.log });
+      const platformInfo = await loadPlatformInfo(strapi2, { logger: strapi2.log });
       if (platformInfo.is_live === false) {
         console.warn("🔔 [Callend] Platform maintenance mode");
         return ctx.badRequest("Platform is under maintenance");
       }
-      const existingCall = await strapi.entityService.findOne(
+      const existingCall = await strapi2.entityService.findOne(
         "api::call.call",
         callId,
         {
           populate: {
-            caller: { populate: ["wallet"] },
-            receiver: { populate: ["wallet", "expert", "expert.rates"] }
+            caller: { populate: ["wallets"] },
+            receiver: { populate: ["wallets", "expert", "expert.rates"] }
           }
         }
       );
@@ -482,7 +527,7 @@ const dashboard = ({ strapi }) => ({
         const declinedMetadata = {
           reason: "Call ended before start (Declined/Missed)",
           endedByInfo,
-          callStatus: "declined",
+          callStatus: "force complete by admin",
           callerId: existingCall.caller.id,
           receiverId: existingCall.receiver.id,
           callerName: existingCall.caller.name,
@@ -490,12 +535,12 @@ const dashboard = ({ strapi }) => ({
           callType: existingCall.type,
           callId: existingCall.id
         };
-        const declinedCall = await strapi.entityService.update(
+        const declinedCall = await strapi2.entityService.update(
           "api::call.call",
           callId,
           {
             data: {
-              callStatus: "declined",
+              callStatus: "force complete by admin",
               endTime: endTime || /* @__PURE__ */ new Date(),
               duration: 0,
               totalCost: 0,
@@ -503,14 +548,14 @@ const dashboard = ({ strapi }) => ({
               metadata: declinedMetadata
             },
             populate: {
-              caller: { populate: ["wallet"] },
-              receiver: { populate: ["wallet"] }
+              caller: { populate: ["wallets"] },
+              receiver: { populate: ["wallets"] }
             }
           }
         );
         try {
-          const callerUser = await strapi.entityService.findOne("api::public-user.public-user", existingCall.caller.id, { fields: ["firebaseTokens"] });
-          const receiverUser = await strapi.entityService.findOne("api::public-user.public-user", existingCall.receiver.id, { fields: ["firebaseTokens"] });
+          const callerUser = await strapi2.entityService.findOne("api::public-user.public-user", existingCall.caller.id, { fields: ["firebaseTokens"] });
+          const receiverUser = await strapi2.entityService.findOne("api::public-user.public-user", existingCall.receiver.id, { fields: ["firebaseTokens"] });
           const tokens = uniqueTokens([...normalizeFirebaseTokens(callerUser?.firebaseTokens), ...normalizeFirebaseTokens(receiverUser?.firebaseTokens)]);
           if (tokens.length) {
             await sendToTokens(tokens, {
@@ -552,34 +597,33 @@ const dashboard = ({ strapi }) => ({
       const totalCost = minutes * rate;
       console.log("🔔 [Callend] Calculated:", { durationSec, durationMin, minutes, rate, totalCost });
       const [pricingRaw] = await Promise.all([
-        strapi.entityService.findMany("api::pricing-config.pricing-config", { limit: 1 })
+        strapi2.entityService.findMany("api::pricing-config.pricing-config", { limit: 1 })
       ]);
       const settings = Array.isArray(pricingRaw) ? pricingRaw[0] : pricingRaw;
       if (!settings) {
         console.warn("🔔 [Callend] Pricing config missing");
         return ctx.badRequest("Pricing config not found.");
       }
-      const companyProfile = resolvePopulatedEntry(platformInfo?.companyProfile);
-      const adminWallet = resolvePopulatedEntry(companyProfile?.wallet);
+      const adminWallet = resolvePopulatedEntry(platformInfo?.wallet);
       if (!adminWallet?.id) {
-        console.warn("🔔 [Callend] Admin wallet missing", { companyProfileId: companyProfile?.id, adminWalletId: adminWallet?.id });
-        return ctx.badRequest("Admin wallet not found.");
+        const companyProfile = resolvePopulatedEntry(platformInfo?.companyProfile);
+        console.warn("🔔 [Callend] Admin wallet missing in platformInfo", {
+          companyProfileId: companyProfile?.id,
+          platformInfoWallet: platformInfo?.wallet
+        });
+        return ctx.badRequest("Admin wallet `not found.");
       }
       const caller = existingCall.caller;
       const receiver = existingCall.receiver;
-      const callerWallet = caller.wallet;
-      let receiverWallet = receiver.wallet;
+      const callerWallet = await getWallet(caller.id, "CASH_WALLET");
+      const receiverWallet = await getWallet(receiver.id, "EARNINGS_WALLET");
       if (!callerWallet) {
-        console.warn("🔔 [Callend] Caller wallet missing", caller.id);
+        console.warn("🔔 [Callend] Caller CASH_WALLET missing", caller.id);
         return ctx.badRequest("Caller wallet not found.");
       }
       if (!receiverWallet) {
-        receiverWallet = await strapi.entityService.create(
-          "api::wallet.wallet",
-          {
-            data: { balance: 0, user: receiver.id, transactions: [] }
-          }
-        );
+        console.warn("🔔 [Callend] Receiver EARNINGS_WALLET missing/failed create", receiver.id);
+        return ctx.badRequest("Receiver wallet error.");
       }
       const commissionPercentagePerMin = type === "voiceCall" ? Number(settings.VoiceCall_Percentage_Commission || 0) : Number(settings.VideoCall_Percentage_Commission || 0);
       const minimumFixedCommission = type === "voiceCall" ? Number(settings.Minimum_VoiceCall_Commission_Fixed || 0) : Number(settings.Minimum_videoCall_Commission_Fixed || 0);
@@ -613,7 +657,7 @@ const dashboard = ({ strapi }) => ({
           formula: `${rate} * ${minutes}`
         }
       };
-      const updatedCall = await strapi.entityService.update(
+      const updatedCall = await strapi2.entityService.update(
         "api::call.call",
         callId,
         {
@@ -630,15 +674,15 @@ const dashboard = ({ strapi }) => ({
             // Sync metadata
           },
           populate: {
-            caller: { populate: ["wallet"] },
-            receiver: { populate: ["wallet"] }
+            caller: { populate: ["wallets"] },
+            receiver: { populate: ["wallets"] }
           }
         }
       );
       if (minutes <= 0 || totalCost <= 0) {
         try {
-          const callerUser = await strapi.entityService.findOne("api::public-user.public-user", updatedCall.caller.id, { fields: ["firebaseTokens"] });
-          const receiverUser = await strapi.entityService.findOne("api::public-user.public-user", updatedCall.receiver.id, { fields: ["firebaseTokens"] });
+          const callerUser = await strapi2.entityService.findOne("api::public-user.public-user", updatedCall.caller.id, { fields: ["firebaseTokens"] });
+          const receiverUser = await strapi2.entityService.findOne("api::public-user.public-user", updatedCall.receiver.id, { fields: ["firebaseTokens"] });
           const tokens = uniqueTokens([...normalizeFirebaseTokens(callerUser?.firebaseTokens), ...normalizeFirebaseTokens(receiverUser?.firebaseTokens)]);
           if (tokens.length) {
             await sendToTokens(tokens, {
@@ -647,7 +691,7 @@ const dashboard = ({ strapi }) => ({
             });
           }
         } catch (e) {
-          strapi.log.warn("CALL_ENDED push skipped:", e?.message || e);
+          strapi2.log.warn("CALL_ENDED push skipped:", e?.message || e);
         }
         return ctx.send({
           success: true,
@@ -656,7 +700,7 @@ const dashboard = ({ strapi }) => ({
         });
       }
       const transactionId = `TXN-${Date.now()}`;
-      const callChargeTxn = await strapi.entityService.create(
+      const callChargeTxn = await strapi2.entityService.create(
         "api::transaction.transaction",
         {
           data: {
@@ -679,7 +723,7 @@ const dashboard = ({ strapi }) => ({
           }
         }
       );
-      const expertPayoutTxn = await strapi.entityService.create(
+      const expertPayoutTxn = await strapi2.entityService.create(
         "api::transaction.transaction",
         {
           data: {
@@ -707,15 +751,15 @@ const dashboard = ({ strapi }) => ({
       try {
         if (receiver?.expert?.documentId) {
           try {
-            await strapi.documents("api::expert-profile.expert-profile").update({
+            await strapi2.documents("api::expert-profile.expert-profile").update({
               documentId: receiver.expert.documentId,
               data: { user_status: "online" }
             });
-            strapi.log.info(
+            strapi2.log.info(
               `✅ Set Expert ${receiver.id} status to 'online' (Call Ended)`
             );
           } catch (statusErr) {
-            strapi.log.error(
+            strapi2.log.error(
               `Failed to set Expert ${receiver.id} status to 'online' (Call Ended):`,
               statusErr
             );
@@ -723,17 +767,17 @@ const dashboard = ({ strapi }) => ({
         }
         const expertId = receiver?.expert?.id;
         if (expertId) {
-          await strapi.service("api::call.call").incrementExpertDurations({
+          await strapi2.service("api::call.call").incrementExpertDurations({
             expertId,
             minutes: Number(durationMin || 0)
           });
         }
       } catch (e) {
-        strapi.log.warn("incrementExpertDurations failed:", e?.message || e);
+        strapi2.log.warn("incrementExpertDurations failed:", e?.message || e);
       }
       try {
-        const callerUser = await strapi.entityService.findOne("api::public-user.public-user", updatedCall.caller.id, { fields: ["firebaseTokens"] });
-        const receiverUser = await strapi.entityService.findOne("api::public-user.public-user", updatedCall.receiver.id, { fields: ["firebaseTokens"] });
+        const callerUser = await strapi2.entityService.findOne("api::public-user.public-user", updatedCall.caller.id, { fields: ["firebaseTokens"] });
+        const receiverUser = await strapi2.entityService.findOne("api::public-user.public-user", updatedCall.receiver.id, { fields: ["firebaseTokens"] });
         const tokens = uniqueTokens([...normalizeFirebaseTokens(callerUser?.firebaseTokens), ...normalizeFirebaseTokens(receiverUser?.firebaseTokens)]);
         if (tokens.length) {
           await sendToTokens(tokens, {
@@ -742,7 +786,7 @@ const dashboard = ({ strapi }) => ({
           });
         }
       } catch (e) {
-        strapi.log.warn("CALL_ENDED push skipped:", e?.message || e);
+        strapi2.log.warn("CALL_ENDED push skipped:", e?.message || e);
       }
       return ctx.send({
         success: true,
@@ -751,7 +795,7 @@ const dashboard = ({ strapi }) => ({
         message: "Call ended and billed successfully."
       });
     } catch (error) {
-      strapi.log.error("Callend Error:", error);
+      strapi2.log.error("Callend Error:", error);
       return ctx.internalServerError("An error occurred while ending call.");
     }
   }
@@ -792,18 +836,18 @@ const routes = {
     ]
   }
 };
-const liveCallsService = ({ strapi }) => ({
+const liveCallsService = ({ strapi: strapi2 }) => ({
   async callsData(res) {
     try {
       const date = /* @__PURE__ */ new Date();
       const today = date.setHours(0, 0, 0, 0);
-      const calls = await strapi.entityService.findMany("api::call.call", {
+      const calls = await strapi2.entityService.findMany("api::call.call", {
         filters: { createdAt: { $gte: today } },
         populate: { caller: true, receiver: true, categories: true },
         sort: { createdAt: "desc" }
       });
-      const reviews = await strapi.entityService.findMany("api::review.review", { fields: ["rating"] });
-      const experts = await strapi.entityService.findMany("api::expert-profile.expert-profile");
+      const reviews = await strapi2.entityService.findMany("api::review.review", { fields: ["rating"] });
+      const experts = await strapi2.entityService.findMany("api::expert-profile.expert-profile");
       const stats = {
         liveCalls: calls.filter((call) => call.callStatus === "ongoing").length,
         voiceCalls: calls.filter((call) => call.type === "voiceCall").length,
@@ -834,17 +878,17 @@ const liveCallsService = ({ strapi }) => ({
         res.write(`data: ${JSON.stringify({ stats, liveCalls })}
 
 `);
-        strapi.plugin("admin-pannel").service("sse").addClient(res);
+        strapi2.plugin("admin-pannel").service("sse").addClient(res);
       } else {
-        strapi.plugin("admin-pannel").service("sse").broadcast({ stats, liveCalls });
+        strapi2.plugin("admin-pannel").service("sse").broadcast({ stats, liveCalls });
       }
     } catch (error) {
-      strapi.log.error("dashboardData error", error);
+      strapi2.log.error("dashboardData error", error);
       return { error: error || "dashboardData failed" };
     }
   }
 });
-const sseService = ({ strapi }) => {
+const sseService = ({ strapi: strapi2 }) => {
   const clients = /* @__PURE__ */ new Set();
   return {
     addClient(res) {

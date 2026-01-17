@@ -144,11 +144,11 @@ export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                             </Style.DataRow>
                             <Style.DataRow>
                                 <Style.DataLabel>Start Time</Style.DataLabel>
-                                <Style.DataValue>{formatTimeAMPM(selectedCall.startTime)}</Style.DataValue>
+                                <Style.DataValue>{formatTimeAMPM(selectedCall.startTime) || "---"}</Style.DataValue>
                             </Style.DataRow>
                             <Style.DataRow>
                                 <Style.DataLabel>Duration</Style.DataLabel>
-                                <Style.DataValue>{minutesToMMSS((currMovingTime - new Date(selectedCall.startTime).getTime()) / (1000 * 60))}</Style.DataValue>
+                                <Style.DataValue>{selectedCall.startTime ? minutesToMMSS((currMovingTime - new Date(selectedCall.startTime).getTime()) / (1000 * 60)) : "---"}</Style.DataValue>
                             </Style.DataRow>
                             <Style.DataRow>
                                 <Style.DataLabel>Status</Style.DataLabel>
