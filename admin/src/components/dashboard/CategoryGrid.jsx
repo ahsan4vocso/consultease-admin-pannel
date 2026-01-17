@@ -63,7 +63,7 @@ export default function CategoryGrid({ liveCalls, filter, customRange }) {
         <Style.Card>
             <Style.CardHeader>
                 <div>
-                    <Style.CardTitle>Calls by Category [ check ]</Style.CardTitle>
+                    <Style.CardTitle>Calls by Category</Style.CardTitle>
                     <Style.CardSubtitle>Call distribution by topics</Style.CardSubtitle>
                 </div>
             </Style.CardHeader>
