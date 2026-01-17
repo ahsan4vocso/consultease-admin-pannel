@@ -8,7 +8,7 @@ const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
 const react = require("react");
 const styled = require("styled-components");
-const index = require("./index-BGn3VAH2.js");
+const index = require("./index-B4-FvDGA.js");
 const recharts = require("recharts");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
@@ -1283,7 +1283,7 @@ function CategoryGrid({ liveCalls, filter, customRange }) {
   const theme = styled.useTheme();
   return /* @__PURE__ */ jsxRuntime.jsxs(Card, { children: [
     /* @__PURE__ */ jsxRuntime.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Calls by Category [ check ]" }),
+      /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Calls by Category" }),
       /* @__PURE__ */ jsxRuntime.jsx(CardSubtitle, { children: "Call distribution by topics" })
     ] }) }),
     /* @__PURE__ */ jsxRuntime.jsx(CategoryGrid$1, { children: categoryStats.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("div", { style: { gridColumn: "1 / -1" }, children: /* @__PURE__ */ jsxRuntime.jsx(
