@@ -10,22 +10,42 @@ const liveCallsService = ({ strapi }) => ({
         sort: { createdAt: 'desc' },
       });
 
-      const reviews = await strapi.entityService.findMany("api::review.review", { fields: ["rating"] });
-      const experts = await strapi.entityService.findMany("api::expert-profile.expert-profile");
+
+      const expertsOnline = await strapi.entityService.findMany("api::expert-profile.expert-profile", { filters: { isActive: true }, fields: ["id"] });
+
+
+      const init = () => ({
+        liveCalls: 0,
+        callsToday: 0,
+        declinedCalls: 0,
+        completedCalls: 0,
+        avgDuration: 0,
+      });
 
       const stats = {
-        liveCalls: calls.filter((call) => call.callStatus === "ongoing").length,
-        voiceCalls: calls.filter((call) => call.type === "voiceCall").length,
-        videoCalls: calls.filter((call) => call.type === "videoCall").length,
-        expertsOnline: experts.filter((expert) => expert.isActive).length,
-        totalExperts: experts.length,
-        callsToday: calls.length,
-        declinedCalls: calls.filter((call) => call.callStatus === "declined").length,
-        completedCalls: calls.filter((call) => call.callStatus === "completed").length,
-        avgDuration: calls.reduce((total, call) => total + call.duration, 0),
-        avgCallRevenue: Math.round(calls.reduce((total, call) => total + call.totalCost, 0)),
-        avgRating: (reviews.reduce((total, review) => total + review.rating, 0) / reviews.length)?.toFixed(1),
+        voice: init(),
+        video: init(),
+        expertsOnline: expertsOnline.length,
       };
+
+
+      for (const call of calls) {
+        const bucket = call.type === "voiceCall" ? stats.voice :
+          call.type === "videoCall" ? stats.video :
+            null;
+
+        if (!bucket) continue;
+
+        bucket.callsToday++; // 1. Total Calls Today
+        if (call.callStatus === "ongoing") bucket.liveCalls++; // 2. Live Calls
+        if (call.callStatus === "declined") bucket.declinedCalls++; // 3. Declined Calls
+        if (call.callStatus === "completed") bucket.completedCalls++; // 4. Completed Calls
+        bucket.avgDuration += Number(call.duration) || 0; // 5. SUM duration
+      }
+
+
+
+
 
       // ----------------------------------------------------------
       // Live calls Table [1,2]

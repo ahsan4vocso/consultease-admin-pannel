@@ -425,51 +425,36 @@ const dashboard = ({ strapi: strapi2 }) => ({
   async categoryStats(ctx) {
     try {
       const clientFilters = ctx.query?.filters || {};
-      const filters = { ...clientFilters };
-      const calls = await strapi2.entityService.findMany("api::call.call", {
-        filters,
-        fields: ["duration", "totalCost", "type"],
-        populate: {
-          categories: { fields: ["name"] },
-          review: { fields: ["rating"] }
-        }
-      });
-      const map = /* @__PURE__ */ new Map();
-      for (const row of calls) {
-        const categoryName = row.categories?.[0]?.name?.trim() || "Others";
-        const minutes = Number(row.duration || 0);
-        const rating = Number(row.review?.rating);
-        const hasRating = Number.isFinite(rating);
-        const type = row.type;
-        if (!map.has(categoryName)) {
-          map.set(categoryName, {
-            name: categoryName,
-            calls: 0,
-            videoCalls: 0,
-            minutes: 0,
-            // revenue: 0,
-            _ratingSum: 0,
-            _ratingCount: 0
-          });
-        }
-        const agg = map.get(categoryName);
-        if (type === "videoCall") agg.videoCalls += 1;
-        else agg.calls += 1;
-        agg.minutes += minutes;
-        if (hasRating) {
-          agg._ratingSum += rating;
-          agg._ratingCount += 1;
-        }
+      const knex = strapi2.db.connection;
+      const startTimeGte = clientFilters.startTime?.$gte || clientFilters.createdAt?.$gte;
+      const startTimeLte = clientFilters.startTime?.$lte || clientFilters.createdAt?.$lte;
+      const catSubquery = knex("calls_categories_links").select("call_id", knex.raw("MIN(category_id) as category_id")).groupBy("call_id");
+      const query = knex("calls").leftJoin(catSubquery.as("cl"), "calls.id", "cl.call_id").leftJoin("categories", "cl.category_id", "categories.id").leftJoin("calls_review_links", "calls.id", "calls_review_links.call_id").leftJoin("reviews", "calls_review_links.review_id", "reviews.id");
+      if (startTimeGte) {
+        query.where("calls.created_at", ">=", startTimeGte);
       }
-      const results = Array.from(map.values()).map((x) => ({
-        name: x.name,
-        calls: x.calls,
-        videoCalls: x.videoCalls,
-        totalCalls: x.calls + x.videoCalls,
-        minutes: Math.ceil(x.minutes),
-        // revenue: x.revenue,
-        avgRating: x._ratingCount ? Number((x._ratingSum / x._ratingCount).toFixed(1)) : 0
-      })).sort((a, b) => b.totalCalls - a.totalCalls);
+      if (startTimeLte) {
+        query.where("calls.created_at", "<=", startTimeLte);
+      }
+      const stats = await query.select(
+        knex.raw("COALESCE(categories.name, 'Others') as name"),
+        knex.raw("COUNT(CASE WHEN calls.type = 'voiceCall' THEN 1 END) as voice_calls"),
+        knex.raw("COUNT(CASE WHEN calls.type = 'videoCall' THEN 1 END) as video_calls"),
+        knex.raw("SUM(COALESCE(calls.duration, 0)) as total_duration"),
+        knex.raw("AVG(reviews.rating) as avg_rating")
+      ).groupBy("categories.name").orderBy(knex.raw("COUNT(calls.id)"), "desc");
+      const results = stats.map((row) => {
+        const voiceCalls = parseInt(row.voice_calls || 0);
+        const videoCalls = parseInt(row.video_calls || 0);
+        return {
+          name: row.name,
+          calls: voiceCalls,
+          videoCalls,
+          totalCalls: voiceCalls + videoCalls,
+          minutes: Math.ceil(parseFloat(row.total_duration || 0)),
+          avgRating: row.avg_rating ? parseFloat(parseFloat(row.avg_rating).toFixed(1)) : 0
+        };
+      });
       return ctx.send(results);
     } catch (error) {
       strapi2.log.error("categoryStats error", error);
@@ -846,21 +831,28 @@ const liveCallsService = ({ strapi: strapi2 }) => ({
         populate: { caller: true, receiver: true, categories: true },
         sort: { createdAt: "desc" }
       });
-      const reviews = await strapi2.entityService.findMany("api::review.review", { fields: ["rating"] });
-      const experts = await strapi2.entityService.findMany("api::expert-profile.expert-profile");
+      const expertsOnline = await strapi2.entityService.findMany("api::expert-profile.expert-profile", { filters: { isActive: true }, fields: ["id"] });
+      const init = () => ({
+        liveCalls: 0,
+        callsToday: 0,
+        declinedCalls: 0,
+        completedCalls: 0,
+        avgDuration: 0
+      });
       const stats = {
-        liveCalls: calls.filter((call) => call.callStatus === "ongoing").length,
-        voiceCalls: calls.filter((call) => call.type === "voiceCall").length,
-        videoCalls: calls.filter((call) => call.type === "videoCall").length,
-        expertsOnline: experts.filter((expert) => expert.isActive).length,
-        totalExperts: experts.length,
-        callsToday: calls.length,
-        declinedCalls: calls.filter((call) => call.callStatus === "declined").length,
-        completedCalls: calls.filter((call) => call.callStatus === "completed").length,
-        avgDuration: calls.reduce((total, call) => total + call.duration, 0),
-        avgCallRevenue: Math.round(calls.reduce((total, call) => total + call.totalCost, 0)),
-        avgRating: (reviews.reduce((total, review) => total + review.rating, 0) / reviews.length)?.toFixed(1)
+        voice: init(),
+        video: init(),
+        expertsOnline: expertsOnline.length
       };
+      for (const call of calls) {
+        const bucket = call.type === "voiceCall" ? stats.voice : call.type === "videoCall" ? stats.video : null;
+        if (!bucket) continue;
+        bucket.callsToday++;
+        if (call.callStatus === "ongoing") bucket.liveCalls++;
+        if (call.callStatus === "declined") bucket.declinedCalls++;
+        if (call.callStatus === "completed") bucket.completedCalls++;
+        bucket.avgDuration += Number(call.duration) || 0;
+      }
       const liveCalls = calls.filter((call) => /ongoing|pending/i.test(call.callStatus)).slice(0, 8).map((call) => {
         return {
           id: call.id,

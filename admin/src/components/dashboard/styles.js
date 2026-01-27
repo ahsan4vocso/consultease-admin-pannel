@@ -586,10 +586,11 @@ export const RatingStars = styled.span`
 
 // --- KPI Card ---
 export const KpiCardContainer = styled.div`
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
-  padding: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 `;
 
 export const KpiTop = styled.div`
@@ -602,58 +603,39 @@ export const KpiTop = styled.div`
 export const KpiInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.4rem;
 `;
 
-export const KpiLabel = styled.p`
-  font-size: 12px;
+export const KpiLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 14px;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
+  
+  svg {
+    flex-shrink: 0;
+  }
 `;
 
 export const KpiValue = styled.p`
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
 
-export const KpiIconBox = styled.div`
-  display: none;
-  @media (min-width: 640px) {
-    display: flex;
-  }
-  min-height: 2.5rem;
-  min-width: 2.5rem;
+export const KpiChartWrapper = styled.div`
+  width: 5.5rem;
+  height: 5.5rem;
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
-  border: 1px solid transparent;
-  font-size: 0.75rem;
-  font-weight: 500;
-
-  ${props => props.tone === 'emerald' && css`
-    background-color: ${({ theme }) => theme.colors.success100};
-    color: ${({ theme }) => theme.colors.success700};
-    border-color: ${({ theme }) => theme.colors.success200};
-  `}
-  ${props => props.tone === 'amber' && css`
-    background-color: ${({ theme }) => theme.colors.warning100};
-    color: ${({ theme }) => theme.colors.warning700};
-    border-color: ${({ theme }) => theme.colors.warning200};
-  `}
-  ${props => props.tone === 'sky' && css`
-    background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary700};
-    border-color: ${({ theme }) => theme.colors.primary200};
-  `}
-  ${props => props.tone === 'rose' && css`
-    background-color: ${({ theme }) => theme.colors.danger100};
-    color: ${({ theme }) => theme.colors.danger700};
-    border-color: ${({ theme }) => theme.colors.danger200};
-  `}
 `;
 
 export const KpiBottom = styled.div`

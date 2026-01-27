@@ -106,7 +106,7 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
                     <tbody>
                         {recentCalls.length === 0 ? (
                             <tr>
-                                <td colSpan="7">
+                                <td colSpan="9">
                                     <EmptyState
                                         title="No completed calls"
                                         subtitle={{

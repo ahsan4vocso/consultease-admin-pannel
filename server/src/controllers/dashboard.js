@@ -498,67 +498,54 @@ const dashboard = ({ strapi }) => ({
   // ----------------------------------------------------------
   async categoryStats(ctx) {
     try {
-      // const baseFilters = { callStatus: { $in: ["completed",] } };
       const clientFilters = ctx.query?.filters || {};
-      const filters = { ...clientFilters };
+      const knex = strapi.db.connection;
 
-      const calls = await strapi.entityService.findMany("api::call.call", {
-        filters,
-        fields: ["duration", "totalCost", "type"],
-        populate: {
-          categories: { fields: ["name"] },
-          review: { fields: ["rating"] },
-        },
-      });
+      // Extract time filters (assuming startTime or createdAt)
+      const startTimeGte = clientFilters.startTime?.$gte || clientFilters.createdAt?.$gte;
+      const startTimeLte = clientFilters.startTime?.$lte || clientFilters.createdAt?.$lte;
 
-      const map = new Map();
+      // Subquery to get the first category for each call (to match previous [0] logic)
+      const catSubquery = knex('calls_categories_links')
+        .select('call_id', knex.raw('MIN(category_id) as category_id'))
+        .groupBy('call_id');
 
-      for (const row of calls) {
-        const categoryName = row.categories?.[0]?.name?.trim() || "Others";
+      const query = knex('calls')
+        .leftJoin(catSubquery.as('cl'), 'calls.id', 'cl.call_id')
+        .leftJoin('categories', 'cl.category_id', 'categories.id')
+        .leftJoin('calls_review_links', 'calls.id', 'calls_review_links.call_id')
+        .leftJoin('reviews', 'calls_review_links.review_id', 'reviews.id');
 
-        const minutes = Number(row.duration || 0);
-        // const revenue = Number(row.totalCost || 0);
-        const rating = Number(row.review?.rating);
-        const hasRating = Number.isFinite(rating);
-        const type = row.type;
-
-        if (!map.has(categoryName)) {
-          map.set(categoryName, {
-            name: categoryName,
-            calls: 0,
-            videoCalls: 0,
-            minutes: 0,
-            // revenue: 0,
-            _ratingSum: 0,
-            _ratingCount: 0,
-          });
-        }
-
-        const agg = map.get(categoryName);
-
-        if (type === "videoCall") agg.videoCalls += 1;
-        else agg.calls += 1;
-
-        agg.minutes += minutes;
-        // agg.revenue += revenue;
-
-        if (hasRating) {
-          agg._ratingSum += rating;
-          agg._ratingCount += 1;
-        }
+      if (startTimeGte) {
+        query.where('calls.created_at', '>=', startTimeGte);
+      }
+      if (startTimeLte) {
+        query.where('calls.created_at', '<=', startTimeLte);
       }
 
-      const results = Array.from(map.values())
-        .map((x) => ({
-          name: x.name,
-          calls: x.calls,
-          videoCalls: x.videoCalls,
-          totalCalls: x.calls + x.videoCalls,
-          minutes: Math.ceil(x.minutes),
-          // revenue: x.revenue,
-          avgRating: x._ratingCount ? Number((x._ratingSum / x._ratingCount).toFixed(1)) : 0,
-        }))
-        .sort((a, b) => b.totalCalls - a.totalCalls);
+      const stats = await query
+        .select(
+          knex.raw("COALESCE(categories.name, 'Others') as name"),
+          knex.raw("COUNT(CASE WHEN calls.type = 'voiceCall' THEN 1 END) as voice_calls"),
+          knex.raw("COUNT(CASE WHEN calls.type = 'videoCall' THEN 1 END) as video_calls"),
+          knex.raw("SUM(COALESCE(calls.duration, 0)) as total_duration"),
+          knex.raw("AVG(reviews.rating) as avg_rating")
+        )
+        .groupBy('categories.name')
+        .orderBy(knex.raw("COUNT(calls.id)"), 'desc');
+
+      const results = stats.map((row) => {
+        const voiceCalls = parseInt(row.voice_calls || 0);
+        const videoCalls = parseInt(row.video_calls || 0);
+        return {
+          name: row.name,
+          calls: voiceCalls,
+          videoCalls: videoCalls,
+          totalCalls: voiceCalls + videoCalls,
+          minutes: Math.ceil(parseFloat(row.total_duration || 0)),
+          avgRating: row.avg_rating ? parseFloat(parseFloat(row.avg_rating).toFixed(1)) : 0,
+        };
+      });
 
       return ctx.send(results);
 

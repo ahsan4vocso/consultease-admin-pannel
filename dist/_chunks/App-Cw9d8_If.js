@@ -8,7 +8,7 @@ const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
 const react = require("react");
 const styled = require("styled-components");
-const index = require("./index-D4YHXBMq.js");
+const index = require("./index-CF_4VdJn.js");
 const recharts = require("recharts");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
@@ -521,10 +521,11 @@ const RatingStars = styled__default.default.span`
   border: 1px solid ${({ theme }) => theme.colors.warning200};
 `;
 const KpiCardContainer = styled__default.default.div`
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
-  padding: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
 `;
 const KpiTop = styled__default.default.div`
   display: flex;
@@ -535,55 +536,36 @@ const KpiTop = styled__default.default.div`
 const KpiInfo = styled__default.default.div`
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.4rem;
 `;
-const KpiLabel = styled__default.default.p`
-  font-size: 12px;
+const KpiLabel = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 14px;
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
+  
+  svg {
+    flex-shrink: 0;
+  }
 `;
 const KpiValue = styled__default.default.p`
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-const KpiIconBox = styled__default.default.div`
-  display: none;
-  @media (min-width: 640px) {
-    display: flex;
-  }
-  min-height: 2.5rem;
-  min-width: 2.5rem;
+const KpiChartWrapper = styled__default.default.div`
+  width: 5.5rem;
+  height: 5.5rem;
+  flex-shrink: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.75rem;
-  border: 1px solid transparent;
-  font-size: 0.75rem;
-  font-weight: 500;
-
-  ${(props) => props.tone === "emerald" && styled.css`
-    background-color: ${({ theme }) => theme.colors.success100};
-    color: ${({ theme }) => theme.colors.success700};
-    border-color: ${({ theme }) => theme.colors.success200};
-  `}
-  ${(props) => props.tone === "amber" && styled.css`
-    background-color: ${({ theme }) => theme.colors.warning100};
-    color: ${({ theme }) => theme.colors.warning700};
-    border-color: ${({ theme }) => theme.colors.warning200};
-  `}
-  ${(props) => props.tone === "sky" && styled.css`
-    background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary700};
-    border-color: ${({ theme }) => theme.colors.primary200};
-  `}
-  ${(props) => props.tone === "rose" && styled.css`
-    background-color: ${({ theme }) => theme.colors.danger100};
-    color: ${({ theme }) => theme.colors.danger700};
-    border-color: ${({ theme }) => theme.colors.danger200};
-  `}
 `;
 styled__default.default.div`
   margin-top: 0.5rem;
@@ -1013,7 +995,10 @@ const ModalButton = styled__default.default.button`
   `}
 `;
 function Header({ stats, filter, onFilterChange }) {
-  const droppedRate = stats.callsToday ? (stats.declinedCalls / stats.callsToday * 100).toFixed(1) : 0;
+  const { voice = {}, video = {} } = stats || {};
+  const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
+  const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+  const droppedRate = totalCallsToday ? (totalDeclinedCalls / totalCallsToday * 100).toFixed(1) : 0;
   const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
   const savedStart = localStorage.getItem("dashboard_start_date");
   const savedEnd = localStorage.getItem("dashboard_end_date");
@@ -1043,9 +1028,9 @@ function Header({ stats, filter, onFilterChange }) {
         /* @__PURE__ */ jsxRuntime.jsx(Title, { children: "Live Calls Dashboard" }),
         /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
         /* @__PURE__ */ jsxRuntime.jsxs(MetaText, { children: [
-          stats.callsToday,
+          totalCallsToday,
           " calls today • ",
-          stats.declinedCalls,
+          totalDeclinedCalls,
           " declined (",
           droppedRate,
           "%)"
@@ -1232,7 +1217,7 @@ const CHART_COLORS = {
   voice: "#7476f1ff",
   video: "#48ecbbff"
 };
-const CustomTooltip = ({ active, payload, label, theme }) => {
+const CustomTooltip$1 = ({ active, payload, label, theme }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
@@ -1329,7 +1314,7 @@ function CategoryGrid({ liveCalls, filter, customRange }) {
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.YAxis, { hide: true, axisLine: false, tickLine: false }),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip, { theme }), cursor: { fill: theme.colors.neutral100 } }),
+      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip$1, { theme }), cursor: { fill: theme.colors.neutral100 } }),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "calls", radius: [6, 6, 0, 0], fill: CHART_COLORS.voice }),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "videoCalls", radius: [6, 6, 0, 0], fill: CHART_COLORS.video })
     ] }) }) })
@@ -1343,7 +1328,8 @@ const useMovingTime = () => {
   }, []);
   return now;
 };
-function LiveCallsTable({ stats = {}, liveCalls = [] }) {
+function LiveCallsTable({ stats, liveCalls = [] }) {
+  const s = stats || {};
   const currMovingTime = useMovingTime();
   const theme = styled.useTheme();
   const { post } = admin.useFetchClient();
@@ -1374,7 +1360,7 @@ function LiveCallsTable({ stats = {}, liveCalls = [] }) {
       /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", gap: "10px" }, children: /* @__PURE__ */ jsxRuntime.jsxs(ActiveBadge, { children: [
         /* @__PURE__ */ jsxRuntime.jsx(LiveDot, {}),
         " ",
-        stats.liveCalls,
+        (s.voice?.liveCalls || 0) + (s.video?.liveCalls || 0),
         " ongoing"
       ] }) })
     ] }),
@@ -1566,7 +1552,7 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Status" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Rating" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: recentCalls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "7", children: /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: recentCalls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsxRuntime.jsx(
         EmptyState,
         {
           title: "No completed calls",
@@ -1638,56 +1624,154 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
   ] });
 }
 function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
+  const theme = styled.useTheme();
+  const getIconColor = (tone2) => {
+    switch (tone2) {
+      case "emerald":
+        return theme.colors.success700;
+      case "sky":
+        return theme.colors.primary700;
+      case "rose":
+        return theme.colors.danger700;
+      case "amber":
+        return theme.colors.warning700;
+      default:
+        return theme.colors.neutral700;
+    }
+  };
   return /* @__PURE__ */ jsxRuntime.jsx(KpiCardContainer, { ...rest, children: /* @__PURE__ */ jsxRuntime.jsxs(KpiTop, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(KpiInfo, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(KpiLabel, { children: /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "0.5rem" }, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs(KpiLabel, { children: [
+        Icon && /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "2rem", height: "2rem", color: getIconColor(tone) } }),
         label,
         label === "Ongoing calls" && /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: "ongoing", children: [
           /* @__PURE__ */ jsxRuntime.jsx(
             "span",
             {
               style: {
-                width: 6,
-                height: 6,
+                width: 4,
+                height: 4,
                 borderRadius: "50%",
                 backgroundColor: "currentColor"
               }
             }
           ),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { style: { paddingX: "0.8rem" }, children: "Live" })
+          /* @__PURE__ */ jsxRuntime.jsx("span", { style: { paddingLeft: "0.4rem" }, children: "Live" })
         ] })
-      ] }) }),
+      ] }),
       /* @__PURE__ */ jsxRuntime.jsx(KpiValue, { children: value })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(KpiIconBox, { tone, children: Icon ? /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "3rem", height: "3rem", padding: "0.5rem" } }) : "⚡" })
+    chartData && /* @__PURE__ */ jsxRuntime.jsx(KpiChartWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(PieChartWithPaddingAngle, { data: chartData, tone }) })
   ] }) });
 }
-function KpiSection({ stats = {} }) {
+function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
+  const theme = styled.useTheme();
+  const chartColors = {
+    Voice: "#7476f1ff",
+    Video: "#48ecbbff"
+  };
+  const getColors = (tone2) => {
+    switch (tone2) {
+      case "emerald":
+        return [theme.colors.success500, theme.colors.success200];
+      case "sky":
+        return [theme.colors.primary500, theme.colors.primary200];
+      case "rose":
+        return [theme.colors.danger500, theme.colors.danger200];
+      case "amber":
+        return [theme.colors.warning500, theme.colors.warning200];
+      default:
+        return [theme.colors.neutral500, theme.colors.neutral200];
+    }
+  };
+  const defaultColors = getColors(tone);
+  return /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.PieChart, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      recharts.Pie,
+      {
+        data,
+        innerRadius: "70%",
+        outerRadius: "100%",
+        cornerRadius: "50%",
+        paddingAngle: 6,
+        dataKey: "value",
+        isAnimationActive,
+        stroke: "none",
+        children: data.map((entry, index2) => /* @__PURE__ */ jsxRuntime.jsx(
+          recharts.Cell,
+          {
+            fill: chartColors[entry.name] || defaultColors[index2 % defaultColors.length]
+          },
+          `cell-${index2}`
+        ))
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip, {}), cursor: { fill: "transparent" } })
+  ] }) });
+}
+function CustomTooltip({ active, payload }) {
+  if (active && payload && payload.length) {
+    const { name, value, fill } = payload[0].payload;
+    return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
+      backgroundColor: "#fff",
+      color: "#333",
+      padding: "4px 10px",
+      borderRadius: "6px",
+      fontSize: "11px",
+      fontWeight: "600",
+      boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+      border: `1.5px solid ${fill}`,
+      display: "flex",
+      flexDirection: "row",
+      gap: "8px",
+      alignItems: "center",
+      whiteSpace: "nowrap"
+    }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: "#666", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: name }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: fill, fontSize: "12px" }, children: value })
+    ] });
+  }
+  return null;
+}
+function KpiSection({ stats }) {
+  const s = stats || {};
+  const voice = s.voice || {};
+  const video = s.video || {};
+  const expertsOnline = s.expertsOnline || 0;
+  const totalLiveCalls = (voice.liveCalls || 0) + (video.liveCalls || 0);
+  const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
+  const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+  const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
+  const totalAvgDuration = voice.avgDuration || video.avgDuration || 0;
   return /* @__PURE__ */ jsxRuntime.jsxs(KpiSection$1, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(KpiGrid, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(
         KpiCard,
         {
           label: "Ongoing calls",
-          value: stats.liveCalls,
+          value: totalLiveCalls,
           tone: "emerald",
           Icon: index.ActiveCall,
           style: { cursor: "pointer" },
           chartData: [
-            { name: "Voice", value: stats.voiceCalls || 0 },
-            { name: "Video", value: stats.videoCalls || 0 }
+            { name: "Voice", value: voice.liveCalls || 0 },
+            { name: "Video", value: video.liveCalls || 0 }
           ],
-          onClick: () => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=ongoing&filters[$and][1][createdAt][$gte]=${encodeURIComponent((/* @__PURE__ */ new Date()).toISOString().split("T")[0] + "T00:00:00.000Z")}&page=1`, "_blank")
+          onClick: () => totalLiveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=ongoing&filters[$and][1][createdAt][$gte]=${encodeURIComponent((/* @__PURE__ */ new Date()).toISOString().split("T")[0] + "T00:00:00.000Z")}&page=1`, "_blank")
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(
         KpiCard,
         {
           label: "Total calls today",
-          value: stats.callsToday,
+          value: totalCallsToday,
           chip: "Including free & paid",
           tone: "sky",
-          Icon: index.TotalCalls
+          Icon: index.TotalCalls,
+          chartData: [
+            { name: "Voice", value: voice.callsToday || 0 },
+            { name: "Video", value: video.callsToday || 0 }
+          ]
         }
       )
     ] }),
@@ -1696,26 +1780,30 @@ function KpiSection({ stats = {} }) {
         KpiCard,
         {
           label: "Declined calls",
-          value: stats.declinedCalls,
+          value: totalDeclinedCalls,
           tone: "rose",
           Icon: index.DeclineCall,
-          style: { cursor: stats.declinedCalls && "pointer" },
+          style: { cursor: totalDeclinedCalls && "pointer" },
           chartData: [
-            { name: "Voice", value: stats.declinedVoice || 0 },
-            { name: "Video", value: stats.declinedVideo || 0 }
+            { name: "Voice", value: voice.declinedCalls || 0 },
+            { name: "Video", value: video.declinedCalls || 0 }
           ],
-          onClick: () => stats.declinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=declined&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
+          onClick: () => totalDeclinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=declined&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(
         KpiCard,
         {
           label: "Completed calls",
-          value: stats.completedCalls,
+          value: totalCompletedCalls,
           tone: "emerald",
           Icon: index.CompletedCall,
           style: { cursor: "pointer" },
-          onClick: () => stats.completedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=completed&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
+          chartData: [
+            { name: "Voice", value: voice.completedCalls || 0 },
+            { name: "Video", value: video.completedCalls || 0 }
+          ],
+          onClick: () => totalCompletedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=completed&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
         }
       )
     ] }),
@@ -1724,10 +1812,10 @@ function KpiSection({ stats = {} }) {
         KpiCard,
         {
           label: "Experts online",
-          value: stats.expertsOnline,
+          value: expertsOnline,
           tone: "sky",
           Icon: index.Expert,
-          onClick: () => stats.expertsOnline > 0 && window.open(
+          onClick: () => expertsOnline > 0 && window.open(
             `/admin/content-manager/collection-types/api::expert-profile.expert-profile?filters[$and][0][isActive][$eq]=true&sort=createdAt:DESC&page=1&pageSize=100`,
             "_blank"
           )
@@ -1737,9 +1825,13 @@ function KpiSection({ stats = {} }) {
         KpiCard,
         {
           label: "Total call duration",
-          value: minutesToMMSS(stats.avgDuration),
+          value: minutesToMMSS(totalAvgDuration),
           tone: "emerald",
-          Icon: index.CallTime
+          Icon: index.CallTime,
+          chartData: [
+            { name: "Voice", value: voice.avgDuration || 0 },
+            { name: "Video", value: video.avgDuration || 0 }
+          ]
         }
       )
     ] })

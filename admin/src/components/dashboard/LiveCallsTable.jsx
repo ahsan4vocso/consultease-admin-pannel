@@ -7,7 +7,8 @@ import { formatTimeAMPM, minutesToMMSS } from "../../utils/helper";
 import { VideoCall, VoiceCall, Cross } from "../Icons";
 import { useMovingTime } from "../../hooks/useFormater";
 
-export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
+export default function LiveCallsTable({ stats, liveCalls = [] }) {
+    const s = stats || {};
     const currMovingTime = useMovingTime();
     const theme = useTheme();
     const { post } = useFetchClient();
@@ -41,7 +42,7 @@ export default function LiveCallsTable({ stats = {}, liveCalls = [] }) {
                     <Style.CardSubtitle>Monitor ongoing calls.</Style.CardSubtitle>
                 </div>
                 <div style={{ display: "flex", gap: "10px" }}>
-                    <Style.ActiveBadge><Style.LiveDot /> {stats.liveCalls} ongoing</Style.ActiveBadge>
+                    <Style.ActiveBadge><Style.LiveDot /> {(s.voice?.liveCalls || 0) + (s.video?.liveCalls || 0)} ongoing</Style.ActiveBadge>
                 </div>
             </Style.TableHeader>
             <Style.TableContainer maxHeight="350px" minHeight="200px">

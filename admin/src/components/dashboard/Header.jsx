@@ -3,7 +3,11 @@ import { PluginIcon } from "../Icons";
 import * as Style from "./styles";
 
 export default function Header({ stats, filter, onFilterChange }) {
-    const droppedRate = stats.callsToday ? ((stats.declinedCalls / stats.callsToday) * 100).toFixed(1) : 0;
+    const { voice = {}, video = {} } = stats || {};
+    const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
+    const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+
+    const droppedRate = totalCallsToday ? ((totalDeclinedCalls / totalCallsToday) * 100).toFixed(1) : 0;
 
     // Local state for custom dates
     const today = new Date().toISOString().split('T')[0];
@@ -44,7 +48,7 @@ export default function Header({ stats, filter, onFilterChange }) {
                     <Style.Title>Live Calls Dashboard</Style.Title>
                     <Style.Subtitle>Realtime view of ConsultEase calls, categories & expert load.</Style.Subtitle>
                     <Style.MetaText>
-                        {stats.callsToday} calls today • {stats.declinedCalls} declined ({droppedRate}%)
+                        {totalCallsToday} calls today • {totalDeclinedCalls} declined ({droppedRate}%)
                     </Style.MetaText>
                 </Style.TitleBox>
             </Style.HeaderLeft>

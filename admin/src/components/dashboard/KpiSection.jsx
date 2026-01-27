@@ -3,32 +3,46 @@ import KpiCard from "./KpiCard";
 import { minutesToMMSS } from "../../utils/helper";
 import { ActiveCall, DeclineCall, CompletedCall, Expert, CallTime, TotalCalls } from "../Icons";
 
-export default function KpiSection({ stats = {} }) {
+export default function KpiSection({ stats }) {
+    const s = stats || {};
+    const voice = s.voice || {};
+    const video = s.video || {};
+    const expertsOnline = s.expertsOnline || 0;
+
+    const totalLiveCalls = (voice.liveCalls || 0) + (video.liveCalls || 0);
+    const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
+    const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+    const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
+    const totalAvgDuration = voice.avgDuration || video.avgDuration || 0;
 
     return (
         <Style.KpiSection>
             <Style.KpiGrid>
                 <KpiCard
                     label="Ongoing calls"
-                    value={stats.liveCalls}
+                    value={totalLiveCalls}
                     tone="emerald"
                     Icon={ActiveCall}
                     style={{ cursor: 'pointer' }}
                     chartData={[
-                        { name: 'Voice', value: stats.voiceCalls || 0 },
-                        { name: 'Video', value: stats.videoCalls || 0 }
+                        { name: 'Voice', value: voice.liveCalls || 0 },
+                        { name: 'Video', value: video.liveCalls || 0 }
                     ]}
-                    onClick={() => stats.liveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
+                    onClick={() => totalLiveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=ongoing` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date().toISOString().split("T")[0] + "T00:00:00.000Z")}` +
                         `&page=1`, '_blank')}
                 />
                 <KpiCard
                     label="Total calls today"
-                    value={stats.callsToday}
+                    value={totalCallsToday}
                     chip="Including free & paid"
                     tone="sky"
                     Icon={TotalCalls}
+                    chartData={[
+                        { name: 'Voice', value: voice.callsToday || 0 },
+                        { name: 'Video', value: video.callsToday || 0 }
+                    ]}
                 />
             </Style.KpiGrid>
 
@@ -36,26 +50,30 @@ export default function KpiSection({ stats = {} }) {
             <Style.KpiGrid>
                 <KpiCard
                     label="Declined calls"
-                    value={stats.declinedCalls}
+                    value={totalDeclinedCalls}
                     tone="rose"
                     Icon={DeclineCall}
-                    style={{ cursor: stats.declinedCalls && 'pointer' }}
+                    style={{ cursor: totalDeclinedCalls && 'pointer' }}
                     chartData={[
-                        { name: 'Voice', value: stats.declinedVoice || 0 },
-                        { name: 'Video', value: stats.declinedVideo || 0 }
+                        { name: 'Voice', value: voice.declinedCalls || 0 },
+                        { name: 'Video', value: video.declinedCalls || 0 }
                     ]}
-                    onClick={() => stats.declinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
+                    onClick={() => totalDeclinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=declined` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
                         `&page=1`, '_blank')}
                 />
                 <KpiCard
                     label="Completed calls"
-                    value={stats.completedCalls}
+                    value={totalCompletedCalls}
                     tone="emerald"
                     Icon={CompletedCall}
                     style={{ cursor: 'pointer' }}
-                    onClick={() => stats.completedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
+                    chartData={[
+                        { name: 'Voice', value: voice.completedCalls || 0 },
+                        { name: 'Video', value: video.completedCalls || 0 }
+                    ]}
+                    onClick={() => totalCompletedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=completed` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
                         `&page=1`, '_blank')}
@@ -64,11 +82,11 @@ export default function KpiSection({ stats = {} }) {
             <Style.KpiGrid>
                 <KpiCard
                     label="Experts online"
-                    value={stats.expertsOnline}
+                    value={expertsOnline}
                     tone="sky"
                     Icon={Expert}
                     onClick={() =>
-                        stats.expertsOnline > 0 &&
+                        expertsOnline > 0 &&
                         window.open(
                             `/admin/content-manager/collection-types/api::expert-profile.expert-profile` +
                             `?filters[$and][0][isActive][$eq]=true` +
@@ -81,9 +99,13 @@ export default function KpiSection({ stats = {} }) {
                 />
                 <KpiCard
                     label="Total call duration"
-                    value={minutesToMMSS(stats.avgDuration)}
+                    value={minutesToMMSS(totalAvgDuration)}
                     tone="emerald"
                     Icon={CallTime}
+                    chartData={[
+                        { name: 'Voice', value: voice.avgDuration || 0 },
+                        { name: 'Video', value: video.avgDuration || 0 }
+                    ]}
                 />
             </Style.KpiGrid>
         </Style.KpiSection>
