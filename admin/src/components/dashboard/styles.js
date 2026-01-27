@@ -625,7 +625,7 @@ export const KpiIconBox = styled.div`
   @media (min-width: 640px) {
     display: flex;
   }
-  height: 2.5rem;
+  min-height: 2.5rem;
   min-width: 2.5rem;
   align-items: center;
   justify-content: center;

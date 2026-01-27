@@ -6,7 +6,7 @@ const CHART_COLORS = {
     voice: '#7476f1ff',
     video: '#30c598ff',
 };
-
+//  ss
 const RADIAN = Math.PI / 180;
 
 const renderActiveShape = (props) => {
