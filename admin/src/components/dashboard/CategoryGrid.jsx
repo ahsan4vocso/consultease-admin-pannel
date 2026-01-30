@@ -92,7 +92,7 @@ export default function CategoryGrid({ liveCalls, filter, customRange }) {
                             <div style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
                                 <Style.CategoryRating>
                                     <span>★</span>
-                                    <span>{row.avgRating.toFixed(2)}</span>
+                                    <span>{row.avgRating?.toFixed(2)}</span>
                                 </Style.CategoryRating>
                             </div>
                         </Style.CategoryItem>

@@ -501,59 +501,96 @@ const dashboard = ({ strapi }) => ({
       const clientFilters = ctx.query?.filters || {};
       const knex = strapi.db.connection;
 
-      // Extract time filters (assuming startTime or createdAt)
       const startTimeGte = clientFilters.startTime?.$gte || clientFilters.createdAt?.$gte;
       const startTimeLte = clientFilters.startTime?.$lte || clientFilters.createdAt?.$lte;
 
-      // Subquery to get the first category for each call (to match previous [0] logic)
-      const catSubquery = knex('calls_categories_links')
-        .select('call_id', knex.raw('MIN(category_id) as category_id'))
-        .groupBy('call_id');
+      const rows = await knex("calls as c")
+        .leftJoin("calls_categories_lnk as ccl", "c.id", "ccl.call_id")
+        .leftJoin("categories as cat", "ccl.category_id", "cat.id")
+        .leftJoin("calls_review_lnk as crl", "c.id", "crl.call_id")
+        .leftJoin("reviews as rev", "crl.review_id", "rev.id")
+        .select(knex.raw(`COALESCE(TRIM(cat.name), 'Others') as "name"`))
+        .select(knex.raw(`SUM(CASE WHEN c.type = 'videoCall' THEN 1 ELSE 0 END) as "videoCalls"`))
+        .select(knex.raw(`SUM(CASE WHEN c.type <> 'videoCall' THEN 1 ELSE 0 END) as "calls"`))
+        .select(knex.raw(`SUM(COALESCE(c.duration, 0)) as "minutes"`))
+        .select(knex.raw(`ROUND(AVG(CASE WHEN rev.rating IS NOT NULL THEN rev.rating ELSE 0 END), 2) as "avgRating"`))
+        .where((qb) => {
+          if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
+          if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
+        })
+        .groupByRaw(`COALESCE(TRIM(cat.name), 'Others')`)
+        .orderByRaw(`COUNT(*) DESC`);  // Order by total calls count
 
-      const query = knex('calls')
-        .leftJoin(catSubquery.as('cl'), 'calls.id', 'cl.call_id')
-        .leftJoin('categories', 'cl.category_id', 'categories.id')
-        .leftJoin('calls_review_links', 'calls.id', 'calls_review_links.call_id')
-        .leftJoin('reviews', 'calls_review_links.review_id', 'reviews.id');
-
-      if (startTimeGte) {
-        query.where('calls.created_at', '>=', startTimeGte);
-      }
-      if (startTimeLte) {
-        query.where('calls.created_at', '<=', startTimeLte);
-      }
-
-      const stats = await query
-        .select(
-          knex.raw("COALESCE(categories.name, 'Others') as name"),
-          knex.raw("COUNT(CASE WHEN calls.type = 'voiceCall' THEN 1 END) as voice_calls"),
-          knex.raw("COUNT(CASE WHEN calls.type = 'videoCall' THEN 1 END) as video_calls"),
-          knex.raw("SUM(COALESCE(calls.duration, 0)) as total_duration"),
-          knex.raw("AVG(reviews.rating) as avg_rating")
-        )
-        .groupBy('categories.name')
-        .orderBy(knex.raw("COUNT(calls.id)"), 'desc');
-
-      const results = stats.map((row) => {
-        const voiceCalls = parseInt(row.voice_calls || 0);
-        const videoCalls = parseInt(row.video_calls || 0);
-        return {
-          name: row.name,
-          calls: voiceCalls,
-          videoCalls: videoCalls,
-          totalCalls: voiceCalls + videoCalls,
-          minutes: Math.ceil(parseFloat(row.total_duration || 0)),
-          avgRating: row.avg_rating ? parseFloat(parseFloat(row.avg_rating).toFixed(1)) : 0,
-        };
-      });
-
-      return ctx.send(results);
+      return ctx.send(rows);
 
     } catch (error) {
       strapi.log.error("categoryStats error", error);
       return ctx.internalServerError(error.message || "categoryStats failed");
     }
   },
+
+
+
+  // previous logic
+
+  // const filters = { ...clientFilters };
+  // const calls = await strapi.entityService.findMany("api::call.call", {
+  //   filters,
+  //   fields: ["duration", "totalCost", "type"],
+  //   populate: {
+  //     categories: { fields: ["name"] },
+  //     review: { fields: ["rating"] },
+  //   },
+  // });
+
+  // const map = new Map();
+
+  // for(const row of calls) {
+  //   const categoryName = row.categories?.[0]?.name?.trim() || "Others";
+
+  //   const minutes = Number(row.duration || 0);
+  //   // const revenue = Number(row.totalCost || 0);
+  //   const rating = Number(row.review?.rating);
+  //   const hasRating = Number.isFinite(rating);
+  //   const type = row.type;
+
+  //   if (!map.has(categoryName)) {
+  //     map.set(categoryName, {
+  //       name: categoryName,
+  //       calls: 0,
+  //       videoCalls: 0,
+  //       minutes: 0,
+  //       // revenue: 0,
+  //       _ratingSum: 0,
+  //       _ratingCount: 0,
+  //     });
+  //   }
+  //   const agg = map.get(categoryName);
+  //   if (type === "videoCall") agg.videoCalls += 1;
+  //   else agg.calls += 1;
+  //   agg.minutes += minutes;
+  //   // agg.revenue += revenue;
+
+  //   if (hasRating) {
+  //     agg._ratingSum += rating;
+  //     agg._ratingCount += 1;
+  //   }
+  //   const results = Array.from(map.values())
+  //     .map((x) => ({
+  //       name: x.name,
+  //       calls: x.calls,
+  //       videoCalls: x.videoCalls,
+  //       totalCalls: x.calls + x.videoCalls,
+  //       minutes: Math.ceil(x.minutes),
+  //       // revenue: x.revenue,
+  //       avgRating: x._ratingCount ? Number((x._ratingSum / x._ratingCount).toFixed(1)) : 0,
+  //     }))
+  //     .sort((a, b) => b.totalCalls - a.totalCalls);
+
+
+
+
+
 
   // ----------------------------------------------------------
   // POST /admin/callend  (server-side billing & invoice)
