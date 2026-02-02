@@ -56,7 +56,7 @@ export function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone 
     // Specific colors for chart segments
     const chartColors = {
         Voice: '#7476f1ff',
-        Video: '#48ecbbff'
+        Video: '#48ecbbff',
     };
 
     const getColors = (tone) => {
@@ -106,7 +106,8 @@ export function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone 
 // mini popup comes on hover
 function CustomTooltip({ active, payload }) {
     if (active && payload && payload.length) {
-        const { name, value, fill } = payload[0].payload;
+        const { name, value, realValue, fill } = payload[0].payload;
+        const displayValue = realValue !== undefined ? realValue : value;
         return (
             <div style={{
                 backgroundColor: '#fff',
@@ -124,7 +125,7 @@ function CustomTooltip({ active, payload }) {
                 whiteSpace: 'nowrap'
             }}>
                 <span style={{ color: '#666', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{name}</span>
-                <span style={{ color: fill, fontSize: '12px' }}>{value}</span>
+                <span style={{ color: fill, fontSize: '12px' }}>{displayValue}</span>
             </div>
         );
     }

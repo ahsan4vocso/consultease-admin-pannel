@@ -50,7 +50,6 @@ export const useCategoryStats = (filter = 'today', liveCalls, customRange) => {
 
 export const useStreamData = () => {
     const [liveData, setLiveData] = useState();
-    console.log(window.strapi?.backendURL);
     useEffect(() => {
         const eventSource = new EventSource(`${window.strapi?.backendURL}/admin-pannel/stream`);
         eventSource.onmessage = function (event) {

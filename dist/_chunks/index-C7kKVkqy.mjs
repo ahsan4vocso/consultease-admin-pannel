@@ -82,7 +82,7 @@ const index = {
         defaultMessage: PLUGIN_ID
       },
       Component: async () => {
-        const { App } = await import("./App-UUrodr6m.mjs");
+        const { App } = await import("./App-BZDNk45B.mjs");
         return App;
       }
     });

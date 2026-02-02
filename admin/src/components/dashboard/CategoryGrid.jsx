@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Sector, Cell } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
 import { useTheme } from 'styled-components';
 import * as Style from "./styles";
+import { PieChartWithPaddingAngle } from "./KpiCard";
 import EmptyState from "./EmptyState";
 import { useCategoryStats } from "../../hooks/dashboard";
 import { formatDurationFromMinutes } from "../../utils/helper";
@@ -86,10 +86,24 @@ export default function CategoryGrid({ liveCalls, filter, customRange }) {
                 ) : (
                     categoryStats.map((row) => (
                         <Style.CategoryItem key={row.name}>
-                            <Style.CategoryName title={row.name}>{row.name}</Style.CategoryName>
-                            {row.calls > 0 && <Style.CategoryStats>Voice calls: {row.calls}</Style.CategoryStats>}
-                            {row.videoCalls > 0 && <Style.CategoryStats>Video calls: {row.videoCalls}</Style.CategoryStats>}
-                            <Style.CategoryStats>Total: {formatDurationFromMinutes(row.minutes)}</Style.CategoryStats>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden' }}>
+                                    <Style.CategoryName title={row.name}>{row.name}</Style.CategoryName>
+                                    {row.calls > 0 && <Style.CategoryStats>Voice calls: {row.calls}</Style.CategoryStats>}
+                                    {row.videoCalls > 0 && <Style.CategoryStats>Video calls: {row.videoCalls}</Style.CategoryStats>}
+                                    <Style.CategoryStats>Total: {formatDurationFromMinutes(row.minutes)}</Style.CategoryStats>
+                                </div>
+                                <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
+                                    <PieChartWithPaddingAngle
+                                        isAnimationActive={false}
+                                        data={[
+                                            { name: 'Voice', value: Math.sqrt(row.calls || 0), realValue: row.calls || 0 },
+                                            { name: 'Video', value: Math.sqrt(row.videoCalls || 0), realValue: row.videoCalls || 0 },
+                                        ]}
+                                        tone="emerald"
+                                    />
+                                </div>
+                            </div>
 
                             <div style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
                                 <Style.CategoryRating>

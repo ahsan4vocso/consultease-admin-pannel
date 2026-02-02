@@ -7,8 +7,8 @@ import LiveCallsTable from "./LiveCallsTable";
 import RecentCallsTable from "./RecentCallsTable";
 import KpiSection from "./KpiSection";
 
-// import TopConsultants from "./TopConsultants";
-// import ExpertsSnapshot from "./ExpertsSnapshot";
+import TopConsultants from "./TopConsultants";
+import ExpertsSnapshot from "./ExpertsSnapshot";
 
 export default function CallsLiveDashboard() {
     const { stats = {}, liveCalls } = useStreamData() || {}; // Stream data
@@ -34,8 +34,8 @@ export default function CallsLiveDashboard() {
                             customRange={customRange}
                         />
 
-                        {/* <ExpertsSnapshot />
-                        <TopConsultants /> */}
+                        {/* <ExpertsSnapshot /> */}
+                        {/* <TopConsultants /> */}
                     </Style.Column>
 
                     <Style.Column>

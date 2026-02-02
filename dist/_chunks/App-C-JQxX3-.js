@@ -8,7 +8,7 @@ const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
 const react = require("react");
 const styled = require("styled-components");
-const index = require("./index-8nwC3vn8.js");
+const index = require("./index-DRtHOVH8.js");
 const recharts = require("recharts");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
@@ -1191,7 +1191,6 @@ const useCategoryStats = (filter = "today", liveCalls, customRange) => {
 };
 const useStreamData = () => {
   const [liveData, setLiveData] = react.useState();
-  console.log(window.strapi?.backendURL);
   react.useEffect(() => {
     const eventSource = new EventSource(`${window.strapi?.backendURL}/admin-pannel/stream`);
     eventSource.onmessage = function(event) {
@@ -1207,6 +1206,117 @@ const useStreamData = () => {
   }, []);
   return liveData;
 };
+function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
+  const theme = styled.useTheme();
+  const getIconColor = (tone2) => {
+    switch (tone2) {
+      case "emerald":
+        return theme.colors.success700;
+      case "sky":
+        return theme.colors.primary700;
+      case "rose":
+        return theme.colors.danger700;
+      case "amber":
+        return theme.colors.warning700;
+      default:
+        return theme.colors.neutral700;
+    }
+  };
+  return /* @__PURE__ */ jsxRuntime.jsx(KpiCardContainer, { ...rest, children: /* @__PURE__ */ jsxRuntime.jsxs(KpiTop, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(KpiInfo, { children: [
+      /* @__PURE__ */ jsxRuntime.jsxs(KpiLabel, { children: [
+        Icon && /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "2rem", height: "2rem", color: getIconColor(tone) } }),
+        label,
+        label === "Ongoing calls" && /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: "ongoing", children: [
+          /* @__PURE__ */ jsxRuntime.jsx(
+            "span",
+            {
+              style: {
+                width: 4,
+                height: 4,
+                borderRadius: "50%",
+                backgroundColor: "currentColor"
+              }
+            }
+          ),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { style: { paddingLeft: "0.4rem" }, children: "Live" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsx(KpiValue, { children: value })
+    ] }),
+    chartData && /* @__PURE__ */ jsxRuntime.jsx(KpiChartWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(PieChartWithPaddingAngle, { data: chartData, tone }) })
+  ] }) });
+}
+function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
+  const theme = styled.useTheme();
+  const chartColors = {
+    Voice: "#7476f1ff",
+    Video: "#48ecbbff"
+  };
+  const getColors = (tone2) => {
+    switch (tone2) {
+      case "emerald":
+        return [theme.colors.success500, theme.colors.success200];
+      case "sky":
+        return [theme.colors.primary500, theme.colors.primary200];
+      case "rose":
+        return [theme.colors.danger500, theme.colors.danger200];
+      case "amber":
+        return [theme.colors.warning500, theme.colors.warning200];
+      default:
+        return [theme.colors.neutral500, theme.colors.neutral200];
+    }
+  };
+  const defaultColors = getColors(tone);
+  return /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.PieChart, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      recharts.Pie,
+      {
+        data,
+        innerRadius: "70%",
+        outerRadius: "100%",
+        cornerRadius: "50%",
+        paddingAngle: 6,
+        dataKey: "value",
+        isAnimationActive,
+        stroke: "none",
+        children: data.map((entry, index2) => /* @__PURE__ */ jsxRuntime.jsx(
+          recharts.Cell,
+          {
+            fill: chartColors[entry.name] || defaultColors[index2 % defaultColors.length]
+          },
+          `cell-${index2}`
+        ))
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip$1, {}), cursor: { fill: "transparent" } })
+  ] }) });
+}
+function CustomTooltip$1({ active, payload }) {
+  if (active && payload && payload.length) {
+    const { name, value, realValue, fill } = payload[0].payload;
+    const displayValue = realValue !== void 0 ? realValue : value;
+    return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
+      backgroundColor: "#fff",
+      color: "#333",
+      padding: "4px 10px",
+      borderRadius: "6px",
+      fontSize: "11px",
+      fontWeight: "600",
+      boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+      border: `1.5px solid ${fill}`,
+      display: "flex",
+      flexDirection: "row",
+      gap: "8px",
+      alignItems: "center",
+      whiteSpace: "nowrap"
+    }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: "#666", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: name }),
+      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: fill, fontSize: "12px" }, children: displayValue })
+    ] });
+  }
+  return null;
+}
 function EmptyState({ title, subtitle, icon = "📭" }) {
   return /* @__PURE__ */ jsxRuntime.jsxs(EmptyStateContainer, { children: [
     /* @__PURE__ */ jsxRuntime.jsx(EmptyStateIcon, { children: icon }),
@@ -1264,7 +1374,7 @@ const CHART_COLORS = {
   voice: "#7476f1ff",
   video: "#48ecbbff"
 };
-const CustomTooltip$1 = ({ active, payload, label, theme }) => {
+const CustomTooltip = ({ active, payload, label, theme }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
@@ -1329,18 +1439,33 @@ function CategoryGrid({ liveCalls, filter, customRange }) {
         icon: "📊"
       }
     ) }) : categoryStats.map((row) => /* @__PURE__ */ jsxRuntime.jsxs(CategoryItem, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(CategoryName, { title: row.name, children: row.name }),
-      row.calls > 0 && /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
-        "Voice calls: ",
-        row.calls
-      ] }),
-      row.videoCalls > 0 && /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
-        "Video calls: ",
-        row.videoCalls
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
-        "Total: ",
-        formatDurationFromMinutes(row.minutes)
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" }, children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "0.25rem", overflow: "hidden" }, children: [
+          /* @__PURE__ */ jsxRuntime.jsx(CategoryName, { title: row.name, children: row.name }),
+          row.calls > 0 && /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
+            "Voice calls: ",
+            row.calls
+          ] }),
+          row.videoCalls > 0 && /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
+            "Video calls: ",
+            row.videoCalls
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
+            "Total: ",
+            formatDurationFromMinutes(row.minutes)
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsx("div", { style: { width: "50px", height: "50px", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(
+          PieChartWithPaddingAngle,
+          {
+            isAnimationActive: false,
+            data: [
+              { name: "Voice", value: Math.sqrt(row.calls || 0), realValue: row.calls || 0 },
+              { name: "Video", value: Math.sqrt(row.videoCalls || 0), realValue: row.videoCalls || 0 }
+            ],
+            tone: "emerald"
+          }
+        ) })
       ] }),
       /* @__PURE__ */ jsxRuntime.jsx("div", { style: { position: "absolute", bottom: "4px", right: "4px" }, children: /* @__PURE__ */ jsxRuntime.jsxs(CategoryRating, { children: [
         /* @__PURE__ */ jsxRuntime.jsx("span", { children: "★" }),
@@ -1360,7 +1485,7 @@ function CategoryGrid({ liveCalls, filter, customRange }) {
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.YAxis, { hide: true, axisLine: false, tickLine: false }),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip$1, { theme }), cursor: { fill: theme.colors.neutral100 } }),
+      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip, { theme }), cursor: { fill: theme.colors.neutral100 } }),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "calls", radius: [6, 6, 0, 0], fill: CHART_COLORS.voice }),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "videoCalls", radius: [6, 6, 0, 0], fill: CHART_COLORS.video })
     ] }) }) })
@@ -1671,116 +1796,6 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
       )
     ] })
   ] });
-}
-function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
-  const theme = styled.useTheme();
-  const getIconColor = (tone2) => {
-    switch (tone2) {
-      case "emerald":
-        return theme.colors.success700;
-      case "sky":
-        return theme.colors.primary700;
-      case "rose":
-        return theme.colors.danger700;
-      case "amber":
-        return theme.colors.warning700;
-      default:
-        return theme.colors.neutral700;
-    }
-  };
-  return /* @__PURE__ */ jsxRuntime.jsx(KpiCardContainer, { ...rest, children: /* @__PURE__ */ jsxRuntime.jsxs(KpiTop, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(KpiInfo, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(KpiLabel, { children: [
-        Icon && /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "2rem", height: "2rem", color: getIconColor(tone) } }),
-        label,
-        label === "Ongoing calls" && /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: "ongoing", children: [
-          /* @__PURE__ */ jsxRuntime.jsx(
-            "span",
-            {
-              style: {
-                width: 4,
-                height: 4,
-                borderRadius: "50%",
-                backgroundColor: "currentColor"
-              }
-            }
-          ),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { style: { paddingLeft: "0.4rem" }, children: "Live" })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsx(KpiValue, { children: value })
-    ] }),
-    chartData && /* @__PURE__ */ jsxRuntime.jsx(KpiChartWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(PieChartWithPaddingAngle, { data: chartData, tone }) })
-  ] }) });
-}
-function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
-  const theme = styled.useTheme();
-  const chartColors = {
-    Voice: "#7476f1ff",
-    Video: "#48ecbbff"
-  };
-  const getColors = (tone2) => {
-    switch (tone2) {
-      case "emerald":
-        return [theme.colors.success500, theme.colors.success200];
-      case "sky":
-        return [theme.colors.primary500, theme.colors.primary200];
-      case "rose":
-        return [theme.colors.danger500, theme.colors.danger200];
-      case "amber":
-        return [theme.colors.warning500, theme.colors.warning200];
-      default:
-        return [theme.colors.neutral500, theme.colors.neutral200];
-    }
-  };
-  const defaultColors = getColors(tone);
-  return /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.PieChart, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(
-      recharts.Pie,
-      {
-        data,
-        innerRadius: "70%",
-        outerRadius: "100%",
-        cornerRadius: "50%",
-        paddingAngle: 6,
-        dataKey: "value",
-        isAnimationActive,
-        stroke: "none",
-        children: data.map((entry, index2) => /* @__PURE__ */ jsxRuntime.jsx(
-          recharts.Cell,
-          {
-            fill: chartColors[entry.name] || defaultColors[index2 % defaultColors.length]
-          },
-          `cell-${index2}`
-        ))
-      }
-    ),
-    /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip, {}), cursor: { fill: "transparent" } })
-  ] }) });
-}
-function CustomTooltip({ active, payload }) {
-  if (active && payload && payload.length) {
-    const { name, value, fill } = payload[0].payload;
-    return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
-      backgroundColor: "#fff",
-      color: "#333",
-      padding: "4px 10px",
-      borderRadius: "6px",
-      fontSize: "11px",
-      fontWeight: "600",
-      boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-      border: `1.5px solid ${fill}`,
-      display: "flex",
-      flexDirection: "row",
-      gap: "8px",
-      alignItems: "center",
-      whiteSpace: "nowrap"
-    }, children: [
-      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: "#666", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: name }),
-      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: fill, fontSize: "12px" }, children: value })
-    ] });
-  }
-  return null;
 }
 function KpiSection({ stats }) {
   const s = stats || {};
