@@ -428,70 +428,74 @@ const dashboard = ({ strapi }) => ({
   // ----------------------------------------------------------
   async recentCalls(ctx) {
     try {
-      let pagination = {};
-      let page = 1;
-      let pageSize = null;
-
-      const baseFilters = { callStatus: { $notIn: ["pending", "ongoing"] } };
+      const knex = strapi.db.connection;
       const clientFilters = ctx.query?.filters || {};
-      const filters = { ...baseFilters, ...clientFilters };
-      const total = await strapi.entityService.count("api::call.call", { filters });
+      const paginationQuery = ctx.query?.pagination || {};
 
-      if (ctx.query?.pagination?.pageSize) {
-        page = Math.max(1, Number(ctx.query?.pagination?.page) || 1);
-        pageSize = Math.min(50, Math.max(1, Number(ctx.query?.pagination?.pageSize)));
+      let page = Math.max(1, Number(paginationQuery.page) || 1);
+      let pageSize = Math.min(50, Math.max(1, Number(paginationQuery.pageSize) || 20));
+      const offset = (page - 1) * pageSize;
 
-        pagination = {
-          start: (page - 1) * pageSize,
-          limit: pageSize,
-        };
-      }
+      const startTimeGte = clientFilters.createdAt?.$gte;
+      const startTimeLte = clientFilters.createdAt?.$lte;
+      const statusFilter = clientFilters.callStatus;
 
-      const calls = await strapi.entityService.findMany("api::call.call", {
-        filters,
-        ...pagination,
-        populate: {
-          caller: true,
-          receiver: { populate: { expert: true } },
-          categories: true,
-          review: { fields: ["rating"] },
-        },
-        sort: { createdAt: "desc" },
-      });
+      const rows = await knex("calls as c")
+        .leftJoin("calls_caller_lnk as c_lnk", "c.id", "c_lnk.call_id")
+        .leftJoin("public_users as u_caller", "c_lnk.public_user_id", "u_caller.id")
+        .leftJoin("calls_receiver_lnk as r_lnk", "c.id", "r_lnk.call_id")
+        .leftJoin("public_users as u_receiver", "r_lnk.public_user_id", "u_receiver.id")
+        .leftJoin("calls_categories_lnk as cat_lnk", "c.id", "cat_lnk.call_id")
+        .leftJoin("categories as cat", "cat_lnk.category_id", "cat.id")
+        .leftJoin("calls_review_lnk as rev_lnk", "c.id", "rev_lnk.call_id")
+        .leftJoin("reviews as rev", "rev_lnk.review_id", "rev.id")
+        .where((qb) => {
+          qb.whereNotIn("c.call_status", ["pending", "ongoing"]);
+          if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
+          if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
+          if (statusFilter) {
+            if (typeof statusFilter === 'string') qb.where("c.call_status", statusFilter);
+            else if (statusFilter.$eq) qb.where("c.call_status", statusFilter.$eq);
+            else if (statusFilter.$in) qb.whereIn("c.call_status", statusFilter.$in);
+          }
+        })
+        .select({
+          id: "c.id",
+          type: "c.type",
+          documentId: "c.document_id",
+          time: "c.start_time",
+          duration: "c.duration",
+          caller: "u_caller.name",
+          expert: "u_receiver.name",
+          category: "cat.name",
+          rating: knex.raw("COALESCE(rev.rating, 0)"),
+          revenue: knex.raw("COALESCE(c.total_cost, 0)"),
+          status: "c.call_status",
+          total_count: knex.raw("count(*) over()"),
+        })
+        .orderBy("c.created_at", "desc")
+        .offset(offset).limit(pageSize);
 
-      const recentCalls = calls.map((call) => ({
-        id: call.id,
-        type: call.type,
-        documentId: call.documentId,
-        time: call.startTime,
-        duration: call.duration,
-        caller: call.caller?.name,
-        expert: call.receiver?.name,
-        category: call.categories?.[0]?.name,
-        rating: call.review?.rating,
-        revenue: call.totalCost || 0,
-        status: call.callStatus,
-      }));
+      console.table(rows);
 
+      const total = rows.length > 0 ? parseInt(rows[0].total_count) : 0;
       return ctx.send({
-        data: recentCalls,
-        meta: pageSize ? {
+        data: rows,
+        meta: {
           pagination: {
             page,
             pageSize,
             pageCount: Math.ceil(total / pageSize),
             total,
           },
-        }
-          : { pagination: { total } },
+        },
       });
     } catch (error) {
       strapi.log.error("recentCalls error", error);
-      return ctx.internalServerError(
-        error.message || "recentCalls failed"
-      );
+      return ctx.internalServerError(error.message || "recentCalls failed");
     }
   },
+
 
   // ----------------------------------------------------------
   // GET /api/category-stats
@@ -513,13 +517,15 @@ const dashboard = ({ strapi }) => ({
         .select(knex.raw(`SUM(CASE WHEN c.type = 'videoCall' THEN 1 ELSE 0 END) as "videoCalls"`))
         .select(knex.raw(`SUM(CASE WHEN c.type <> 'videoCall' THEN 1 ELSE 0 END) as "calls"`))
         .select(knex.raw(`SUM(COALESCE(c.duration, 0)) as "minutes"`))
-        .select(knex.raw(`ROUND(AVG(CASE WHEN rev.rating IS NOT NULL THEN rev.rating ELSE 0 END), 2) as "avgRating"`))
+        .select(knex.raw(`ROUND(AVG(CASE WHEN rev.rating IS NOT NULL THEN rev.rating ELSE 0 END), 1) as "avgRating"`))
         .where((qb) => {
           if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
           if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
         })
         .groupByRaw(`COALESCE(TRIM(cat.name), 'Others')`)
-        .orderByRaw(`COUNT(*) DESC`);  // Order by total calls count
+        .orderByRaw(`COUNT(*) DESC`);
+
+      console.table(rows);
 
       return ctx.send(rows);
 
@@ -528,66 +534,6 @@ const dashboard = ({ strapi }) => ({
       return ctx.internalServerError(error.message || "categoryStats failed");
     }
   },
-
-
-
-  // previous logic
-
-  // const filters = { ...clientFilters };
-  // const calls = await strapi.entityService.findMany("api::call.call", {
-  //   filters,
-  //   fields: ["duration", "totalCost", "type"],
-  //   populate: {
-  //     categories: { fields: ["name"] },
-  //     review: { fields: ["rating"] },
-  //   },
-  // });
-
-  // const map = new Map();
-
-  // for(const row of calls) {
-  //   const categoryName = row.categories?.[0]?.name?.trim() || "Others";
-
-  //   const minutes = Number(row.duration || 0);
-  //   // const revenue = Number(row.totalCost || 0);
-  //   const rating = Number(row.review?.rating);
-  //   const hasRating = Number.isFinite(rating);
-  //   const type = row.type;
-
-  //   if (!map.has(categoryName)) {
-  //     map.set(categoryName, {
-  //       name: categoryName,
-  //       calls: 0,
-  //       videoCalls: 0,
-  //       minutes: 0,
-  //       // revenue: 0,
-  //       _ratingSum: 0,
-  //       _ratingCount: 0,
-  //     });
-  //   }
-  //   const agg = map.get(categoryName);
-  //   if (type === "videoCall") agg.videoCalls += 1;
-  //   else agg.calls += 1;
-  //   agg.minutes += minutes;
-  //   // agg.revenue += revenue;
-
-  //   if (hasRating) {
-  //     agg._ratingSum += rating;
-  //     agg._ratingCount += 1;
-  //   }
-  //   const results = Array.from(map.values())
-  //     .map((x) => ({
-  //       name: x.name,
-  //       calls: x.calls,
-  //       videoCalls: x.videoCalls,
-  //       totalCalls: x.calls + x.videoCalls,
-  //       minutes: Math.ceil(x.minutes),
-  //       // revenue: x.revenue,
-  //       avgRating: x._ratingCount ? Number((x._ratingSum / x._ratingCount).toFixed(1)) : 0,
-  //     }))
-  //     .sort((a, b) => b.totalCalls - a.totalCalls);
-
-
 
 
 

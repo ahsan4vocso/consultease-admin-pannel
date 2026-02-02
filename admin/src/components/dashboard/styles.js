@@ -572,16 +572,16 @@ export const ActionButton = styled.button`
   }
 `;
 
+// border-radius: 9999px;
+// background-color: ${({ theme }) => theme.colors.warning100};
+// border: 1px solid ${({ theme }) => theme.colors.warning200};
 export const RatingStars = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
-  background-color: ${({ theme }) => theme.colors.warning100};
   padding: 0.125rem 0.5rem;
   font-size: 11px;
   color: ${({ theme }) => theme.colors.warning600};
-  border: 1px solid ${({ theme }) => theme.colors.warning200};
 `;
 
 // --- KPI Card ---

@@ -90,3 +90,42 @@ export function formatDurationFromMinutes(minutes) {
 
     return parts.join(", ");
 }
+
+
+export const getDateRange = (filter, customRange) => {
+    const now = new Date();
+    let start = new Date();
+    let end = new Date();
+
+    if (filter === 'today') {
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        return { start: start.toLocaleString('sv-SE'), end: end.toLocaleString('sv-SE') };
+    }
+
+    if (filter === '60min') {
+        start = new Date(start.getTime() - 60 * 60 * 1000);
+        return { start: start.toLocaleString('sv-SE'), end: now.toLocaleString('sv-SE') };
+    }
+
+    if (filter === 'yesterday') {
+        start.setDate(now.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setDate(now.getDate() - 1);
+        end.setHours(23, 59, 59, 999);
+        return { start: start.toLocaleString('sv-SE'), end: end.toLocaleString('sv-SE') };
+    }
+
+    if (filter === 'week') {
+        start.setDate(now.getDate() - 7);
+        return { start: start.toLocaleString('sv-SE'), end: now.toLocaleString('sv-SE') };
+    }
+
+    if (filter === 'custom' && customRange?.start && customRange?.end) {
+        return {
+            start: new Date(customRange.start).toLocaleString('sv-SE'),
+            end: new Date(new Date(customRange.end).setHours(23, 59, 59, 999)).toLocaleString('sv-SE')
+        };
+    }
+    return { start: start.toLocaleString('sv-SE'), end: now.toLocaleString('sv-SE') };
+};

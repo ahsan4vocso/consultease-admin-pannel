@@ -4,6 +4,7 @@ import EmptyState from "./EmptyState";
 import { useCompletedCalls } from "../../hooks/dashboard";
 import { formatTimeAMPM, minutesToMMSS, formatDateTime } from "../../utils/helper";
 import { ChevronDown, Tick, VideoCall, VoiceCall } from "../../components/Icons";
+import { StarRating } from "./Rating";
 
 const STATUS_OPTIONS = [
     { label: 'Completed', value: 'completed' },
@@ -18,6 +19,7 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
     const [selectedStatuses, setSelectedStatuses] = useState([]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const filterRef = useRef(null);
+    useEffect(() => { setPage(1) }, [filter]);
 
     const { data: recentCalls = [], meta = {} } = useCompletedCalls(
         page,
@@ -149,7 +151,9 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
                                         </Style.StatusBadge>
                                     </Style.Td>
                                     <Style.Td fontSize="1.4rem">
-                                        {call.rating ? <Style.RatingStars>{"★".repeat(call.rating)}</Style.RatingStars> : <span style={{ fontSize: "1.2rem" }}>---</span>}
+                                        <Style.RatingStars>
+                                            <StarRating rating={call.rating} size={10} />
+                                        </Style.RatingStars>
                                     </Style.Td>
                                 </Style.Tr>
                             )))}

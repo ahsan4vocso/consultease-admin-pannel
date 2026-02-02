@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { useState, useEffect, useRef } from "react";
 import styled, { css, keyframes, useTheme } from "styled-components";
-import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick, A as ActiveCall, c as TotalCalls, D as DeclineCall, d as CompletedCall, E as Expert, e as CallTime } from "./index-DuZkUAE_.mjs";
+import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick, A as ActiveCall, c as TotalCalls, D as DeclineCall, d as CompletedCall, E as Expert, e as CallTime } from "./index-CtDPI_nW.mjs";
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Tooltip, Bar, PieChart, Pie, Cell } from "recharts";
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
@@ -509,12 +509,9 @@ const RatingStars = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
-  background-color: ${({ theme }) => theme.colors.warning100};
   padding: 0.125rem 0.5rem;
   font-size: 11px;
   color: ${({ theme }) => theme.colors.warning600};
-  border: 1px solid ${({ theme }) => theme.colors.warning200};
 `;
 const KpiCardContainer = styled.div`
   border-radius: 1.25rem;
@@ -1074,6 +1071,55 @@ function Header({ stats, filter, onFilterChange }) {
     ] }) })
   ] });
 }
+function minutesToMMSS(minutes) {
+  if (minutes == null || isNaN(minutes)) return "---";
+  const totalSeconds = Math.round(minutes * 60);
+  if (minutes >= 60) {
+    const hh = Math.floor(totalSeconds / 3600);
+    const mm2 = Math.floor(totalSeconds % 3600 / 60);
+    const ss2 = totalSeconds % 60;
+    return `${String(hh).padStart(2, "0")}:${String(mm2).padStart(2, "0")}:${String(ss2).padStart(2, "0")}`;
+  }
+  const mm = Math.floor(totalSeconds / 60);
+  const ss = totalSeconds % 60;
+  return `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+}
+function formatTimeAMPM(dateInput) {
+  if (!dateInput) return "";
+  const date = new Date(dateInput);
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "pm" : "am";
+  hours = hours % 12 || 12;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
+}
+function formatDateTime(dateInput) {
+  if (!dateInput) return "---";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "---";
+  const day = date.getDate();
+  const month = date.toLocaleString("default", { month: "short" });
+  const year = date.getFullYear();
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const strTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
+  return `${day} ${month} ${year}, ${strTime}`;
+}
+function formatDurationFromMinutes(minutes) {
+  if (!Number.isFinite(minutes) || minutes <= 0) return "---";
+  const totalSeconds = Math.round(minutes * 60);
+  const hrs = Math.floor(totalSeconds / 3600);
+  const mins = Math.floor(totalSeconds % 3600 / 60);
+  const secs = totalSeconds % 60;
+  const parts = [];
+  if (hrs > 0) parts.push(`${hrs}h`);
+  if (mins > 0) parts.push(`${mins}min`);
+  if (secs > 0) parts.push(`${secs}sec`);
+  return parts.join(", ");
+}
 const getDateRange = (filter, customRange) => {
   const now = /* @__PURE__ */ new Date();
   let start = /* @__PURE__ */ new Date();
@@ -1081,31 +1127,30 @@ const getDateRange = (filter, customRange) => {
   if (filter === "today") {
     start.setHours(0, 0, 0, 0);
     end.setHours(23, 59, 59, 999);
-    return { start: start.toISOString(), end: end.toISOString() };
+    return { start: start.toLocaleString("sv-SE"), end: end.toLocaleString("sv-SE") };
   }
   if (filter === "60min") {
-    start = new Date(now.getTime() - 60 * 60 * 1e3);
-    return { start: start.toISOString(), end: now.toISOString() };
+    start = new Date(start.getTime() - 60 * 60 * 1e3);
+    return { start: start.toLocaleString("sv-SE"), end: now.toLocaleString("sv-SE") };
   }
   if (filter === "yesterday") {
     start.setDate(now.getDate() - 1);
     start.setHours(0, 0, 0, 0);
     end.setDate(now.getDate() - 1);
     end.setHours(23, 59, 59, 999);
-    return { start: start.toISOString(), end: end.toISOString() };
+    return { start: start.toLocaleString("sv-SE"), end: end.toLocaleString("sv-SE") };
   }
   if (filter === "week") {
     start.setDate(now.getDate() - 7);
-    return { start: start.toISOString(), end: now.toISOString() };
+    return { start: start.toLocaleString("sv-SE"), end: now.toLocaleString("sv-SE") };
   }
   if (filter === "custom" && customRange?.start && customRange?.end) {
     return {
-      start: new Date(customRange.start).toISOString(),
-      end: new Date(new Date(customRange.end).setHours(23, 59, 59, 999)).toISOString()
-      // Set end to the last moment of the day
+      start: new Date(customRange.start).toLocaleString("sv-SE"),
+      end: new Date(new Date(customRange.end).setHours(23, 59, 59, 999)).toLocaleString("sv-SE")
     };
   }
-  return { start: start.toISOString(), end: now.toISOString() };
+  return { start: start.toLocaleString("sv-SE"), end: now.toLocaleString("sv-SE") };
 };
 const useCompletedCalls = (page = 1, filter = "60min", liveCalls, customRange, statuses = []) => {
   const { get } = useFetchClient();
@@ -1165,55 +1210,52 @@ function EmptyState({ title, subtitle, icon = "📭" }) {
     subtitle && /* @__PURE__ */ jsx(EmptyStateSubText, { children: subtitle })
   ] });
 }
-function minutesToMMSS(minutes) {
-  if (minutes == null || isNaN(minutes)) return "---";
-  const totalSeconds = Math.round(minutes * 60);
-  if (minutes >= 60) {
-    const hh = Math.floor(totalSeconds / 3600);
-    const mm2 = Math.floor(totalSeconds % 3600 / 60);
-    const ss2 = totalSeconds % 60;
-    return `${String(hh).padStart(2, "0")}:${String(mm2).padStart(2, "0")}:${String(ss2).padStart(2, "0")}`;
-  }
-  const mm = Math.floor(totalSeconds / 60);
-  const ss = totalSeconds % 60;
-  return `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
-}
-function formatTimeAMPM(dateInput) {
-  if (!dateInput) return "";
-  const date = new Date(dateInput);
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "pm" : "am";
-  hours = hours % 12 || 12;
-  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
-}
-function formatDateTime(dateInput) {
-  if (!dateInput) return "---";
-  const date = new Date(dateInput);
-  if (isNaN(date.getTime())) return "---";
-  const day = date.getDate();
-  const month = date.toLocaleString("default", { month: "short" });
-  const year = date.getFullYear();
-  let hours = date.getHours();
-  const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12;
-  hours = hours ? hours : 12;
-  const strTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
-  return `${day} ${month} ${year}, ${strTime}`;
-}
-function formatDurationFromMinutes(minutes) {
-  if (!Number.isFinite(minutes) || minutes <= 0) return "---";
-  const totalSeconds = Math.round(minutes * 60);
-  const hrs = Math.floor(totalSeconds / 3600);
-  const mins = Math.floor(totalSeconds % 3600 / 60);
-  const secs = totalSeconds % 60;
-  const parts = [];
-  if (hrs > 0) parts.push(`${hrs}h`);
-  if (mins > 0) parts.push(`${mins}min`);
-  if (secs > 0) parts.push(`${secs}sec`);
-  return parts.join(", ");
-}
+const StarIcon = ({ fill, id, size = 10 }) => {
+  return /* @__PURE__ */ jsxs(
+    "svg",
+    {
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      xmlns: "http://www.w3.org/2000/svg",
+      style: { marginRight: "1px" },
+      children: [
+        /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: `half-${id}`, children: [
+          /* @__PURE__ */ jsx("stop", { offset: "50%", stopColor: "currentColor" }),
+          /* @__PURE__ */ jsx("stop", { offset: "50%", stopColor: "transparent", stopOpacity: "0" })
+        ] }) }),
+        /* @__PURE__ */ jsx(
+          "path",
+          {
+            d: "M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z",
+            stroke: "currentColor",
+            strokeWidth: "2",
+            strokeLinejoin: "round",
+            fill: fill === "full" ? "currentColor" : fill === "half" ? `url(#half-${id})` : "none"
+          }
+        )
+      ]
+    }
+  );
+};
+const StarRating = ({ rating, size = 10 }) => {
+  if (rating === void 0 || rating === null) return null;
+  return /* @__PURE__ */ jsx("div", { style: { display: "inline-flex", alignItems: "center" }, children: [1, 2, 3, 4, 5].map((i) => {
+    let fill = "empty";
+    if (rating >= i) {
+      fill = "full";
+    } else if (rating > i - 1) {
+      const decimal = rating - (i - 1);
+      if (decimal <= 0.5 && decimal > 0) {
+        fill = "half";
+      } else if (decimal > 0.5) {
+        fill = "full";
+      }
+    }
+    return /* @__PURE__ */ jsx(StarIcon, { fill, id: `${rating}-${i}`, size }, i);
+  }) });
+};
 const CHART_COLORS = {
   voice: "#7476f1ff",
   video: "#48ecbbff"
@@ -1254,10 +1296,9 @@ const CustomTooltip$1 = ({ active, payload, label, theme }) => {
           "Minutes: ",
           data.minutes
         ] }),
-        /* @__PURE__ */ jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px" }, children: [
+        /* @__PURE__ */ jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px", display: "flex", alignItems: "center", gap: "4px" }, children: [
           "Avg Rating: ",
-          data.avgRating,
-          " ★"
+          /* @__PURE__ */ jsx(RatingStars, { children: /* @__PURE__ */ jsx(StarRating, { rating: data.avgRating }) })
         ] })
       ] })
     ] });
@@ -1299,7 +1340,7 @@ function CategoryGrid({ liveCalls, filter, customRange }) {
       ] }),
       /* @__PURE__ */ jsx("div", { style: { position: "absolute", bottom: "4px", right: "4px" }, children: /* @__PURE__ */ jsxs(CategoryRating, { children: [
         /* @__PURE__ */ jsx("span", { children: "★" }),
-        /* @__PURE__ */ jsx("span", { children: row.avgRating?.toFixed(2) })
+        /* @__PURE__ */ jsx("span", { children: row.avgRating })
       ] }) })
     ] }, row.name)) }),
     categoryStats.length > 1 && /* @__PURE__ */ jsx(ChartContainer, { style: { height: "350px" }, children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data: categoryStats, barSize: 25, margin: { top: 10, right: 10, left: 0, bottom: 40 }, children: [
@@ -1485,6 +1526,9 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
   const [selectedStatuses, setSelectedStatuses] = useState([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef(null);
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
   const { data: recentCalls = [], meta = {} } = useCompletedCalls(
     page,
     filter,
@@ -1592,7 +1636,7 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
               ),
               call.status === "pending" ? "Calling" : call.status
             ] }) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.rating ? /* @__PURE__ */ jsx(RatingStars, { children: "★".repeat(call.rating) }) : /* @__PURE__ */ jsx("span", { style: { fontSize: "1.2rem" }, children: "---" }) })
+            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(RatingStars, { children: /* @__PURE__ */ jsx(StarRating, { rating: call.rating, size: 10 }) }) })
           ]
         },
         idx

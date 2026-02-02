@@ -11,6 +11,8 @@ const CHART_COLORS = {
     video: '#48ecbbff',
 };
 
+import { StarRating } from "./Rating";
+
 const CustomTooltip = ({ active, payload, label, theme }) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
@@ -45,8 +47,8 @@ const CustomTooltip = ({ active, payload, label, theme }) => {
                     <p style={{ color: theme.colors.neutral600, fontSize: '11px' }}>
                         Minutes: {data.minutes}
                     </p>
-                    <p style={{ color: theme.colors.neutral600, fontSize: '11px' }}>
-                        Avg Rating: {data.avgRating} ★
+                    <p style={{ color: theme.colors.neutral600, fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        Avg Rating: <Style.RatingStars><StarRating rating={data.avgRating} /></Style.RatingStars>
                     </p>
                 </div>
             </div>
@@ -92,7 +94,7 @@ export default function CategoryGrid({ liveCalls, filter, customRange }) {
                             <div style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
                                 <Style.CategoryRating>
                                     <span>★</span>
-                                    <span>{row.avgRating?.toFixed(2)}</span>
+                                    <span>{row.avgRating}</span>
                                 </Style.CategoryRating>
                             </div>
                         </Style.CategoryItem>
