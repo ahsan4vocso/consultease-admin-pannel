@@ -2,8 +2,10 @@ import * as Style from "./styles";
 import KpiCard from "./KpiCard";
 import { minutesToMMSS } from "../../utils/helper";
 import { ActiveCall, DeclineCall, CompletedCall, Expert, CallTime, TotalCalls } from "../Icons";
+import { useDashboardContext } from "../../context/DashboardContext";
 
-export default function KpiSection({ stats }) {
+export default function KpiSection() {
+    const { stats } = useDashboardContext();
     const s = stats || {};
     const voice = s.voice || {};
     const video = s.video || {};
@@ -13,8 +15,8 @@ export default function KpiSection({ stats }) {
     const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
     const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
     const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
-    const totalAvgDuration = voice.avgDuration || video.avgDuration || 0;
-
+    const totalAvgDuration = (voice.avgDuration || 0) + (video.avgDuration || 0);
+    console.table({ voice, video });
     return (
         <Style.KpiSection>
             <Style.KpiGrid>
@@ -28,13 +30,14 @@ export default function KpiSection({ stats }) {
                         { name: 'Voice', value: voice.liveCalls || 0 },
                         { name: 'Video', value: video.liveCalls || 0 }
                     ]}
+                    // open strapi conent manager
                     onClick={() => totalLiveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=ongoing` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date().toISOString().split("T")[0] + "T00:00:00.000Z")}` +
                         `&page=1`, '_blank')}
                 />
                 <KpiCard
-                    label="Total calls today"
+                    label="Total calls"
                     value={totalCallsToday}
                     chip="Including free & paid"
                     tone="sky"
@@ -58,6 +61,7 @@ export default function KpiSection({ stats }) {
                         { name: 'Voice', value: voice.declinedCalls || 0 },
                         { name: 'Video', value: video.declinedCalls || 0 }
                     ]}
+                    // open strapi conent manager 
                     onClick={() => totalDeclinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=declined` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
@@ -73,6 +77,7 @@ export default function KpiSection({ stats }) {
                         { name: 'Voice', value: voice.completedCalls || 0 },
                         { name: 'Video', value: video.completedCalls || 0 }
                     ]}
+                    // open strapi conent manager
                     onClick={() => totalCompletedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=completed` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
@@ -87,6 +92,7 @@ export default function KpiSection({ stats }) {
                     Icon={Expert}
                     onClick={() =>
                         expertsOnline > 0 &&
+                        // open strapi conent manager
                         window.open(
                             `/admin/content-manager/collection-types/api::expert-profile.expert-profile` +
                             `?filters[$and][0][isActive][$eq]=true` +
@@ -103,8 +109,8 @@ export default function KpiSection({ stats }) {
                     tone="emerald"
                     Icon={CallTime}
                     chartData={[
-                        { name: 'Voice', value: voice.avgDuration || 0 },
-                        { name: 'Video', value: video.avgDuration || 0 }
+                        { name: 'Voice', value: voice.avgDuration || 0, realValue: minutesToMMSS(voice.avgDuration) },
+                        { name: 'Video', value: video.avgDuration || 0, realValue: minutesToMMSS(video.avgDuration) }
                     ]}
                 />
             </Style.KpiGrid>

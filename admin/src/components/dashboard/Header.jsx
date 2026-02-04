@@ -1,43 +1,34 @@
 import { useState, useEffect } from "react";
 import { PluginIcon } from "../Icons";
 import * as Style from "./styles";
+import { useDashboardContext } from "../../context/DashboardContext";
 
-export default function Header({ stats, filter, onFilterChange }) {
+export default function Header() {
+    const { stats, filter, handleFilterChange, customRange } = useDashboardContext();
     const { voice = {}, video = {} } = stats || {};
     const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
     const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
 
     const droppedRate = totalCallsToday ? ((totalDeclinedCalls / totalCallsToday) * 100).toFixed(1) : 0;
 
-    // Local state for custom dates
-    const today = new Date().toISOString().split('T')[0];
-    const savedStart = localStorage.getItem('dashboard_start_date');
-    const savedEnd = localStorage.getItem('dashboard_end_date');
+    const [startDate, setStartDate] = useState(customRange.start);
+    const [endDate, setEndDate] = useState(customRange.end);
 
-    console.log('📅 [Header] Initializing dates:', {
-        from: savedStart || today,
-        to: savedEnd || today,
-        source: savedStart ? 'localStorage' : 'default'
-    });
-
-    const [startDate, setStartDate] = useState(savedStart || today);
-    const [endDate, setEndDate] = useState(savedEnd || today);
-
-    // Update localStorage when dates change
+    // Update local state when context changes (e.g. from localstorage on init)
     useEffect(() => {
-        if (startDate) localStorage.setItem('dashboard_start_date', startDate);
-        if (endDate) localStorage.setItem('dashboard_end_date', endDate);
-    }, [startDate, endDate]);
+        setStartDate(customRange.start);
+        setEndDate(customRange.end);
+    }, [customRange]);
 
-    // Update parent when custom dates change
+    // Update context when local dates change
     useEffect(() => {
         if (filter === 'custom' && startDate && endDate) {
-            onFilterChange('custom', { start: startDate, end: endDate });
+            handleFilterChange('custom', { start: startDate, end: endDate });
         }
     }, [startDate, endDate, filter]);
 
     const handlePresetChange = (preset) => {
-        onFilterChange(preset);
+        handleFilterChange(preset);
     };
 
     return (
@@ -48,19 +39,28 @@ export default function Header({ stats, filter, onFilterChange }) {
                     <Style.Title>Live Calls Dashboard</Style.Title>
                     <Style.Subtitle>Realtime view of ConsultEase calls, categories & expert load.</Style.Subtitle>
                     <Style.MetaText>
-                        {totalCallsToday} calls today • {totalDeclinedCalls} declined ({droppedRate}%)
+                        {totalCallsToday} {filter === 'live' ? 'calls today' : `calls in this ${filter}`} • {totalDeclinedCalls} declined ({droppedRate}%)
                     </Style.MetaText>
                 </Style.TitleBox>
             </Style.HeaderLeft>
             <Style.HeaderRight>
                 <Style.FilterContainer>
-                    {['60min', 'today', 'yesterday', 'week'].map((preset) => (
+                    <Style.LiveFilterButton
+                        active={filter === 'live'}
+                        onClick={() => handlePresetChange('live')}
+                    >
+                        <Style.LiveDot /> Live
+                    </Style.LiveFilterButton>
+
+                    <Style.FilterDivider />
+
+                    {['yesterday', 'week', 'quarter'].map((preset) => (
                         <Style.FilterButton
                             key={preset}
                             active={filter === preset}
                             onClick={() => handlePresetChange(preset)}
                         >
-                            {preset === '60min' ? '60 Minutes' : preset.charAt(0).toUpperCase() + preset.slice(1)}
+                            {preset.charAt(0).toUpperCase() + preset.slice(1)}
                         </Style.FilterButton>
                     ))}
 

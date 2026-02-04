@@ -223,6 +223,7 @@ export const CategoryItem = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
+  min-height: 80px;
 `;
 
 export const CategoryName = styled.p`
@@ -790,6 +791,35 @@ export const FilterButton = styled.button`
   &:active {
     transform: translateY(0);
   }
+`;
+
+export const LiveFilterButton = styled(FilterButton)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: ${props => props.active ? props.theme.colors.success100 : props.theme.colors.neutral0};
+  border: 1px solid ${props => props.active ? props.theme.colors.success500 : props.theme.colors.neutral150};
+  color: ${props => props.active ? props.theme.colors.success700 : props.theme.colors.neutral600};
+  padding: 0.5rem 1.25rem;
+  border-radius: 10px;
+  box-shadow: ${props => props.active ? '0 0 12px rgba(34, 197, 94, 0.2)' : 'none'};
+
+  &:hover {
+    background-color: ${props => props.active ? props.theme.colors.success100 : props.theme.colors.neutral100};
+    border-color: ${props => props.active ? props.theme.colors.success500 : props.theme.colors.neutral300};
+  }
+
+  ${LiveDot} {
+    background-color: ${props => props.active ? props.theme.colors.success500 : props.theme.colors.neutral400};
+    animation: ${props => props.active ? css`${pulseInfo} 2s infinite` : 'none'};
+  }
+`;
+
+export const FilterDivider = styled.div`
+  width: 1px;
+  height: 24px;
+  background-color: ${({ theme }) => theme.colors.neutral200};
+  margin: 0 0.75rem;
 `;
 
 export const CustomRangeContainer = styled.div`

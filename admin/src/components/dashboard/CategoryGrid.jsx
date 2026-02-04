@@ -57,8 +57,10 @@ const CustomTooltip = ({ active, payload, label, theme }) => {
     return null;
 };
 
-export default function CategoryGrid({ liveCalls, filter, customRange }) {
-    const { data: categoryStats = [] } = useCategoryStats(filter, liveCalls, customRange);
+import { useDashboardContext } from "../../context/DashboardContext";
+
+export default function CategoryGrid() {
+    const { categoryStats, filter } = useDashboardContext();
     const theme = useTheme();
 
     return (
@@ -105,7 +107,7 @@ export default function CategoryGrid({ liveCalls, filter, customRange }) {
                                 </div>
                             </div>
 
-                            <div style={{ position: 'absolute', bottom: '4px', right: '4px' }}>
+                            <div style={{ position: 'absolute', bottom: '4px', right: '6px' }}>
                                 <Style.CategoryRating>
                                     <span>★</span>
                                     <span>{row.avgRating}</span>

@@ -83,7 +83,7 @@ const index = {
         defaultMessage: PLUGIN_ID
       },
       Component: async () => {
-        const { App } = await Promise.resolve().then(() => require("./App-C-JQxX3-.js"));
+        const { App } = await Promise.resolve().then(() => require("./App-CopmTV7n.js"));
         return App;
       }
     });

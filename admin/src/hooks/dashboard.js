@@ -4,42 +4,92 @@ import { useEffect, useState } from "react";
 import { getDateRange } from "../utils/helper";
 
 
-export const useCompletedCalls = (page = 1, filter = '60min', liveCalls, customRange, statuses = []) => {
+export const useCompletedCalls = (page = 1, filter = '60min', customRange, statuses = []) => {
     const { get } = useFetchClient();
     const { start, end } = getDateRange(filter, customRange);
-    let statusFilter = '';
+    // filter call activity by status
+    const params = {
+        filters: {
+            createdAt: {
+                $gte: start,
+                $lte: end
+            }
+        },
+        pagination: {
+            page,
+            pageSize: 20
+        }
+    };
+
     if (statuses.length > 0) {
-        statusFilter = statuses.map((status, index) => `&filters[callStatus][$in][${index}]=${status}`).join('');
+        params.filters.callStatus = { $in: statuses };
     } else {
-        statusFilter = '&filters[callStatus][$notIn][0]=pending&filters[callStatus][$notIn][1]=ongoing';
+        params.filters.callStatus = {
+            $notIn: ['pending', 'ongoing']
+        };
     }
 
-    const api = `/admin-pannel/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
-
-    const { data, ...rest } = useQuery({
-        queryKey: ["completed-calls", page, filter, liveCalls, customRange, statuses],
-        enabled: liveCalls !== undefined,
+    const query = useQuery({
+        queryKey: ["completed-calls", page, filter, customRange, statuses],
         queryFn: async () => {
-            const { data } = await get(api);
+            const { data } = await get("/admin-pannel/recent-calls", { params });
             return data;
         },
     });
 
-    return { data: data?.data, meta: data?.meta || {}, ...rest };
+    return { ...query, data: query.data?.data, meta: query.data?.meta || {} };
 };
 
 
 
-export const useCategoryStats = (filter = 'today', liveCalls, customRange) => {
+export const useDashboardStats = (filter = 'today', customRange) => {
     const { get } = useFetchClient();
     const { start, end } = getDateRange(filter, customRange);
-    const api = `/admin-pannel/category-stats?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}`;
 
     return useQuery({
-        queryKey: ["category-stats", filter, liveCalls, customRange],
-        enabled: liveCalls !== undefined,
+        queryKey: ["dashboard-stats", filter, customRange],
+        enabled: filter !== 'live',
         queryFn: async () => {
-            const { data } = await get(api);
+            const { data } = await get("/admin-pannel/stats", {
+                params: {
+                    filters: {
+                        createdAt: {
+                            $gte: start,
+                            $lte: end
+                        }
+                    }
+                }
+            });
+            return data;
+        },
+        initialData: {
+            voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+            video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+            expertsOnline: 0
+        }
+    });
+};
+
+
+
+export const useCategoryStats = (filter = 'today', customRange) => {
+    const { get } = useFetchClient();
+    const { start, end } = getDateRange(filter, customRange);
+
+    return useQuery({
+        queryKey: ["category-stats", filter, customRange],
+        enabled: true,
+        queryFn: async () => {
+            const { data } = await get("/admin-pannel/category-stats", {
+                params: {
+                    filters: {
+                        createdAt: {
+                            $gte: start,
+                            $lte: end
+                        }
+                    }
+                }
+            });
             return data;
         }
     });
@@ -49,12 +99,29 @@ export const useCategoryStats = (filter = 'today', liveCalls, customRange) => {
 
 
 export const useStreamData = () => {
-    const [liveData, setLiveData] = useState();
+    const [liveData, setLiveData] = useState({
+        stats: {},
+        liveCalls: [],
+        recentCalls: [],
+        categoryStats: []
+    });
+
     useEffect(() => {
         const eventSource = new EventSource(`${window.strapi?.backendURL}/admin-pannel/stream`);
         eventSource.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            setLiveData(data);
+            try {
+                const data = JSON.parse(event.data);
+                console.log('📡 [SSE] Received chunk:', Object.keys(data));
+
+                if (data && typeof data === 'object') {
+                    setLiveData(prev => ({
+                        ...prev,
+                        ...data
+                    }));
+                }
+            } catch (error) {
+                console.error('SSE data parsing error:', error);
+            }
         };
 
         eventSource.onerror = function (error) {

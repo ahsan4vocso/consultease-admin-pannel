@@ -6,9 +6,9 @@ const reactRouterDom = require("react-router-dom");
 const designSystem = require("@strapi/design-system");
 const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
-const react = require("react");
 const styled = require("styled-components");
-const index = require("./index-DRtHOVH8.js");
+const react = require("react");
+const index = require("./index-CavnEJs6.js");
 const recharts = require("recharts");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
@@ -203,6 +203,7 @@ const CategoryItem = styled__default.default.div`
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
+  min-height: 80px;
 `;
 const CategoryName = styled__default.default.p`
   font-size: 1.2rem;
@@ -703,6 +704,33 @@ const FilterButton = styled__default.default.button`
     transform: translateY(0);
   }
 `;
+const LiveFilterButton = styled__default.default(FilterButton)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: ${(props) => props.active ? props.theme.colors.success100 : props.theme.colors.neutral0};
+  border: 1px solid ${(props) => props.active ? props.theme.colors.success500 : props.theme.colors.neutral150};
+  color: ${(props) => props.active ? props.theme.colors.success700 : props.theme.colors.neutral600};
+  padding: 0.5rem 1.25rem;
+  border-radius: 10px;
+  box-shadow: ${(props) => props.active ? "0 0 12px rgba(34, 197, 94, 0.2)" : "none"};
+
+  &:hover {
+    background-color: ${(props) => props.active ? props.theme.colors.success100 : props.theme.colors.neutral100};
+    border-color: ${(props) => props.active ? props.theme.colors.success500 : props.theme.colors.neutral300};
+  }
+
+  ${LiveDot} {
+    background-color: ${(props) => props.active ? props.theme.colors.success500 : props.theme.colors.neutral400};
+    animation: ${(props) => props.active ? styled.css`${pulseInfo} 2s infinite` : "none"};
+  }
+`;
+const FilterDivider = styled__default.default.div`
+  width: 1px;
+  height: 24px;
+  background-color: ${({ theme }) => theme.colors.neutral200};
+  margin: 0 0.75rem;
+`;
 const CustomRangeContainer = styled__default.default.div`
   display: flex;
   align-items: center;
@@ -991,90 +1019,6 @@ const ModalButton = styled__default.default.button`
     }
   `}
 `;
-function Header({ stats, filter, onFilterChange }) {
-  const { voice = {}, video = {} } = stats || {};
-  const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
-  const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
-  const droppedRate = totalCallsToday ? (totalDeclinedCalls / totalCallsToday * 100).toFixed(1) : 0;
-  const today = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
-  const savedStart = localStorage.getItem("dashboard_start_date");
-  const savedEnd = localStorage.getItem("dashboard_end_date");
-  console.log("📅 [Header] Initializing dates:", {
-    from: savedStart || today,
-    to: savedEnd || today,
-    source: savedStart ? "localStorage" : "default"
-  });
-  const [startDate, setStartDate] = react.useState(savedStart || today);
-  const [endDate, setEndDate] = react.useState(savedEnd || today);
-  react.useEffect(() => {
-    if (startDate) localStorage.setItem("dashboard_start_date", startDate);
-    if (endDate) localStorage.setItem("dashboard_end_date", endDate);
-  }, [startDate, endDate]);
-  react.useEffect(() => {
-    if (filter === "custom" && startDate && endDate) {
-      onFilterChange("custom", { start: startDate, end: endDate });
-    }
-  }, [startDate, endDate, filter]);
-  const handlePresetChange = (preset) => {
-    onFilterChange(preset);
-  };
-  return /* @__PURE__ */ jsxRuntime.jsxs(Header$1, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntime.jsx(index.PluginIcon, { style: { width: "32px", height: "32px" } }) }),
-      /* @__PURE__ */ jsxRuntime.jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Title, { children: "Live Calls Dashboard" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
-        /* @__PURE__ */ jsxRuntime.jsxs(MetaText, { children: [
-          totalCallsToday,
-          " calls today • ",
-          totalDeclinedCalls,
-          " declined (",
-          droppedRate,
-          "%)"
-        ] })
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(HeaderRight, { children: /* @__PURE__ */ jsxRuntime.jsxs(FilterContainer, { children: [
-      ["60min", "today", "yesterday", "week"].map((preset) => /* @__PURE__ */ jsxRuntime.jsx(
-        FilterButton,
-        {
-          active: filter === preset,
-          onClick: () => handlePresetChange(preset),
-          children: preset === "60min" ? "60 Minutes" : preset.charAt(0).toUpperCase() + preset.slice(1)
-        },
-        preset
-      )),
-      /* @__PURE__ */ jsxRuntime.jsx(
-        FilterButton,
-        {
-          active: filter === "custom",
-          onClick: () => handlePresetChange("custom"),
-          children: "Custom Range"
-        }
-      ),
-      filter === "custom" && /* @__PURE__ */ jsxRuntime.jsxs(CustomRangeContainer, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(DateLabel, { children: "From" }),
-        /* @__PURE__ */ jsxRuntime.jsx(
-          DateInput,
-          {
-            type: "date",
-            value: startDate,
-            onChange: (e) => setStartDate(e.target.value)
-          }
-        ),
-        /* @__PURE__ */ jsxRuntime.jsx(DateLabel, { children: "To" }),
-        /* @__PURE__ */ jsxRuntime.jsx(
-          DateInput,
-          {
-            type: "date",
-            value: endDate,
-            onChange: (e) => setEndDate(e.target.value)
-          }
-        )
-      ] })
-    ] }) })
-  ] });
-}
 function minutesToMMSS(minutes) {
   if (minutes == null || isNaN(minutes)) return "---";
   const totalSeconds = Math.round(minutes * 60);
@@ -1131,71 +1075,142 @@ const getDateRange = (filter, customRange) => {
   if (filter === "today") {
     start.setHours(0, 0, 0, 0);
     end.setHours(23, 59, 59, 999);
-    return { start: start.toLocaleString("sv-SE"), end: end.toLocaleString("sv-SE") };
+    return { start: start.toISOString(), end: end.toISOString() };
   }
   if (filter === "60min") {
-    start = new Date(start.getTime() - 60 * 60 * 1e3);
-    return { start: start.toLocaleString("sv-SE"), end: now.toLocaleString("sv-SE") };
+    start = new Date(now.getTime() - 60 * 60 * 1e3);
+    return { start: start.toISOString(), end: now.toISOString() };
   }
   if (filter === "yesterday") {
     start.setDate(now.getDate() - 1);
     start.setHours(0, 0, 0, 0);
     end.setDate(now.getDate() - 1);
     end.setHours(23, 59, 59, 999);
-    return { start: start.toLocaleString("sv-SE"), end: end.toLocaleString("sv-SE") };
+    return { start: start.toISOString(), end: end.toISOString() };
   }
   if (filter === "week") {
     start.setDate(now.getDate() - 7);
-    return { start: start.toLocaleString("sv-SE"), end: now.toLocaleString("sv-SE") };
+    start.setHours(0, 0, 0, 0);
+    return { start: start.toISOString(), end: now.toISOString() };
+  }
+  if (filter === "quarter") {
+    start.setDate(now.getDate() - 90);
+    start.setHours(0, 0, 0, 0);
+    return { start: start.toISOString(), end: now.toISOString() };
   }
   if (filter === "custom" && customRange?.start && customRange?.end) {
+    const customStart = new Date(customRange.start);
+    customStart.setHours(0, 0, 0, 0);
+    const customEnd = new Date(customRange.end);
+    customEnd.setHours(23, 59, 59, 999);
     return {
-      start: new Date(customRange.start).toLocaleString("sv-SE"),
-      end: new Date(new Date(customRange.end).setHours(23, 59, 59, 999)).toLocaleString("sv-SE")
+      start: customStart.toISOString(),
+      end: customEnd.toISOString()
     };
   }
-  return { start: start.toLocaleString("sv-SE"), end: now.toLocaleString("sv-SE") };
+  start.setHours(0, 0, 0, 0);
+  return { start: start.toISOString(), end: now.toISOString() };
 };
-const useCompletedCalls = (page = 1, filter = "60min", liveCalls, customRange, statuses = []) => {
+const useCompletedCalls = (page = 1, filter = "60min", customRange, statuses = []) => {
   const { get } = admin.useFetchClient();
   const { start, end } = getDateRange(filter, customRange);
-  let statusFilter = "";
+  const params = {
+    filters: {
+      createdAt: {
+        $gte: start,
+        $lte: end
+      }
+    },
+    pagination: {
+      page,
+      pageSize: 20
+    }
+  };
   if (statuses.length > 0) {
-    statusFilter = statuses.map((status, index2) => `&filters[callStatus][$in][${index2}]=${status}`).join("");
+    params.filters.callStatus = { $in: statuses };
   } else {
-    statusFilter = "&filters[callStatus][$notIn][0]=pending&filters[callStatus][$notIn][1]=ongoing";
+    params.filters.callStatus = {
+      $notIn: ["pending", "ongoing"]
+    };
   }
-  const api = `/admin-pannel/recent-calls?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}${statusFilter}&pagination[page]=${page}&pagination[pageSize]=20`;
-  const { data, ...rest } = reactQuery.useQuery({
-    queryKey: ["completed-calls", page, filter, liveCalls, customRange, statuses],
-    enabled: liveCalls !== void 0,
+  const query = reactQuery.useQuery({
+    queryKey: ["completed-calls", page, filter, customRange, statuses],
     queryFn: async () => {
-      const { data: data2 } = await get(api);
-      return data2;
+      const { data } = await get("/admin-pannel/recent-calls", { params });
+      return data;
     }
   });
-  return { data: data?.data, meta: data?.meta || {}, ...rest };
+  return { ...query, data: query.data?.data, meta: query.data?.meta || {} };
 };
-const useCategoryStats = (filter = "today", liveCalls, customRange) => {
+const useDashboardStats = (filter = "today", customRange) => {
   const { get } = admin.useFetchClient();
   const { start, end } = getDateRange(filter, customRange);
-  const api = `/admin-pannel/category-stats?filters[createdAt][$gte]=${encodeURIComponent(start)}&filters[createdAt][$lte]=${encodeURIComponent(end)}`;
   return reactQuery.useQuery({
-    queryKey: ["category-stats", filter, liveCalls, customRange],
-    enabled: liveCalls !== void 0,
+    queryKey: ["dashboard-stats", filter, customRange],
+    enabled: filter !== "live",
     queryFn: async () => {
-      const { data } = await get(api);
+      const { data } = await get("/admin-pannel/stats", {
+        params: {
+          filters: {
+            createdAt: {
+              $gte: start,
+              $lte: end
+            }
+          }
+        }
+      });
+      return data;
+    },
+    initialData: {
+      voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+      video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+      expertsOnline: 0
+    }
+  });
+};
+const useCategoryStats = (filter = "today", customRange) => {
+  const { get } = admin.useFetchClient();
+  const { start, end } = getDateRange(filter, customRange);
+  return reactQuery.useQuery({
+    queryKey: ["category-stats", filter, customRange],
+    enabled: true,
+    queryFn: async () => {
+      const { data } = await get("/admin-pannel/category-stats", {
+        params: {
+          filters: {
+            createdAt: {
+              $gte: start,
+              $lte: end
+            }
+          }
+        }
+      });
       return data;
     }
   });
 };
 const useStreamData = () => {
-  const [liveData, setLiveData] = react.useState();
+  const [liveData, setLiveData] = react.useState({
+    stats: {},
+    liveCalls: [],
+    recentCalls: [],
+    categoryStats: []
+  });
   react.useEffect(() => {
     const eventSource = new EventSource(`${window.strapi?.backendURL}/admin-pannel/stream`);
     eventSource.onmessage = function(event) {
-      const data = JSON.parse(event.data);
-      setLiveData(data);
+      try {
+        const data = JSON.parse(event.data);
+        console.log("📡 [SSE] Received chunk:", Object.keys(data));
+        if (data && typeof data === "object") {
+          setLiveData((prev) => ({
+            ...prev,
+            ...data
+          }));
+        }
+      } catch (error) {
+        console.error("SSE data parsing error:", error);
+      }
     };
     eventSource.onerror = function(error) {
       console.error("SSE connection error:", error);
@@ -1206,6 +1221,159 @@ const useStreamData = () => {
   }, []);
   return liveData;
 };
+const DashboardContext = react.createContext();
+const useDashboardContext = () => {
+  const context = react.useContext(DashboardContext);
+  if (!context) {
+    throw new Error("useDashboardContext must be used within a DashboardProvider");
+  }
+  return context;
+};
+const DashboardProvider = ({ children }) => {
+  const [timeFilter, setTimeFilter] = react.useState("live");
+  const [customRange, setCustomRange] = react.useState({
+    start: localStorage.getItem("dashboard_start_date") || (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+    end: localStorage.getItem("dashboard_end_date") || (/* @__PURE__ */ new Date()).toISOString().split("T")[0]
+  });
+  const {
+    stats: liveStats = {},
+    liveCalls = [],
+    recentCalls: liveRecentCalls = [],
+    categoryStats: liveCategoryStats = []
+  } = useStreamData() || {};
+  const [recentCallsPage, setRecentCallsPage] = react.useState(1);
+  const [recentCallsStatuses, setRecentCallsStatuses] = react.useState([]);
+  const { data: fetchedStats } = useDashboardStats(
+    timeFilter,
+    customRange
+  );
+  const { data: fetchedCategoryStats = [] } = useCategoryStats(
+    timeFilter,
+    customRange
+  );
+  const { data: fetchedRecentCalls = [], meta: fetchedRecentMeta = {} } = useCompletedCalls(
+    recentCallsPage,
+    timeFilter,
+    customRange,
+    recentCallsStatuses
+  );
+  const stats = timeFilter === "live" ? liveStats : fetchedStats || {};
+  const categoryStats = timeFilter === "live" ? liveCategoryStats : fetchedCategoryStats;
+  const recentCalls = timeFilter === "live" ? { data: liveRecentCalls, meta: { pagination: { total: liveRecentCalls.length, pageCount: 1 } } } : { data: fetchedRecentCalls, meta: fetchedRecentMeta };
+  const handleFilterChange = (filter, range) => {
+    setTimeFilter(filter);
+    if (range) {
+      setCustomRange(range);
+      localStorage.setItem("dashboard_start_date", range.start);
+      localStorage.setItem("dashboard_end_date", range.end);
+    }
+  };
+  const value = {
+    filter: timeFilter,
+    customRange,
+    handleFilterChange,
+    stats,
+    liveCalls,
+    categoryStats,
+    recentCalls,
+    recentCallsPage,
+    setRecentCallsPage,
+    recentCallsStatuses,
+    setRecentCallsStatuses
+  };
+  return /* @__PURE__ */ jsxRuntime.jsx(DashboardContext.Provider, { value, children });
+};
+function Header() {
+  const { stats, filter, handleFilterChange, customRange } = useDashboardContext();
+  const { voice = {}, video = {} } = stats || {};
+  const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
+  const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+  const droppedRate = totalCallsToday ? (totalDeclinedCalls / totalCallsToday * 100).toFixed(1) : 0;
+  const [startDate, setStartDate] = react.useState(customRange.start);
+  const [endDate, setEndDate] = react.useState(customRange.end);
+  react.useEffect(() => {
+    setStartDate(customRange.start);
+    setEndDate(customRange.end);
+  }, [customRange]);
+  react.useEffect(() => {
+    if (filter === "custom" && startDate && endDate) {
+      handleFilterChange("custom", { start: startDate, end: endDate });
+    }
+  }, [startDate, endDate, filter]);
+  const handlePresetChange = (preset) => {
+    handleFilterChange(preset);
+  };
+  return /* @__PURE__ */ jsxRuntime.jsxs(Header$1, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntime.jsx(index.PluginIcon, { style: { width: "32px", height: "32px" } }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs(TitleBox, { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Title, { children: "Live Calls Dashboard" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
+        /* @__PURE__ */ jsxRuntime.jsxs(MetaText, { children: [
+          totalCallsToday,
+          " ",
+          filter === "live" ? "calls today" : `calls in this ${filter}`,
+          " • ",
+          totalDeclinedCalls,
+          " declined (",
+          droppedRate,
+          "%)"
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx(HeaderRight, { children: /* @__PURE__ */ jsxRuntime.jsxs(FilterContainer, { children: [
+      /* @__PURE__ */ jsxRuntime.jsxs(
+        LiveFilterButton,
+        {
+          active: filter === "live",
+          onClick: () => handlePresetChange("live"),
+          children: [
+            /* @__PURE__ */ jsxRuntime.jsx(LiveDot, {}),
+            " Live"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(FilterDivider, {}),
+      ["yesterday", "week", "quarter"].map((preset) => /* @__PURE__ */ jsxRuntime.jsx(
+        FilterButton,
+        {
+          active: filter === preset,
+          onClick: () => handlePresetChange(preset),
+          children: preset.charAt(0).toUpperCase() + preset.slice(1)
+        },
+        preset
+      )),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        FilterButton,
+        {
+          active: filter === "custom",
+          onClick: () => handlePresetChange("custom"),
+          children: "Custom Range"
+        }
+      ),
+      filter === "custom" && /* @__PURE__ */ jsxRuntime.jsxs(CustomRangeContainer, { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(DateLabel, { children: "From" }),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          DateInput,
+          {
+            type: "date",
+            value: startDate,
+            onChange: (e) => setStartDate(e.target.value)
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(DateLabel, { children: "To" }),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          DateInput,
+          {
+            type: "date",
+            value: endDate,
+            onChange: (e) => setEndDate(e.target.value)
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+}
 function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
   const theme = styled.useTheme();
   const getIconColor = (tone2) => {
@@ -1419,8 +1587,8 @@ const CustomTooltip = ({ active, payload, label, theme }) => {
   }
   return null;
 };
-function CategoryGrid({ liveCalls, filter, customRange }) {
-  const { data: categoryStats = [] } = useCategoryStats(filter, liveCalls, customRange);
+function CategoryGrid() {
+  const { categoryStats, filter } = useDashboardContext();
   const theme = styled.useTheme();
   return /* @__PURE__ */ jsxRuntime.jsxs(Card, { children: [
     /* @__PURE__ */ jsxRuntime.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
@@ -1467,7 +1635,7 @@ function CategoryGrid({ liveCalls, filter, customRange }) {
           }
         ) })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("div", { style: { position: "absolute", bottom: "4px", right: "4px" }, children: /* @__PURE__ */ jsxRuntime.jsxs(CategoryRating, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx("div", { style: { position: "absolute", bottom: "4px", right: "6px" }, children: /* @__PURE__ */ jsxRuntime.jsxs(CategoryRating, { children: [
         /* @__PURE__ */ jsxRuntime.jsx("span", { children: "★" }),
         /* @__PURE__ */ jsxRuntime.jsx("span", { children: row.avgRating })
       ] }) })
@@ -1499,7 +1667,8 @@ const useMovingTime = () => {
   }, []);
   return now;
 };
-function LiveCallsTable({ stats, liveCalls = [] }) {
+function LiveCallsTable() {
+  const { stats, liveCalls } = useDashboardContext();
   const s = stats || {};
   const currMovingTime = useMovingTime();
   const theme = styled.useTheme();
@@ -1650,21 +1819,22 @@ const STATUS_OPTIONS = [
   { label: "Busy", value: "busy" },
   { label: "Force Completed", value: "force complete by admin" }
 ];
-function RecentCallsTable({ liveCalls, filter, customRange }) {
-  const [page, setPage] = react.useState(1);
-  const [selectedStatuses, setSelectedStatuses] = react.useState([]);
+function RecentCallsTable() {
+  const {
+    recentCalls,
+    filter,
+    recentCallsPage: page,
+    setRecentCallsPage: setPage,
+    recentCallsStatuses: selectedStatuses,
+    setRecentCallsStatuses: setSelectedStatuses
+  } = useDashboardContext();
+  const { data = [], meta = {} } = recentCalls || {};
+  const calls = Array.isArray(data) ? data : [];
   const [isFilterOpen, setIsFilterOpen] = react.useState(false);
   const filterRef = react.useRef(null);
   react.useEffect(() => {
     setPage(1);
   }, [filter]);
-  const { data: recentCalls = [], meta = {} } = useCompletedCalls(
-    page,
-    filter,
-    liveCalls,
-    customRange,
-    selectedStatuses
-  ) || {};
   react.useEffect(() => {
     const handleClickOutside = (event) => {
       if (filterRef.current && !filterRef.current.contains(event.target)) {
@@ -1695,7 +1865,7 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
           meta.pagination?.total ? `Total calls: ${meta.pagination?.total}` : ""
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(DropdownContainer, { ref: filterRef, children: [
+      filter !== "live" && /* @__PURE__ */ jsxRuntime.jsxs(DropdownContainer, { ref: filterRef, children: [
         /* @__PURE__ */ jsxRuntime.jsxs(DropdownButton, { onClick: () => setIsFilterOpen(!isFilterOpen), children: [
           "Filter ",
           selectedStatuses.length > 0 && `(${selectedStatuses.length})`,
@@ -1726,7 +1896,7 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Status" }),
         /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Rating" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: recentCalls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: calls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsxRuntime.jsx(
         EmptyState,
         {
           title: "No completed calls",
@@ -1738,7 +1908,7 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
             "custom": "No calls found for the selected range and criteria."
           }[filter]
         }
-      ) }) }) : recentCalls.map((call, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
+      ) }) }) : calls.map((call, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
         Tr,
         {
           style: { cursor: "pointer" },
@@ -1797,7 +1967,8 @@ function RecentCallsTable({ liveCalls, filter, customRange }) {
     ] })
   ] });
 }
-function KpiSection({ stats }) {
+function KpiSection() {
+  const { stats } = useDashboardContext();
   const s = stats || {};
   const voice = s.voice || {};
   const video = s.video || {};
@@ -1806,7 +1977,8 @@ function KpiSection({ stats }) {
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
   const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
   const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
-  const totalAvgDuration = voice.avgDuration || video.avgDuration || 0;
+  const totalAvgDuration = (voice.avgDuration || 0) + (video.avgDuration || 0);
+  console.table({ voice, video });
   return /* @__PURE__ */ jsxRuntime.jsxs(KpiSection$1, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(KpiGrid, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(
@@ -1827,7 +1999,7 @@ function KpiSection({ stats }) {
       /* @__PURE__ */ jsxRuntime.jsx(
         KpiCard,
         {
-          label: "Total calls today",
+          label: "Total calls",
           value: totalCallsToday,
           chip: "Including free & paid",
           tone: "sky",
@@ -1879,7 +2051,8 @@ function KpiSection({ stats }) {
           value: expertsOnline,
           tone: "sky",
           Icon: index.Expert,
-          onClick: () => expertsOnline > 0 && window.open(
+          onClick: () => expertsOnline > 0 && // open strapi conent manager
+          window.open(
             `/admin/content-manager/collection-types/api::expert-profile.expert-profile?filters[$and][0][isActive][$eq]=true&sort=createdAt:DESC&page=1&pageSize=100`,
             "_blank"
           )
@@ -1893,49 +2066,31 @@ function KpiSection({ stats }) {
           tone: "emerald",
           Icon: index.CallTime,
           chartData: [
-            { name: "Voice", value: voice.avgDuration || 0 },
-            { name: "Video", value: video.avgDuration || 0 }
+            { name: "Voice", value: voice.avgDuration || 0, realValue: minutesToMMSS(voice.avgDuration) },
+            { name: "Video", value: video.avgDuration || 0, realValue: minutesToMMSS(video.avgDuration) }
           ]
         }
       )
     ] })
   ] });
 }
-function CallsLiveDashboard() {
-  const { stats = {}, liveCalls } = useStreamData() || {};
-  const [timeFilter, setTimeFilter] = react.useState("60min");
-  const [customRange, setCustomRange] = react.useState({ start: "", end: "" });
-  const handleFilterChange = (filter, custom) => {
-    setTimeFilter(filter);
-    if (custom) setCustomRange(custom);
-  };
+function DashboardContent() {
   return /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(Header, { stats, filter: timeFilter, onFilterChange: handleFilterChange }),
+    /* @__PURE__ */ jsxRuntime.jsx(Header, {}),
     /* @__PURE__ */ jsxRuntime.jsx(Main, { children: /* @__PURE__ */ jsxRuntime.jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(KpiSection, { stats }),
-        /* @__PURE__ */ jsxRuntime.jsx(
-          CategoryGrid,
-          {
-            liveCalls: liveCalls?.length,
-            filter: timeFilter,
-            customRange
-          }
-        )
+        /* @__PURE__ */ jsxRuntime.jsx(KpiSection, {}),
+        /* @__PURE__ */ jsxRuntime.jsx(CategoryGrid, {})
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(LiveCallsTable, { stats, liveCalls }),
-        /* @__PURE__ */ jsxRuntime.jsx(
-          RecentCallsTable,
-          {
-            liveCalls: liveCalls?.length,
-            filter: timeFilter,
-            customRange
-          }
-        )
+        /* @__PURE__ */ jsxRuntime.jsx(LiveCallsTable, {}),
+        /* @__PURE__ */ jsxRuntime.jsx(RecentCallsTable, {})
       ] })
     ] }) })
   ] });
+}
+function CallsLiveDashboard() {
+  return /* @__PURE__ */ jsxRuntime.jsx(DashboardProvider, { children: /* @__PURE__ */ jsxRuntime.jsx(DashboardContent, {}) });
 }
 const queryClient = new reactQuery.QueryClient();
 const HomePage = () => {

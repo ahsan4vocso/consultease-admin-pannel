@@ -14,20 +14,26 @@ const STATUS_OPTIONS = [
     { label: 'Force Completed', value: 'force complete by admin' }
 ];
 
-export default function RecentCallsTable({ liveCalls, filter, customRange }) {
-    const [page, setPage] = useState(1);
-    const [selectedStatuses, setSelectedStatuses] = useState([]);
+import { useDashboardContext } from "../../context/DashboardContext";
+
+export default function RecentCallsTable() {
+    const {
+        recentCalls,
+        filter,
+        recentCallsPage: page,
+        setRecentCallsPage: setPage,
+        recentCallsStatuses: selectedStatuses,
+        setRecentCallsStatuses: setSelectedStatuses
+    } = useDashboardContext();
+    const { data = [], meta = {} } = recentCalls || {};
+    const calls = Array.isArray(data) ? data : [];
+
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const filterRef = useRef(null);
     useEffect(() => { setPage(1) }, [filter]);
 
-    const { data: recentCalls = [], meta = {} } = useCompletedCalls(
-        page,
-        filter,
-        liveCalls,
-        customRange,
-        selectedStatuses
-    ) || {};
+    // Note: Local pagination logic might still be needed if context only provides page 1
+    // For now, following the request to print data directly from context
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -64,30 +70,32 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
                     <Style.CardSubtitle>All closed calls snapshot. {meta.pagination?.total ? `Total calls: ${meta.pagination?.total}` : ''}</Style.CardSubtitle>
                 </div>
 
-                <Style.DropdownContainer ref={filterRef}>
-                    <Style.DropdownButton onClick={() => setIsFilterOpen(!isFilterOpen)}>
-                        Filter {selectedStatuses.length > 0 && `(${selectedStatuses.length})`}
-                        <ChevronDown />
-                    </Style.DropdownButton>
+                {filter !== 'live' && (
+                    <Style.DropdownContainer ref={filterRef}>
+                        <Style.DropdownButton onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                            Filter {selectedStatuses.length > 0 && `(${selectedStatuses.length})`}
+                            <ChevronDown />
+                        </Style.DropdownButton>
 
-                    {isFilterOpen && (
-                        <Style.DropdownMenu>
-                            {STATUS_OPTIONS.map(opt => (
-                                <Style.DropdownItem
-                                    key={opt.value}
-                                    onClick={() => toggleStatus(opt.value)}
-                                >
-                                    {opt.label}
-                                    {selectedStatuses.includes(opt.value) && (
-                                        <Style.TickIcon>
-                                            <Tick />
-                                        </Style.TickIcon>
-                                    )}
-                                </Style.DropdownItem>
-                            ))}
-                        </Style.DropdownMenu>
-                    )}
-                </Style.DropdownContainer>
+                        {isFilterOpen && (
+                            <Style.DropdownMenu>
+                                {STATUS_OPTIONS.map(opt => (
+                                    <Style.DropdownItem
+                                        key={opt.value}
+                                        onClick={() => toggleStatus(opt.value)}
+                                    >
+                                        {opt.label}
+                                        {selectedStatuses.includes(opt.value) && (
+                                            <Style.TickIcon>
+                                                <Tick />
+                                            </Style.TickIcon>
+                                        )}
+                                    </Style.DropdownItem>
+                                ))}
+                            </Style.DropdownMenu>
+                        )}
+                    </Style.DropdownContainer>
+                )}
             </Style.TableHeader>
 
             <Style.TableContainer maxHeight="450px" minHeight="200px">
@@ -106,7 +114,7 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
                         </tr>
                     </Style.Thead>
                     <tbody>
-                        {recentCalls.length === 0 ? (
+                        {calls.length === 0 ? (
                             <tr>
                                 <td colSpan="9">
                                     <EmptyState
@@ -122,7 +130,7 @@ export default function RecentCallsTable({ liveCalls, filter, customRange }) {
                                 </td>
                             </tr>
                         ) : (
-                            recentCalls.map((call, idx) => (
+                            calls.map((call, idx) => (
                                 <Style.Tr
                                     key={idx}
                                     style={{ cursor: 'pointer' }}

@@ -162,8 +162,7 @@ const uniqueTokens = (tokens) => {
   return Array.from(new Set(tokens.filter(Boolean)));
 };
 
-const DEFAULT_LOGO_URL =
-  "https://callingappdev.s3.ap-south-1.amazonaws.com/avatars/CE_Logo_Icon_e8fa8dff79.png";
+const DEFAULT_LOGO_URL = "https://callingappdev.s3.ap-south-1.amazonaws.com/avatars/CE_Logo_Icon_e8fa8dff79.png";
 
 const buildFallback = (overrides = {}) => ({
   name: process.env.PLATFORM_NAME || "Consultease",
@@ -403,13 +402,57 @@ const getWallet = async (userId, type) => {
 
 
 const dashboard = ({ strapi }) => ({
+
+  // ----------------------------------------------------------
+  // 1. GET /admin-pannel/stream
+  // ----------------------------------------------------------
   async stream(ctx) {
     ctx.set("Content-Type", "text/event-stream");
     ctx.set("Cache-Control", "no-cache");
     ctx.set("Connection", "keep-alive");
     ctx.status = 200;
 
-    await strapi.plugin('admin-pannel').service("liveCallsService").callsData(ctx.res);
+    // ---------------------------------------------------------------------
+    //  stats
+    // ---------------------------------------------------------------------
+    try {
+      const stats = await strapi.plugin('admin-pannel').service("dashboard").getDashboardStats({}) || {};
+      ctx.res.write(`data: ${JSON.stringify({ stats })}\n\n`);
+    } catch (e) { strapi.log.error("Stream stats push failed", e); }
+
+
+    // ---------------------------------------------------------------------
+    //  live calls
+    // ---------------------------------------------------------------------
+    try {
+      const liveCalls = await strapi.plugin('admin-pannel').service("dashboard").getLiveCalls() || [];
+      ctx.res.write(`data: ${JSON.stringify({ liveCalls })}\n\n`);
+    } catch (e) { strapi.log.error("Stream liveCalls push failed", e); }
+
+
+    // ---------------------------------------------------------------------
+    //  recent calls
+    // ---------------------------------------------------------------------
+    try {
+      const recent = await strapi.plugin('admin-pannel').service("dashboard").getRecentCalls({ pagination: { pageSize: 20 } }) || { data: [] };
+      ctx.res.write(`data: ${JSON.stringify({ recentCalls: recent.data || [] })}\n\n`);
+    } catch (e) { strapi.log.error("Stream recentCalls push failed", e); }
+
+
+    // ---------------------------------------------------------------------
+    //  category stats
+    // ---------------------------------------------------------------------
+    try {
+      const categoryStats = await strapi.plugin('admin-pannel').service("dashboard").getCategoryStats({}) || [];
+      ctx.res.write(`data: ${JSON.stringify({ categoryStats })}\n\n`);
+    } catch (e) { strapi.log.error("Stream categoryStats push failed", e); }
+
+    strapi.plugin('admin-pannel').service('sse').addClient(ctx.res);
+
+
+
+
+
 
     const hb = setInterval(() => {
       try { ctx.res.write(`: ping ${Date.now()}\n\n`); } catch { }
@@ -423,73 +466,17 @@ const dashboard = ({ strapi }) => ({
     ctx.respond = false;
   },
 
+
   // ----------------------------------------------------------
-  // GET /api/call/recent-calls 
+  // 2. GET /admin-pannel/recent-calls
   // ----------------------------------------------------------
   async recentCalls(ctx) {
     try {
-      const knex = strapi.db.connection;
-      const clientFilters = ctx.query?.filters || {};
-      const paginationQuery = ctx.query?.pagination || {};
-
-      let page = Math.max(1, Number(paginationQuery.page) || 1);
-      let pageSize = Math.min(50, Math.max(1, Number(paginationQuery.pageSize) || 20));
-      const offset = (page - 1) * pageSize;
-
-      const startTimeGte = clientFilters.createdAt?.$gte;
-      const startTimeLte = clientFilters.createdAt?.$lte;
-      const statusFilter = clientFilters.callStatus;
-
-      const rows = await knex("calls as c")
-        .leftJoin("calls_caller_lnk as c_lnk", "c.id", "c_lnk.call_id")
-        .leftJoin("public_users as u_caller", "c_lnk.public_user_id", "u_caller.id")
-        .leftJoin("calls_receiver_lnk as r_lnk", "c.id", "r_lnk.call_id")
-        .leftJoin("public_users as u_receiver", "r_lnk.public_user_id", "u_receiver.id")
-        .leftJoin("calls_categories_lnk as cat_lnk", "c.id", "cat_lnk.call_id")
-        .leftJoin("categories as cat", "cat_lnk.category_id", "cat.id")
-        .leftJoin("calls_review_lnk as rev_lnk", "c.id", "rev_lnk.call_id")
-        .leftJoin("reviews as rev", "rev_lnk.review_id", "rev.id")
-        .where((qb) => {
-          qb.whereNotIn("c.call_status", ["pending", "ongoing"]);
-          if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
-          if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
-          if (statusFilter) {
-            if (typeof statusFilter === 'string') qb.where("c.call_status", statusFilter);
-            else if (statusFilter.$eq) qb.where("c.call_status", statusFilter.$eq);
-            else if (statusFilter.$in) qb.whereIn("c.call_status", statusFilter.$in);
-          }
-        })
-        .select({
-          id: "c.id",
-          type: "c.type",
-          documentId: "c.document_id",
-          time: "c.start_time",
-          duration: "c.duration",
-          caller: "u_caller.name",
-          expert: "u_receiver.name",
-          category: "cat.name",
-          rating: knex.raw("COALESCE(rev.rating, 0)"),
-          revenue: knex.raw("COALESCE(c.total_cost, 0)"),
-          status: "c.call_status",
-          total_count: knex.raw("count(*) over()"),
-        })
-        .orderBy("c.created_at", "desc")
-        .offset(offset).limit(pageSize);
-
-      console.table(rows);
-
-      const total = rows.length > 0 ? parseInt(rows[0].total_count) : 0;
-      return ctx.send({
-        data: rows,
-        meta: {
-          pagination: {
-            page,
-            pageSize,
-            pageCount: Math.ceil(total / pageSize),
-            total,
-          },
-        },
+      const result = await strapi.plugin('admin-pannel').service("dashboard").getRecentCalls({
+        filters: ctx.query?.filters || {},
+        pagination: ctx.query?.pagination || {}
       });
+      return ctx.send(result);
     } catch (error) {
       strapi.log.error("recentCalls error", error);
       return ctx.internalServerError(error.message || "recentCalls failed");
@@ -498,40 +485,32 @@ const dashboard = ({ strapi }) => ({
 
 
   // ----------------------------------------------------------
-  // GET /api/category-stats
+  // 3. GET /admin-pannel/category-stats
   // ----------------------------------------------------------
   async categoryStats(ctx) {
     try {
-      const clientFilters = ctx.query?.filters || {};
-      const knex = strapi.db.connection;
-
-      const startTimeGte = clientFilters.startTime?.$gte || clientFilters.createdAt?.$gte;
-      const startTimeLte = clientFilters.startTime?.$lte || clientFilters.createdAt?.$lte;
-
-      const rows = await knex("calls as c")
-        .leftJoin("calls_categories_lnk as ccl", "c.id", "ccl.call_id")
-        .leftJoin("categories as cat", "ccl.category_id", "cat.id")
-        .leftJoin("calls_review_lnk as crl", "c.id", "crl.call_id")
-        .leftJoin("reviews as rev", "crl.review_id", "rev.id")
-        .select(knex.raw(`COALESCE(TRIM(cat.name), 'Others') as "name"`))
-        .select(knex.raw(`SUM(CASE WHEN c.type = 'videoCall' THEN 1 ELSE 0 END) as "videoCalls"`))
-        .select(knex.raw(`SUM(CASE WHEN c.type <> 'videoCall' THEN 1 ELSE 0 END) as "calls"`))
-        .select(knex.raw(`SUM(COALESCE(c.duration, 0)) as "minutes"`))
-        .select(knex.raw(`ROUND(AVG(CASE WHEN rev.rating IS NOT NULL THEN rev.rating ELSE 0 END), 1) as "avgRating"`))
-        .where((qb) => {
-          if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
-          if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
-        })
-        .groupByRaw(`COALESCE(TRIM(cat.name), 'Others')`)
-        .orderByRaw(`COUNT(*) DESC`);
-
-      console.table(rows);
-
+      const rows = await strapi.plugin('admin-pannel').service("dashboard").getCategoryStats({
+        filters: ctx.query?.filters || {}
+      });
       return ctx.send(rows);
-
     } catch (error) {
       strapi.log.error("categoryStats error", error);
       return ctx.internalServerError(error.message || "categoryStats failed");
+    }
+  },
+
+  // ----------------------------------------------------------
+  // 4. GET /admin-pannel/stats
+  // ----------------------------------------------------------
+  async getStats(ctx) {
+    try {
+      const stats = await strapi.plugin('admin-pannel').service("dashboard").getDashboardStats({
+        filters: ctx.query?.filters || {}
+      });
+      return ctx.send(stats);
+    } catch (error) {
+      strapi.log.error("getStats error", error);
+      return ctx.internalServerError(error.message || "getStats failed");
     }
   },
 

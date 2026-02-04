@@ -23,6 +23,12 @@ export default {
                 config: { policies: [], auth: false },
             },
             {
+                method: "GET",
+                path: "/stats",
+                handler: "dashboard.getStats",
+                config: { policies: [], auth: false },
+            },
+            {
                 method: 'POST',
                 path: '/callend',
                 handler: 'dashboard.Callend',

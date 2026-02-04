@@ -100,12 +100,12 @@ export const getDateRange = (filter, customRange) => {
     if (filter === 'today') {
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 59, 999);
-        return { start: start.toLocaleString('sv-SE'), end: end.toLocaleString('sv-SE') };
+        return { start: start.toISOString(), end: end.toISOString() };
     }
 
     if (filter === '60min') {
-        start = new Date(start.getTime() - 60 * 60 * 1000);
-        return { start: start.toLocaleString('sv-SE'), end: now.toLocaleString('sv-SE') };
+        start = new Date(now.getTime() - 60 * 60 * 1000);
+        return { start: start.toISOString(), end: now.toISOString() };
     }
 
     if (filter === 'yesterday') {
@@ -113,19 +113,32 @@ export const getDateRange = (filter, customRange) => {
         start.setHours(0, 0, 0, 0);
         end.setDate(now.getDate() - 1);
         end.setHours(23, 59, 59, 999);
-        return { start: start.toLocaleString('sv-SE'), end: end.toLocaleString('sv-SE') };
+        return { start: start.toISOString(), end: end.toISOString() };
     }
 
     if (filter === 'week') {
         start.setDate(now.getDate() - 7);
-        return { start: start.toLocaleString('sv-SE'), end: now.toLocaleString('sv-SE') };
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: now.toISOString() };
+    }
+
+    if (filter === 'quarter') {
+        start.setDate(now.getDate() - 90);
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: now.toISOString() };
     }
 
     if (filter === 'custom' && customRange?.start && customRange?.end) {
+        const customStart = new Date(customRange.start);
+        customStart.setHours(0, 0, 0, 0);
+        const customEnd = new Date(customRange.end);
+        customEnd.setHours(23, 59, 59, 999);
         return {
-            start: new Date(customRange.start).toLocaleString('sv-SE'),
-            end: new Date(new Date(customRange.end).setHours(23, 59, 59, 999)).toLocaleString('sv-SE')
+            start: customStart.toISOString(),
+            end: customEnd.toISOString()
         };
     }
-    return { start: start.toLocaleString('sv-SE'), end: now.toLocaleString('sv-SE') };
+
+    start.setHours(0, 0, 0, 0);
+    return { start: start.toISOString(), end: now.toISOString() };
 };

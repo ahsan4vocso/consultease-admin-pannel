@@ -6,8 +6,10 @@ import EmptyState from "./EmptyState";
 import { formatTimeAMPM, minutesToMMSS } from "../../utils/helper";
 import { VideoCall, VoiceCall, Cross } from "../Icons";
 import { useMovingTime } from "../../hooks/useFormater";
+import { useDashboardContext } from "../../context/DashboardContext";
 
-export default function LiveCallsTable({ stats, liveCalls = [] }) {
+export default function LiveCallsTable() {
+    const { stats, liveCalls } = useDashboardContext();
     const s = stats || {};
     const currMovingTime = useMovingTime();
     const theme = useTheme();

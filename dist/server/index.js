@@ -8,7 +8,7 @@ const register = ({ strapi: strapi2 }) => {
     const result = await next();
     if ((context.uid === "api::call.call" || context.uid === "api::expert-profile.expert-profile") && (context.action === "create" || context.action === "update")) {
       try {
-        await strapi2.plugin("admin-pannel").service("liveCallsService").callsData();
+        await strapi2.plugin("admin-pannel").service("dashboard").broadcast();
       } catch (error) {
         strapi2.log.error("Error in liveCallsService middleware:", error);
       }
@@ -337,12 +337,47 @@ const getWallet = async (userId, type) => {
   }
 };
 const dashboard = ({ strapi: strapi2 }) => ({
+  // ----------------------------------------------------------
+  // 1. GET /admin-pannel/stream
+  // ----------------------------------------------------------
   async stream(ctx) {
     ctx.set("Content-Type", "text/event-stream");
     ctx.set("Cache-Control", "no-cache");
     ctx.set("Connection", "keep-alive");
     ctx.status = 200;
-    await strapi2.plugin("admin-pannel").service("liveCallsService").callsData(ctx.res);
+    try {
+      const stats = await strapi2.plugin("admin-pannel").service("dashboard").getDashboardStats({}) || {};
+      ctx.res.write(`data: ${JSON.stringify({ stats })}
+
+`);
+    } catch (e) {
+      strapi2.log.error("Stream stats push failed", e);
+    }
+    try {
+      const liveCalls = await strapi2.plugin("admin-pannel").service("dashboard").getLiveCalls() || [];
+      ctx.res.write(`data: ${JSON.stringify({ liveCalls })}
+
+`);
+    } catch (e) {
+      strapi2.log.error("Stream liveCalls push failed", e);
+    }
+    try {
+      const recent = await strapi2.plugin("admin-pannel").service("dashboard").getRecentCalls({ pagination: { pageSize: 20 } }) || { data: [] };
+      ctx.res.write(`data: ${JSON.stringify({ recentCalls: recent.data || [] })}
+
+`);
+    } catch (e) {
+      strapi2.log.error("Stream recentCalls push failed", e);
+    }
+    try {
+      const categoryStats = await strapi2.plugin("admin-pannel").service("dashboard").getCategoryStats({}) || [];
+      ctx.res.write(`data: ${JSON.stringify({ categoryStats })}
+
+`);
+    } catch (e) {
+      strapi2.log.error("Stream categoryStats push failed", e);
+    }
+    strapi2.plugin("admin-pannel").service("sse").addClient(ctx.res);
     const hb = setInterval(() => {
       try {
         ctx.res.write(`: ping ${Date.now()}
@@ -358,78 +393,46 @@ const dashboard = ({ strapi: strapi2 }) => ({
     ctx.respond = false;
   },
   // ----------------------------------------------------------
-  // GET /api/call/recent-calls 
+  // 2. GET /admin-pannel/recent-calls
   // ----------------------------------------------------------
   async recentCalls(ctx) {
     try {
-      const knex = strapi2.db.connection;
-      const clientFilters = ctx.query?.filters || {};
-      const paginationQuery = ctx.query?.pagination || {};
-      let page = Math.max(1, Number(paginationQuery.page) || 1);
-      let pageSize = Math.min(50, Math.max(1, Number(paginationQuery.pageSize) || 20));
-      const offset = (page - 1) * pageSize;
-      const startTimeGte = clientFilters.createdAt?.$gte;
-      const startTimeLte = clientFilters.createdAt?.$lte;
-      const statusFilter = clientFilters.callStatus;
-      const rows = await knex("calls as c").leftJoin("calls_caller_lnk as c_lnk", "c.id", "c_lnk.call_id").leftJoin("public_users as u_caller", "c_lnk.public_user_id", "u_caller.id").leftJoin("calls_receiver_lnk as r_lnk", "c.id", "r_lnk.call_id").leftJoin("public_users as u_receiver", "r_lnk.public_user_id", "u_receiver.id").leftJoin("calls_categories_lnk as cat_lnk", "c.id", "cat_lnk.call_id").leftJoin("categories as cat", "cat_lnk.category_id", "cat.id").leftJoin("calls_review_lnk as rev_lnk", "c.id", "rev_lnk.call_id").leftJoin("reviews as rev", "rev_lnk.review_id", "rev.id").where((qb) => {
-        qb.whereNotIn("c.call_status", ["pending", "ongoing"]);
-        if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
-        if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
-        if (statusFilter) {
-          if (typeof statusFilter === "string") qb.where("c.call_status", statusFilter);
-          else if (statusFilter.$eq) qb.where("c.call_status", statusFilter.$eq);
-          else if (statusFilter.$in) qb.whereIn("c.call_status", statusFilter.$in);
-        }
-      }).select({
-        id: "c.id",
-        type: "c.type",
-        documentId: "c.document_id",
-        time: "c.start_time",
-        duration: "c.duration",
-        caller: "u_caller.name",
-        expert: "u_receiver.name",
-        category: "cat.name",
-        rating: knex.raw("COALESCE(rev.rating, 0)"),
-        revenue: knex.raw("COALESCE(c.total_cost, 0)"),
-        status: "c.call_status",
-        total_count: knex.raw("count(*) over()")
-      }).orderBy("c.created_at", "desc").offset(offset).limit(pageSize);
-      console.table(rows);
-      const total = rows.length > 0 ? parseInt(rows[0].total_count) : 0;
-      return ctx.send({
-        data: rows,
-        meta: {
-          pagination: {
-            page,
-            pageSize,
-            pageCount: Math.ceil(total / pageSize),
-            total
-          }
-        }
+      const result = await strapi2.plugin("admin-pannel").service("dashboard").getRecentCalls({
+        filters: ctx.query?.filters || {},
+        pagination: ctx.query?.pagination || {}
       });
+      return ctx.send(result);
     } catch (error) {
       strapi2.log.error("recentCalls error", error);
       return ctx.internalServerError(error.message || "recentCalls failed");
     }
   },
   // ----------------------------------------------------------
-  // GET /api/category-stats
+  // 3. GET /admin-pannel/category-stats
   // ----------------------------------------------------------
   async categoryStats(ctx) {
     try {
-      const clientFilters = ctx.query?.filters || {};
-      const knex = strapi2.db.connection;
-      const startTimeGte = clientFilters.startTime?.$gte || clientFilters.createdAt?.$gte;
-      const startTimeLte = clientFilters.startTime?.$lte || clientFilters.createdAt?.$lte;
-      const rows = await knex("calls as c").leftJoin("calls_categories_lnk as ccl", "c.id", "ccl.call_id").leftJoin("categories as cat", "ccl.category_id", "cat.id").leftJoin("calls_review_lnk as crl", "c.id", "crl.call_id").leftJoin("reviews as rev", "crl.review_id", "rev.id").select(knex.raw(`COALESCE(TRIM(cat.name), 'Others') as "name"`)).select(knex.raw(`SUM(CASE WHEN c.type = 'videoCall' THEN 1 ELSE 0 END) as "videoCalls"`)).select(knex.raw(`SUM(CASE WHEN c.type <> 'videoCall' THEN 1 ELSE 0 END) as "calls"`)).select(knex.raw(`SUM(COALESCE(c.duration, 0)) as "minutes"`)).select(knex.raw(`ROUND(AVG(CASE WHEN rev.rating IS NOT NULL THEN rev.rating ELSE 0 END), 1) as "avgRating"`)).where((qb) => {
-        if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
-        if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
-      }).groupByRaw(`COALESCE(TRIM(cat.name), 'Others')`).orderByRaw(`COUNT(*) DESC`);
-      console.table(rows);
+      const rows = await strapi2.plugin("admin-pannel").service("dashboard").getCategoryStats({
+        filters: ctx.query?.filters || {}
+      });
       return ctx.send(rows);
     } catch (error) {
       strapi2.log.error("categoryStats error", error);
       return ctx.internalServerError(error.message || "categoryStats failed");
+    }
+  },
+  // ----------------------------------------------------------
+  // 4. GET /admin-pannel/stats
+  // ----------------------------------------------------------
+  async getStats(ctx) {
+    try {
+      const stats = await strapi2.plugin("admin-pannel").service("dashboard").getDashboardStats({
+        filters: ctx.query?.filters || {}
+      });
+      return ctx.send(stats);
+    } catch (error) {
+      strapi2.log.error("getStats error", error);
+      return ctx.internalServerError(error.message || "getStats failed");
     }
   },
   // ----------------------------------------------------------
@@ -784,6 +787,12 @@ const routes = {
         config: { policies: [], auth: false }
       },
       {
+        method: "GET",
+        path: "/stats",
+        handler: "dashboard.getStats",
+        config: { policies: [], auth: false }
+      },
+      {
         method: "POST",
         path: "/callend",
         handler: "dashboard.Callend",
@@ -795,36 +804,15 @@ const routes = {
 const liveCallsService = ({ strapi: strapi2 }) => ({
   async callsData(res) {
     try {
-      const date = /* @__PURE__ */ new Date();
-      const today = date.setHours(0, 0, 0, 0);
+      const stats = await strapi2.plugin("admin-pannel").service("dashboard").getDashboardStats({
+        filters: { createdAt: { $gte: (/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0) } }
+      });
       const calls = await strapi2.entityService.findMany("api::call.call", {
-        filters: { createdAt: { $gte: today } },
+        filters: { $or: [{ callStatus: "ongoing" }, { callStatus: "pending" }] },
         populate: { caller: true, receiver: true, categories: true },
         sort: { createdAt: "desc" }
       });
-      const expertsOnline = await strapi2.entityService.findMany("api::expert-profile.expert-profile", { filters: { isActive: true }, fields: ["id"] });
-      const init = () => ({
-        liveCalls: 0,
-        callsToday: 0,
-        declinedCalls: 0,
-        completedCalls: 0,
-        avgDuration: 0
-      });
-      const stats = {
-        voice: init(),
-        video: init(),
-        expertsOnline: expertsOnline.length
-      };
-      for (const call of calls) {
-        const bucket = call.type === "voiceCall" ? stats.voice : call.type === "videoCall" ? stats.video : null;
-        if (!bucket) continue;
-        bucket.callsToday++;
-        if (call.callStatus === "ongoing") bucket.liveCalls++;
-        if (call.callStatus === "declined") bucket.declinedCalls++;
-        if (call.callStatus === "completed") bucket.completedCalls++;
-        bucket.avgDuration += Number(call.duration) || 0;
-      }
-      const liveCalls = calls.filter((call) => /ongoing|pending/i.test(call.callStatus)).slice(0, 8).map((call) => {
+      const liveCalls = calls.map((call) => {
         return {
           id: call.id,
           documentId: call.documentId,
@@ -873,9 +861,179 @@ const sseService = ({ strapi: strapi2 }) => {
     }
   };
 };
+const dashboardService = ({ strapi: strapi2 }) => ({
+  // ---------------------------------------------------------------------
+  //  1. recent calls
+  // ---------------------------------------------------------------------
+  async getRecentCalls({ filters = {}, pagination = {} }) {
+    try {
+      const knex = strapi2.db.connection;
+      let page = Math.max(1, Number(pagination.page) || 1);
+      let pageSize = Math.min(50, Math.max(1, Number(pagination.pageSize) || 20));
+      const offset = (page - 1) * pageSize;
+      let startTimeGte = filters.createdAt?.$gte;
+      let startTimeLte = filters.createdAt?.$lte;
+      console.log("🔵 [getRecentCalls] Filters:", JSON.stringify(filters, null, 2));
+      if (!startTimeGte && !startTimeLte) {
+        const today = /* @__PURE__ */ new Date();
+        today.setHours(0, 0, 0, 0);
+        startTimeGte = today.toISOString();
+      }
+      const statusFilter = filters.callStatus;
+      const rows = await knex("calls as c").leftJoin("calls_caller_lnk as c_lnk", "c.id", "c_lnk.call_id").leftJoin("public_users as u_caller", "c_lnk.public_user_id", "u_caller.id").leftJoin("calls_receiver_lnk as r_lnk", "c.id", "r_lnk.call_id").leftJoin("public_users as u_receiver", "r_lnk.public_user_id", "u_receiver.id").leftJoin("calls_categories_lnk as cat_lnk", "c.id", "cat_lnk.call_id").leftJoin("categories as cat", "cat_lnk.category_id", "cat.id").leftJoin("calls_review_lnk as rev_lnk", "c.id", "rev_lnk.call_id").leftJoin("reviews as rev", "rev_lnk.review_id", "rev.id").where((qb) => {
+        qb.whereNotIn("c.call_status", ["pending", "ongoing"]);
+        if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
+        if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
+        if (statusFilter) {
+          if (typeof statusFilter === "string") qb.where("c.call_status", statusFilter);
+          else if (statusFilter.$eq) qb.where("c.call_status", statusFilter.$eq);
+          else if (statusFilter.$in) qb.whereIn("c.call_status", statusFilter.$in);
+        }
+      }).select({
+        id: "c.id",
+        type: "c.type",
+        documentId: "c.document_id",
+        time: "c.start_time",
+        duration: "c.duration",
+        caller: "u_caller.name",
+        expert: "u_receiver.name",
+        category: "cat.name",
+        rating: knex.raw("COALESCE(rev.rating, 0)"),
+        revenue: knex.raw("COALESCE(c.total_cost, 0)"),
+        status: "c.call_status",
+        total_count: knex.raw("count(*) over()")
+      }).orderBy("c.created_at", "desc").offset(offset).limit(pageSize);
+      const total = rows.length > 0 ? parseInt(rows[0].total_count) : 0;
+      return {
+        data: rows || [],
+        meta: {
+          pagination: {
+            page,
+            pageSize,
+            pageCount: Math.ceil(total / pageSize),
+            total
+          }
+        }
+      };
+    } catch (error) {
+      strapi2.log.error("🔵 [DashboardService] getRecentCalls error:", error);
+      return { data: [], meta: { pagination: { total: 0, pageCount: 0 } } };
+    }
+  },
+  // ---------------------------------------------------------------------
+  //  2. category stats
+  // ---------------------------------------------------------------------
+  async getCategoryStats({ filters = {} }) {
+    try {
+      const knex = strapi2.db.connection;
+      let startTimeGte = filters.startTime?.$gte || filters.createdAt?.$gte;
+      let startTimeLte = filters.startTime?.$lte || filters.createdAt?.$lte;
+      console.log("🔵 [getCategoryStats] Filters:", JSON.stringify(filters, null, 2));
+      if (!startTimeGte && !startTimeLte) {
+        const today = /* @__PURE__ */ new Date();
+        today.setHours(0, 0, 0, 0);
+        startTimeGte = today.toISOString();
+      }
+      const rows = await knex("calls as c").leftJoin("calls_categories_lnk as ccl", "c.id", "ccl.call_id").leftJoin("categories as cat", "ccl.category_id", "cat.id").leftJoin("calls_review_lnk as crl", "c.id", "crl.call_id").leftJoin("reviews as rev", "crl.review_id", "rev.id").select(knex.raw(`COALESCE(TRIM(cat.name), 'Others') as "name"`)).select(knex.raw(`SUM(CASE WHEN c.type = 'videoCall' THEN 1 ELSE 0 END) as "videoCalls"`)).select(knex.raw(`SUM(CASE WHEN c.type <> 'videoCall' THEN 1 ELSE 0 END) as "calls"`)).select(knex.raw(`SUM(COALESCE(c.duration, 0)) as "minutes"`)).select(knex.raw(`ROUND(AVG(CASE WHEN rev.rating IS NOT NULL THEN rev.rating ELSE 0 END), 1) as "avgRating"`)).where((qb) => {
+        qb.whereNotIn("c.call_status", ["pending", "ongoing"]);
+        if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
+        if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
+      }).groupByRaw(`COALESCE(TRIM(cat.name), 'Others')`).orderByRaw(`COUNT(*) DESC`);
+      return rows || [];
+    } catch (error) {
+      strapi2.log.error("🔵 [DashboardService] getCategoryStats error:", error);
+      return [];
+    }
+  },
+  // ---------------------------------------------------------------------
+  //  3. stats
+  // ---------------------------------------------------------------------
+  async getDashboardStats({ filters = {} }) {
+    try {
+      const knex = strapi2.db.connection;
+      let startTimeGte = filters.createdAt?.$gte;
+      let startTimeLte = filters.createdAt?.$lte;
+      if (!startTimeGte && !startTimeLte) {
+        const today = /* @__PURE__ */ new Date();
+        today.setHours(0, 0, 0, 0);
+        startTimeGte = today.toISOString();
+      }
+      console.log("🔵 [getDashboardStats] Filters:", JSON.stringify(filters, null, 2));
+      if (!startTimeGte) {
+        const today = /* @__PURE__ */ new Date();
+        today.setHours(0, 0, 0, 0);
+        startTimeGte = today.toISOString();
+      }
+      const rows = await knex("calls as c").select("c.type").select(knex.raw('COUNT(*)::int AS "callsToday"')).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status IN ('ongoing', 'pending'))::int AS "liveCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'completed')::int AS "completedCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status IN ('missed', 'declined'))::int AS "declinedCalls"`)).select(knex.raw(`COALESCE(SUM(c.duration) FILTER (WHERE c.call_status = 'completed'), 0)::int AS "avgDuration"`)).select(knex.raw('(SELECT COUNT(*) FROM expert_profiles ep WHERE ep.is_active = true)::int AS "expertsOnline"')).where((qb) => {
+        if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
+        if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
+      }).groupBy("c.type").orderBy("c.type");
+      const voice = rows.find((r) => r.type === "voiceCall") || {};
+      const video = rows.find((r) => r.type === "videoCall") || {};
+      const expertsOnline = rows[0]?.expertsOnline || 0;
+      const stats = { voice, video, expertsOnline };
+      strapi2.log.info(`🔵 [DashboardStats] Today: Voice(${voice.callsToday || 0}), Video(${video.callsToday || 0}), Total(${(voice.callsToday || 0) + (video.callsToday || 0)})`);
+      return stats;
+    } catch (error) {
+      strapi2.log.error("🔵 [DashboardService] getDashboardStats error:", error);
+      return {
+        voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+        video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+        expertsOnline: 0
+      };
+    }
+  },
+  // ---------------------------------------------------------------------
+  //  4. live calls
+  // ---------------------------------------------------------------------
+  async getLiveCalls() {
+    try {
+      const liveCallsRaw = await strapi2.entityService.findMany("api::call.call", {
+        filters: { callStatus: { $in: ["ongoing", "pending"] } },
+        populate: { caller: true, receiver: true, categories: true },
+        sort: { createdAt: "desc" }
+      });
+      return (liveCallsRaw || []).map((call) => ({
+        id: call.id,
+        documentId: call.documentId,
+        caller: call.caller?.name,
+        expert: call.receiver?.name,
+        type: call.type,
+        startTime: call.startTime,
+        status: call.callStatus,
+        duration: call.duration,
+        category: call.categories?.[0]?.name
+      }));
+    } catch (error) {
+      strapi2.log.error("🔵 [DashboardService] getLiveCalls error:", error);
+      return [];
+    }
+  },
+  // ---------------------------------------------------------------------
+  //  BROADCAST
+  // ---------------------------------------------------------------------
+  async broadcast() {
+    try {
+      const stats = await this.getDashboardStats({});
+      const recentCallsResult = await this.getRecentCalls({ pagination: { pageSize: 20 } });
+      const recentCalls = recentCallsResult.data || [];
+      const categoryStats = await this.getCategoryStats({});
+      const liveCalls = await this.getLiveCalls();
+      const sse = strapi2.plugin("admin-pannel").service("sse");
+      sse.broadcast({ stats });
+      sse.broadcast({ liveCalls });
+      sse.broadcast({ recentCalls });
+      sse.broadcast({ categoryStats });
+      strapi2.log.info("📡 [DashboardService] Broadcasted dashboard update.");
+    } catch (error) {
+      strapi2.log.error("📡 [DashboardService] Broadcast error:", error);
+    }
+  }
+});
 const services = {
   liveCallsService,
-  sse: sseService
+  sse: sseService,
+  dashboard: dashboardService
 };
 const index = {
   bootstrap,
