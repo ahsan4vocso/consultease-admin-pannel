@@ -65,7 +65,8 @@ export const useDashboardStats = (filter = 'today', customRange) => {
         initialData: {
             voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, missedCalls: 0, completedCalls: 0, avgDuration: 0 },
             video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, missedCalls: 0, completedCalls: 0, avgDuration: 0 },
-            expertsOnline: 0
+            expertsOnline: 0,
+            totalExperts: 0
         }
     });
 };

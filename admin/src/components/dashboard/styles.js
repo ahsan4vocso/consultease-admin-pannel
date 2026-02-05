@@ -666,6 +666,8 @@ export const KpiChip = styled.span`
   border: 1px solid transparent;
   padding: 0.125rem 0.5rem;
 
+  font-weight: 500;
+
   ${props => props.tone === 'emerald' && css`
     background-color: ${({ theme }) => theme.colors.success100};
     color: ${({ theme }) => theme.colors.success700};

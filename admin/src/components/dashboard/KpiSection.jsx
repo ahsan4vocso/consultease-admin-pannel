@@ -10,6 +10,7 @@ export default function KpiSection() {
     const voice = s.voice || {};
     const video = s.video || {};
     const expertsOnline = s.expertsOnline || 0;
+    const totalExperts = s.totalExperts || 0;
 
     const totalLiveCalls = (voice.liveCalls || 0) + (video.liveCalls || 0);
     const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
@@ -74,10 +75,11 @@ export default function KpiSection() {
                                 {totalMissedCount} missed
                             </Style.KpiChip>
                         </div>
-                    } //s
+                    }
                     // open strapi conent manager 
                     onClick={() => totalDeclined > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
-                        `?filters[$and][0][callStatus][$eq]=declined` +
+                        `?filters[$and][0][callStatus][$in][0]=declined` +
+                        `&filters[$and][0][callStatus][$in][1]=missed` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
                         `&page=1`, '_blank')}
                 />
@@ -104,6 +106,11 @@ export default function KpiSection() {
                     value={expertsOnline}
                     tone="sky"
                     Icon={Expert}
+                    extra={
+                        <Style.KpiChip tone="sky" style={{ fontSize: '10px', padding: '0.4rem 0.6rem' }}>
+                            {totalExperts} Total
+                        </Style.KpiChip>
+                    }
                     onClick={() =>
                         expertsOnline > 0 &&
                         // open strapi conent manager

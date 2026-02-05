@@ -146,6 +146,16 @@ const dashboardService = ({ strapi }) => ({
                 startTimeGte = today.toISOString();
             }
 
+            const expertStats = await knex("expert_profiles")
+                .select(
+                    knex.raw('COUNT(*) FILTER (WHERE is_active = true)::int AS "expertsOnline"'),
+                    knex.raw('COUNT(*)::int AS "totalExperts"')
+                )
+                .first();
+
+            const expertsOnline = expertStats?.expertsOnline || 0;
+            const totalExperts = expertStats?.totalExperts || 0;
+
             const rows = await knex("calls as c")
                 .select("c.type")
                 .select(knex.raw('COUNT(*)::int AS "callsToday"'))
@@ -154,19 +164,16 @@ const dashboardService = ({ strapi }) => ({
                 .select(knex.raw("COUNT(*) FILTER (WHERE c.call_status = 'declined')::int AS \"declinedCalls\""))
                 .select(knex.raw("COUNT(*) FILTER (WHERE c.call_status = 'missed')::int AS \"missedCalls\""))
                 .select(knex.raw('COALESCE(SUM(c.duration) FILTER (WHERE c.call_status = \'completed\'), 0)::int AS "avgDuration"'))
-                .select(knex.raw('(SELECT COUNT(*) FROM expert_profiles ep WHERE ep.is_active = true)::int AS "expertsOnline"'))
                 .where((qb) => {
                     if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
                     if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
                 })
                 .groupBy("c.type")
                 .orderBy("c.type");
+
             const voice = rows.find(r => r.type === 'voiceCall') || {};
             const video = rows.find(r => r.type === 'videoCall') || {};
-            const expertsOnline = rows[0]?.expertsOnline || 0;
-
-            const stats = { voice, video, expertsOnline };
-            strapi.log.info(`🔵 [DashboardStats] Today: Voice(${voice.callsToday || 0}), Video(${video.callsToday || 0}), Total(${(voice.callsToday || 0) + (video.callsToday || 0)})`);
+            const stats = { voice, video, expertsOnline, totalExperts };
 
             return stats;
         } catch (error) {
