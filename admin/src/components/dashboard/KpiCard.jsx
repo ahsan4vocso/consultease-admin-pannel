@@ -4,7 +4,7 @@ import { useTheme } from 'styled-components';
 
 
 
-export default function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
+export default function KpiCard({ label, value, tone = "emerald", chartData, Icon, extra, ...rest }) {
     const theme = useTheme();
 
     const getIconColor = (tone) => {
@@ -36,7 +36,11 @@ export default function KpiCard({ label, value, tone = "emerald", chartData, Ico
                             <span style={{ paddingLeft: "0.4rem" }}>Live</span>
                         </Style.StatusBadge>}
                     </Style.KpiLabel>
-                    <Style.KpiValue>{value}</Style.KpiValue>
+
+                    <Style.KpiValueWrapper>
+                        <Style.KpiValue>{value}</Style.KpiValue>
+                        {extra}
+                    </Style.KpiValueWrapper>
                 </Style.KpiInfo>
                 {chartData && (
                     <Style.KpiChartWrapper>

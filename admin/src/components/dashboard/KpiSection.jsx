@@ -13,7 +13,11 @@ export default function KpiSection() {
 
     const totalLiveCalls = (voice.liveCalls || 0) + (video.liveCalls || 0);
     const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
-    const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+
+    const totalDeclinedCount = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+    const totalMissedCount = (voice.missedCalls || 0) + (video.missedCalls || 0);
+    const totalDeclined = totalDeclinedCount + totalMissedCount;
+
     const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
     const totalAvgDuration = (voice.avgDuration || 0) + (video.avgDuration || 0);
     console.table({ voice, video });
@@ -52,17 +56,27 @@ export default function KpiSection() {
 
             <Style.KpiGrid>
                 <KpiCard
-                    label="Declined calls"
-                    value={totalDeclinedCalls}
+                    label="Declined/Missed calls"
+                    value={totalDeclined}
                     tone="rose"
                     Icon={DeclineCall}
-                    style={{ cursor: totalDeclinedCalls && 'pointer' }}
+                    style={{ cursor: totalDeclined && 'pointer' }}
                     chartData={[
-                        { name: 'Voice', value: voice.declinedCalls || 0 },
-                        { name: 'Video', value: video.declinedCalls || 0 }
+                        { name: 'Voice', value: (voice.declinedCalls || 0) + (voice.missedCalls || 0) },
+                        { name: 'Video', value: (video.declinedCalls || 0) + (video.missedCalls || 0) }
                     ]}
+                    extra={
+                        <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.2rem' }}>
+                            <Style.KpiChip tone="rose" style={{ fontSize: '10px', padding: '0.4rem 0.6rem' }}>
+                                {totalDeclinedCount} declined
+                            </Style.KpiChip>
+                            <Style.KpiChip tone="amber" style={{ fontSize: '10px', padding: '0.4rem 0.6rem' }}>
+                                {totalMissedCount} missed
+                            </Style.KpiChip>
+                        </div>
+                    } //s
                     // open strapi conent manager 
-                    onClick={() => totalDeclinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
+                    onClick={() => totalDeclined > 0 && window.open(`/admin/content-manager/collection-types/api::call.call` +
                         `?filters[$and][0][callStatus][$eq]=declined` +
                         `&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date(new Date().setUTCHours(0, 0, 0, 0)).toISOString())}` +
                         `&page=1`, '_blank')}

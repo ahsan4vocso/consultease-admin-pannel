@@ -8,7 +8,7 @@ const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
 const styled = require("styled-components");
 const react = require("react");
-const index = require("./index-CavnEJs6.js");
+const index = require("./index-BsCRYmja.js");
 const recharts = require("recharts");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
@@ -534,7 +534,7 @@ const KpiTop = styled__default.default.div`
 const KpiInfo = styled__default.default.div`
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 1rem;
 `;
 const KpiLabel = styled__default.default.div`
   display: flex;
@@ -551,11 +551,18 @@ const KpiLabel = styled__default.default.div`
     flex-shrink: 0;
   }
 `;
+const KpiValueWrapper = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  line-height: 1;
+`;
 const KpiValue = styled__default.default.p`
   font-size: 1.8rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
+  line-height: 1;
 `;
 const KpiChartWrapper = styled__default.default.div`
   width: 5.5rem;
@@ -575,7 +582,7 @@ styled__default.default.div`
 styled__default.default.span`
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-styled__default.default.span`
+const KpiChip = styled__default.default.span`
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
@@ -1162,8 +1169,8 @@ const useDashboardStats = (filter = "today", customRange) => {
       return data;
     },
     initialData: {
-      voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
-      video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+      voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, missedCalls: 0, completedCalls: 0, avgDuration: 0 },
+      video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, missedCalls: 0, completedCalls: 0, avgDuration: 0 },
       expertsOnline: 0
     }
   });
@@ -1374,7 +1381,7 @@ function Header() {
     ] }) })
   ] });
 }
-function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
+function KpiCard({ label, value, tone = "emerald", chartData, Icon, extra, ...rest }) {
   const theme = styled.useTheme();
   const getIconColor = (tone2) => {
     switch (tone2) {
@@ -1410,7 +1417,10 @@ function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
           /* @__PURE__ */ jsxRuntime.jsx("span", { style: { paddingLeft: "0.4rem" }, children: "Live" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx(KpiValue, { children: value })
+      /* @__PURE__ */ jsxRuntime.jsxs(KpiValueWrapper, { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(KpiValue, { children: value }),
+        extra
+      ] })
     ] }),
     chartData && /* @__PURE__ */ jsxRuntime.jsx(KpiChartWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(PieChartWithPaddingAngle, { data: chartData, tone }) })
   ] }) });
@@ -1975,7 +1985,9 @@ function KpiSection() {
   const expertsOnline = s.expertsOnline || 0;
   const totalLiveCalls = (voice.liveCalls || 0) + (video.liveCalls || 0);
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
-  const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+  const totalDeclinedCount = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+  const totalMissedCount = (voice.missedCalls || 0) + (video.missedCalls || 0);
+  const totalDeclined = totalDeclinedCount + totalMissedCount;
   const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
   const totalAvgDuration = (voice.avgDuration || 0) + (video.avgDuration || 0);
   console.table({ voice, video });
@@ -2015,16 +2027,26 @@ function KpiSection() {
       /* @__PURE__ */ jsxRuntime.jsx(
         KpiCard,
         {
-          label: "Declined calls",
-          value: totalDeclinedCalls,
+          label: "Declined/Missed calls",
+          value: totalDeclined,
           tone: "rose",
           Icon: index.DeclineCall,
-          style: { cursor: totalDeclinedCalls && "pointer" },
+          style: { cursor: totalDeclined && "pointer" },
           chartData: [
-            { name: "Voice", value: voice.declinedCalls || 0 },
-            { name: "Video", value: video.declinedCalls || 0 }
+            { name: "Voice", value: (voice.declinedCalls || 0) + (voice.missedCalls || 0) },
+            { name: "Video", value: (video.declinedCalls || 0) + (video.missedCalls || 0) }
           ],
-          onClick: () => totalDeclinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=declined&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
+          extra: /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", gap: "0.4rem", marginTop: "0.2rem" }, children: [
+            /* @__PURE__ */ jsxRuntime.jsxs(KpiChip, { tone: "rose", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
+              totalDeclinedCount,
+              " declined"
+            ] }),
+            /* @__PURE__ */ jsxRuntime.jsxs(KpiChip, { tone: "amber", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
+              totalMissedCount,
+              " missed"
+            ] })
+          ] }),
+          onClick: () => totalDeclined > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=declined&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(

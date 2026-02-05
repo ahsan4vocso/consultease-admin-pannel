@@ -604,7 +604,7 @@ export const KpiTop = styled.div`
 export const KpiInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 1rem;
 `;
 
 export const KpiLabel = styled.div`
@@ -623,11 +623,19 @@ export const KpiLabel = styled.div`
   }
 `;
 
+export const KpiValueWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  line-height: 1;
+`;
+
 export const KpiValue = styled.p`
   font-size: 1.8rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
+  line-height: 1;
 `;
 
 export const KpiChartWrapper = styled.div`

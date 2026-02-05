@@ -6,7 +6,7 @@ import { useIntl } from "react-intl";
 import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import styled, { css, keyframes, useTheme } from "styled-components";
 import { useState, useEffect, createContext, useContext, useRef } from "react";
-import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick, A as ActiveCall, c as TotalCalls, D as DeclineCall, d as CompletedCall, E as Expert, e as CallTime } from "./index-RSlgKW0L.mjs";
+import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick, A as ActiveCall, c as TotalCalls, D as DeclineCall, d as CompletedCall, E as Expert, e as CallTime } from "./index-D10U6q2H.mjs";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar } from "recharts";
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
@@ -530,7 +530,7 @@ const KpiTop = styled.div`
 const KpiInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 1rem;
 `;
 const KpiLabel = styled.div`
   display: flex;
@@ -547,11 +547,18 @@ const KpiLabel = styled.div`
     flex-shrink: 0;
   }
 `;
+const KpiValueWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  line-height: 1;
+`;
 const KpiValue = styled.p`
   font-size: 1.8rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
+  line-height: 1;
 `;
 const KpiChartWrapper = styled.div`
   width: 5.5rem;
@@ -571,7 +578,7 @@ styled.div`
 styled.span`
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-styled.span`
+const KpiChip = styled.span`
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
@@ -1158,8 +1165,8 @@ const useDashboardStats = (filter = "today", customRange) => {
       return data;
     },
     initialData: {
-      voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
-      video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, completedCalls: 0, avgDuration: 0 },
+      voice: { liveCalls: 0, callsToday: 0, declinedCalls: 0, missedCalls: 0, completedCalls: 0, avgDuration: 0 },
+      video: { liveCalls: 0, callsToday: 0, declinedCalls: 0, missedCalls: 0, completedCalls: 0, avgDuration: 0 },
       expertsOnline: 0
     }
   });
@@ -1370,7 +1377,7 @@ function Header() {
     ] }) })
   ] });
 }
-function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
+function KpiCard({ label, value, tone = "emerald", chartData, Icon, extra, ...rest }) {
   const theme = useTheme();
   const getIconColor = (tone2) => {
     switch (tone2) {
@@ -1406,7 +1413,10 @@ function KpiCard({ label, value, tone = "emerald", chartData, Icon, ...rest }) {
           /* @__PURE__ */ jsx("span", { style: { paddingLeft: "0.4rem" }, children: "Live" })
         ] })
       ] }),
-      /* @__PURE__ */ jsx(KpiValue, { children: value })
+      /* @__PURE__ */ jsxs(KpiValueWrapper, { children: [
+        /* @__PURE__ */ jsx(KpiValue, { children: value }),
+        extra
+      ] })
     ] }),
     chartData && /* @__PURE__ */ jsx(KpiChartWrapper, { children: /* @__PURE__ */ jsx(PieChartWithPaddingAngle, { data: chartData, tone }) })
   ] }) });
@@ -1971,7 +1981,9 @@ function KpiSection() {
   const expertsOnline = s.expertsOnline || 0;
   const totalLiveCalls = (voice.liveCalls || 0) + (video.liveCalls || 0);
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
-  const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+  const totalDeclinedCount = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
+  const totalMissedCount = (voice.missedCalls || 0) + (video.missedCalls || 0);
+  const totalDeclined = totalDeclinedCount + totalMissedCount;
   const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
   const totalAvgDuration = (voice.avgDuration || 0) + (video.avgDuration || 0);
   console.table({ voice, video });
@@ -2011,16 +2023,26 @@ function KpiSection() {
       /* @__PURE__ */ jsx(
         KpiCard,
         {
-          label: "Declined calls",
-          value: totalDeclinedCalls,
+          label: "Declined/Missed calls",
+          value: totalDeclined,
           tone: "rose",
           Icon: DeclineCall,
-          style: { cursor: totalDeclinedCalls && "pointer" },
+          style: { cursor: totalDeclined && "pointer" },
           chartData: [
-            { name: "Voice", value: voice.declinedCalls || 0 },
-            { name: "Video", value: video.declinedCalls || 0 }
+            { name: "Voice", value: (voice.declinedCalls || 0) + (voice.missedCalls || 0) },
+            { name: "Video", value: (video.declinedCalls || 0) + (video.missedCalls || 0) }
           ],
-          onClick: () => totalDeclinedCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=declined&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
+          extra: /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "0.4rem", marginTop: "0.2rem" }, children: [
+            /* @__PURE__ */ jsxs(KpiChip, { tone: "rose", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
+              totalDeclinedCount,
+              " declined"
+            ] }),
+            /* @__PURE__ */ jsxs(KpiChip, { tone: "amber", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
+              totalMissedCount,
+              " missed"
+            ] })
+          ] }),
+          onClick: () => totalDeclined > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=declined&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
         }
       ),
       /* @__PURE__ */ jsx(

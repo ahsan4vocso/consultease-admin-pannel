@@ -958,13 +958,12 @@ const dashboardService = ({ strapi: strapi2 }) => ({
         today.setHours(0, 0, 0, 0);
         startTimeGte = today.toISOString();
       }
-      console.log("🔵 [getDashboardStats] Filters:", JSON.stringify(filters, null, 2));
       if (!startTimeGte) {
         const today = /* @__PURE__ */ new Date();
         today.setHours(0, 0, 0, 0);
         startTimeGte = today.toISOString();
       }
-      const rows = await knex("calls as c").select("c.type").select(knex.raw('COUNT(*)::int AS "callsToday"')).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status IN ('ongoing', 'pending'))::int AS "liveCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'completed')::int AS "completedCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status IN ('missed', 'declined'))::int AS "declinedCalls"`)).select(knex.raw(`COALESCE(SUM(c.duration) FILTER (WHERE c.call_status = 'completed'), 0)::int AS "avgDuration"`)).select(knex.raw('(SELECT COUNT(*) FROM expert_profiles ep WHERE ep.is_active = true)::int AS "expertsOnline"')).where((qb) => {
+      const rows = await knex("calls as c").select("c.type").select(knex.raw('COUNT(*)::int AS "callsToday"')).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status IN ('ongoing', 'pending'))::int AS "liveCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'completed')::int AS "completedCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'declined')::int AS "declinedCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'missed')::int AS "missedCalls"`)).select(knex.raw(`COALESCE(SUM(c.duration) FILTER (WHERE c.call_status = 'completed'), 0)::int AS "avgDuration"`)).select(knex.raw('(SELECT COUNT(*) FROM expert_profiles ep WHERE ep.is_active = true)::int AS "expertsOnline"')).where((qb) => {
         if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
         if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
       }).groupBy("c.type").orderBy("c.type");
