@@ -146,15 +146,9 @@ const dashboardService = ({ strapi }) => ({
                 startTimeGte = today.toISOString();
             }
 
-            const expertStats = await knex("expert_profiles")
-                .select(
-                    knex.raw('COUNT(*) FILTER (WHERE is_active = true)::int AS "expertsOnline"'),
-                    knex.raw('COUNT(*)::int AS "totalExperts"')
-                )
-                .first();
+            const totalExperts = await strapi.documents('api::expert-profile.expert-profile').count();
+            const expertsOnline = await strapi.documents('api::expert-profile.expert-profile').count({ filters: { isActive: true } });
 
-            const expertsOnline = expertStats?.expertsOnline || 0;
-            const totalExperts = expertStats?.totalExperts || 0;
 
             const rows = await knex("calls as c")
                 .select("c.type")
@@ -188,7 +182,7 @@ const dashboardService = ({ strapi }) => ({
 
 
     // ---------------------------------------------------------------------
-    //  4. live calls
+    //  4. live calls table
     // ---------------------------------------------------------------------
     async getLiveCalls() {
         try {

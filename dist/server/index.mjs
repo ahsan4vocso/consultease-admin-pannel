@@ -962,12 +962,8 @@ const dashboardService = ({ strapi: strapi2 }) => ({
         today.setHours(0, 0, 0, 0);
         startTimeGte = today.toISOString();
       }
-      const expertStats = await knex("expert_profiles").select(
-        knex.raw('COUNT(*) FILTER (WHERE is_active = true)::int AS "expertsOnline"'),
-        knex.raw('COUNT(*)::int AS "totalExperts"')
-      ).first();
-      const expertsOnline = expertStats?.expertsOnline || 0;
-      const totalExperts = expertStats?.totalExperts || 0;
+      const totalExperts = await strapi2.documents("api::expert-profile.expert-profile").count();
+      const expertsOnline = await strapi2.documents("api::expert-profile.expert-profile").count({ filters: { isActive: true } });
       const rows = await knex("calls as c").select("c.type").select(knex.raw('COUNT(*)::int AS "callsToday"')).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status IN ('ongoing', 'pending'))::int AS "liveCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'completed')::int AS "completedCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'declined')::int AS "declinedCalls"`)).select(knex.raw(`COUNT(*) FILTER (WHERE c.call_status = 'missed')::int AS "missedCalls"`)).select(knex.raw(`COALESCE(SUM(c.duration) FILTER (WHERE c.call_status = 'completed'), 0)::int AS "avgDuration"`)).where((qb) => {
         if (startTimeGte) qb.where("c.created_at", ">=", startTimeGte);
         if (startTimeLte) qb.where("c.created_at", "<=", startTimeLte);
@@ -986,7 +982,7 @@ const dashboardService = ({ strapi: strapi2 }) => ({
     }
   },
   // ---------------------------------------------------------------------
-  //  4. live calls
+  //  4. live calls table
   // ---------------------------------------------------------------------
   async getLiveCalls() {
     try {
