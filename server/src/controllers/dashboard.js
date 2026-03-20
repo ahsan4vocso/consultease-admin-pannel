@@ -898,6 +898,121 @@ const dashboard = ({ strapi }) => ({
       return ctx.internalServerError("An error occurred while ending call.");
     }
   },
+
+  async referralStats(ctx) {
+    try {
+      const { query } = ctx;
+      const { page = 1, pageSize = 10, sort = 'total_referrals:desc', role = 'all', search = '' } = query;
+      const [sortField, sortOrder] = sort.split(':');
+
+      strapi.log.info(`Fetching referral stats: page=${page}, role=${role}, search=${search}`);
+
+      // Build filters using Strapi 5 syntax
+      const filterItems = [];
+
+      if (role !== 'all') {
+        filterItems.push({ public_profile: { role: { $eq: role } } });
+      }
+
+      if (search) {
+        const searchOR = [
+          { public_profile: { name: { $containsi: search } } },
+          { public_profile: { email: { $containsi: search } } },
+        ];
+
+        if (/^\d+$/.test(search)) {
+          searchOR.push({ public_profile: { mobile: { $eq: search } } });
+        }
+        
+        filterItems.push({ $or: searchOR });
+      }
+
+      const finalFilters = filterItems.length > 0 ? { $and: filterItems } : {};
+      strapi.log.info(`Referral search filters: ${JSON.stringify(finalFilters)}`);
+
+      // Fetch paginated data
+      const data = await strapi.entityService.findMany('api::user-statistic.user-statistic', {
+        filters: finalFilters,
+        populate: { public_profile: true },
+        start: (parseInt(page) - 1) * parseInt(pageSize),
+        limit: parseInt(pageSize),
+        sort: { [sortField]: sortOrder },
+      });
+
+      const total = await strapi.entityService.count('api::user-statistic.user-statistic', { filters: finalFilters });
+
+      // Calculate GLOBAL stats using strapi.db.query (Better than raw SQL for table names)
+      let totalReferrals = 0;
+      let totalSpend = 0;
+      let expertReferrals = 0;
+      let clientReferrals = 0;
+
+      try {
+        const allStats = await strapi.db.query('api::user-statistic.user-statistic').findMany({
+          populate: { public_profile: true },
+          select: ['total_referrals', 'total_earnings_from_referrals'],
+        });
+
+        if (allStats && Array.isArray(allStats)) {
+          allStats.forEach(stat => {
+            const referrals = parseInt(stat.total_referrals || 0);
+            totalReferrals += referrals;
+            totalSpend += parseFloat(stat.total_earnings_from_referrals || 0);
+            
+            if (stat.public_profile?.role === 'Expert') {
+              expertReferrals += referrals;
+            } else if (stat.public_profile?.role === 'Client') {
+              clientReferrals += referrals;
+            }
+          });
+        }
+      } catch (dbErr) {
+        strapi.log.error("Global stats db.query failed:", dbErr.message);
+        // Continue without global stats rather than 500
+      }
+
+      const globalStats = {
+        totalReferrals,
+        expertReferrals,
+        clientReferrals,
+        totalProgramSpend: totalSpend
+      };
+
+      const mapUser = (item) => {
+        if (!item) return null;
+        const profile = item.public_profile || {};
+        return {
+          id: item.id,
+          name: profile.name || 'Unknown',
+          email: profile.email || 'N/A',
+          mobile: profile.mobile || 'N/A',
+          role: profile.role || 'Client',
+          total_referrals: item.total_referrals || 0,
+          total_earnings_from_referrals: item.total_earnings_from_referrals || 0,
+          total_wallet_topup: item.total_wallet_topup || 0,
+          total_earnings_from_calls: item.total_earnings_from_calls || 0,
+        };
+      };
+
+      ctx.body = {
+        data: data.map(mapUser),
+        meta: {
+          pagination: {
+            page: parseInt(page),
+            pageSize: parseInt(pageSize),
+            pageCount: Math.ceil(total / parseInt(pageSize)),
+            total,
+          },
+          search: query.search || '',
+          globalStats,
+        },
+      };
+
+    } catch (err) {
+      strapi.log.error("referralStats Error:", err.message, err.stack);
+      ctx.throw(500, err.message);
+    }
+  },
 });
 
 export default dashboard;

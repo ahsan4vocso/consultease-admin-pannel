@@ -1,18 +1,19 @@
 import { jsx, jsxs } from "react/jsx-runtime";
 import { useFetchClient, Page } from "@strapi/strapi/admin";
-import { Routes, Route } from "react-router-dom";
-import { Main as Main$1 } from "@strapi/design-system";
+import { NavLink, Routes, Route } from "react-router-dom";
+import { Flex, Box, Typography, Divider, SubNav, Main as Main$1 } from "@strapi/design-system";
 import { useIntl } from "react-intl";
-import { useQuery, QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { useQuery, QueryClientProvider, QueryClient, keepPreviousData } from "@tanstack/react-query";
 import styled, { css, keyframes, useTheme } from "styled-components";
 import { useState, useEffect, createContext, useContext, useRef } from "react";
-import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick, A as ActiveCall, c as TotalCalls, D as DeclineCall, d as CompletedCall, E as Expert, e as CallTime } from "./index-CeD9WfYJ.mjs";
+import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick, A as ActiveCall, c as TotalCalls, D as DeclineCall, d as CompletedCall, E as Expert, e as CallTime, f as PLUGIN_ID } from "./index-DiF9E2wO.mjs";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar } from "recharts";
+import { ChartBubble } from "@strapi/icons";
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
 `;
-const DashboardContainer = styled.div`
+const DashboardContainer$1 = styled.div`
   min-height: 100vh;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.neutral100};
@@ -28,7 +29,7 @@ const Header$1 = styled.header`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
 `;
-const HeaderLeft = styled.div`
+const HeaderLeft$1 = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -44,14 +45,14 @@ const IconBox = styled.div`
   color: ${({ theme }) => theme.colors.primary600};
 `;
 const TitleBox = styled.div``;
-const Title = styled.h1`
+const Title$1 = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-const Subtitle = styled.p`
+const Subtitle$1 = styled.p`
   font-size: 1.2rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
@@ -371,7 +372,7 @@ const TableSection = styled.section`
   background-color: ${({ theme }) => theme.colors.neutral0};
   overflow: hidden;
 `;
-const TableHeader = styled.div`
+const TableHeader$1 = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -402,7 +403,7 @@ styled.button`
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const TableContainer = styled.div`
+const TableContainer$1 = styled.div`
   overflow-x: auto;
   ${(props) => props.maxHeight && css`
     max-height: ${props.maxHeight};
@@ -412,12 +413,12 @@ const TableContainer = styled.div`
     min-height: ${props.minHeight};
   `}
 `;
-const Table = styled.table`
+const Table$1 = styled.table`
   min-width: 100%;
   font-size: 1.5rem;
   border-collapse: collapse;
 `;
-const Thead = styled.thead`
+const Thead$1 = styled.thead`
   background-color: ${({ theme }) => theme.colors.neutral100};
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral200};
   color: ${({ theme }) => theme.colors.neutral500};
@@ -425,7 +426,7 @@ const Thead = styled.thead`
   letter-spacing: 0.025em;
   font-size: 1.3rem;
 `;
-const Th = styled.th`
+const Th$1 = styled.th`
   padding: 0.5rem 1rem;
   white-space: nowrap;
   text-align: ${(props) => props.align || "center"};
@@ -435,13 +436,13 @@ const Th = styled.th`
   background-color: ${({ theme }) => theme.colors.neutral100};
   z-index: 1;
 `;
-const Tr = styled.tr`
+const Tr$1 = styled.tr`
   transition: background-color 0.2s;
   &:hover {
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const Td = styled.td`
+const Td$1 = styled.td`
   padding: 0.5rem 1rem;
   white-space: nowrap;
   color: ${(props) => props.color || props.theme.colors.neutral800};
@@ -618,11 +619,11 @@ const EmptyStateContainer = styled.div`
   gap: 1rem;
   width: 100%;
 `;
-const EmptyStateIcon = styled.div`
+const EmptyStateIcon$1 = styled.div`
   font-size: 2.5rem;
   opacity: 0.5;
 `;
-const EmptyStateText = styled.p`
+const EmptyStateText$1 = styled.p`
   font-size: 14px;
   margin: 0;
   font-weight: 500;
@@ -634,7 +635,7 @@ const EmptyStateSubText = styled.p`
   opacity: 0.8;
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-const PaginationContainer = styled.div`
+const PaginationContainer$1 = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -675,7 +676,7 @@ const PaginationButton = styled.button`
     font-weight: 600;
   `}
 `;
-const PaginationInfo = styled.span`
+const PaginationInfo$1 = styled.span`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral500};
 `;
@@ -1310,11 +1311,11 @@ function Header() {
     handleFilterChange(preset);
   };
   return /* @__PURE__ */ jsxs(Header$1, { children: [
-    /* @__PURE__ */ jsxs(HeaderLeft, { children: [
+    /* @__PURE__ */ jsxs(HeaderLeft$1, { children: [
       /* @__PURE__ */ jsx(IconBox, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsx(Title, { children: "Live Calls Dashboard" }),
-        /* @__PURE__ */ jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
+        /* @__PURE__ */ jsx(Title$1, { children: "Live Calls Dashboard" }),
+        /* @__PURE__ */ jsx(Subtitle$1, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
         /* @__PURE__ */ jsxs(MetaText, { children: [
           totalCallsToday,
           " ",
@@ -1494,10 +1495,10 @@ function CustomTooltip$1({ active, payload }) {
   }
   return null;
 }
-function EmptyState({ title, subtitle, icon = "📭" }) {
+function EmptyState$1({ title, subtitle, icon = "📭" }) {
   return /* @__PURE__ */ jsxs(EmptyStateContainer, { children: [
-    /* @__PURE__ */ jsx(EmptyStateIcon, { children: icon }),
-    /* @__PURE__ */ jsx(EmptyStateText, { children: title }),
+    /* @__PURE__ */ jsx(EmptyStateIcon$1, { children: icon }),
+    /* @__PURE__ */ jsx(EmptyStateText$1, { children: title }),
     subtitle && /* @__PURE__ */ jsx(EmptyStateSubText, { children: subtitle })
   ] });
 }
@@ -1605,7 +1606,7 @@ function CategoryGrid() {
       /* @__PURE__ */ jsx(CardSubtitle, { children: "Call distribution by topics" })
     ] }) }),
     /* @__PURE__ */ jsx(CategoryGrid$1, { children: categoryStats.length === 0 ? /* @__PURE__ */ jsx("div", { style: { gridColumn: "1 / -1" }, children: /* @__PURE__ */ jsx(
-      EmptyState,
+      EmptyState$1,
       {
         title: "No categories found",
         subtitle: {
@@ -1701,7 +1702,7 @@ function LiveCallsTable() {
     }
   };
   return /* @__PURE__ */ jsxs(TableSection, { children: [
-    /* @__PURE__ */ jsxs(TableHeader, { children: [
+    /* @__PURE__ */ jsxs(TableHeader$1, { children: [
       /* @__PURE__ */ jsxs("div", { children: [
         /* @__PURE__ */ jsx(CardTitle, { children: "Live calls" }),
         /* @__PURE__ */ jsx(CardSubtitle, { children: "Monitor ongoing calls." })
@@ -1713,40 +1714,40 @@ function LiveCallsTable() {
         " ongoing"
       ] }) })
     ] }),
-    /* @__PURE__ */ jsx(TableContainer, { maxHeight: "350px", minHeight: "200px", children: /* @__PURE__ */ jsxs(Table, { children: [
-      /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs("tr", { children: [
-        /* @__PURE__ */ jsx(Th, { children: "Call ID" }),
-        /* @__PURE__ */ jsx(Th, { children: "Type" }),
-        /* @__PURE__ */ jsx(Th, { children: "Caller" }),
-        /* @__PURE__ */ jsx(Th, { children: "Expert" }),
-        /* @__PURE__ */ jsx(Th, { children: "Start Time" }),
-        /* @__PURE__ */ jsx(Th, { children: "Duration" }),
-        /* @__PURE__ */ jsx(Th, { children: "Category" }),
-        /* @__PURE__ */ jsx(Th, { children: "Status" })
+    /* @__PURE__ */ jsx(TableContainer$1, { maxHeight: "350px", minHeight: "200px", children: /* @__PURE__ */ jsxs(Table$1, { children: [
+      /* @__PURE__ */ jsx(Thead$1, { children: /* @__PURE__ */ jsxs("tr", { children: [
+        /* @__PURE__ */ jsx(Th$1, { children: "Call ID" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Type" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Caller" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Expert" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Start Time" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Duration" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Category" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Status" })
       ] }) }),
       /* @__PURE__ */ jsx("tbody", { children: liveCalls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "8", children: /* @__PURE__ */ jsx(
-        EmptyState,
+        EmptyState$1,
         {
           title: "No live calls",
           subtitle: "Ongoing consultations will appear here."
         }
       ) }) }) : liveCalls.map((call) => /* @__PURE__ */ jsxs(
-        Tr,
+        Tr$1,
         {
           style: { cursor: "pointer" },
           onClick: () => setSelectedCall(call),
           children: [
-            /* @__PURE__ */ jsx(Td, { fontFamily: "monospace", children: call.id }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.caller }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.expert }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
-            /* @__PURE__ */ jsxs(Td, { children: [
+            /* @__PURE__ */ jsx(Td$1, { fontFamily: "monospace", children: call.id }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
+            /* @__PURE__ */ jsxs(Td$1, { children: [
               " ",
               /* @__PURE__ */ jsx(CategoryBadge, { children: call.category })
             ] }),
-            /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: call.status, children: [
+            /* @__PURE__ */ jsx(Td$1, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: call.status, children: [
               /* @__PURE__ */ jsx(
                 "span",
                 {
@@ -1866,7 +1867,7 @@ function RecentCallsTable() {
     );
   };
   return /* @__PURE__ */ jsxs(TableSection, { children: [
-    /* @__PURE__ */ jsxs(TableHeader, { children: [
+    /* @__PURE__ */ jsxs(TableHeader$1, { children: [
       /* @__PURE__ */ jsxs("div", { children: [
         /* @__PURE__ */ jsx(CardTitle, { children: "Call Activity" }),
         /* @__PURE__ */ jsxs(CardSubtitle, { children: [
@@ -1893,20 +1894,20 @@ function RecentCallsTable() {
         )) })
       ] })
     ] }),
-    /* @__PURE__ */ jsx(TableContainer, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxs(Table, { children: [
-      /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs("tr", { children: [
-        /* @__PURE__ */ jsx(Th, { children: "Call Id" }),
-        /* @__PURE__ */ jsx(Th, { children: "Type" }),
-        /* @__PURE__ */ jsx(Th, { children: "Caller" }),
-        /* @__PURE__ */ jsx(Th, { children: "Expert" }),
-        /* @__PURE__ */ jsx(Th, { children: "Category" }),
-        /* @__PURE__ */ jsx(Th, { children: "Start Time" }),
-        /* @__PURE__ */ jsx(Th, { children: "Duration" }),
-        /* @__PURE__ */ jsx(Th, { children: "Status" }),
-        /* @__PURE__ */ jsx(Th, { children: "Rating" })
+    /* @__PURE__ */ jsx(TableContainer$1, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxs(Table$1, { children: [
+      /* @__PURE__ */ jsx(Thead$1, { children: /* @__PURE__ */ jsxs("tr", { children: [
+        /* @__PURE__ */ jsx(Th$1, { children: "Call Id" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Type" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Caller" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Expert" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Category" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Start Time" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Duration" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Status" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Rating" })
       ] }) }),
       /* @__PURE__ */ jsx("tbody", { children: calls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsx(
-        EmptyState,
+        EmptyState$1,
         {
           title: "No completed calls",
           subtitle: {
@@ -1918,19 +1919,19 @@ function RecentCallsTable() {
           }[filter]
         }
       ) }) }) : calls.map((call, idx) => /* @__PURE__ */ jsxs(
-        Tr,
+        Tr$1,
         {
           style: { cursor: "pointer" },
           onClick: () => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, "_blank"),
           children: [
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.id }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.caller }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: call.expert }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(CategoryBadge, { children: call.category || "Other" }) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: formatDateTime(call.time) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
-            /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: call.status, children: [
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.id }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(CategoryBadge, { children: call.category || "Other" }) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: formatDateTime(call.time) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
+            /* @__PURE__ */ jsx(Td$1, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: call.status, children: [
               /* @__PURE__ */ jsx(
                 "span",
                 {
@@ -1944,13 +1945,13 @@ function RecentCallsTable() {
               ),
               call.status === "pending" ? "Calling" : call.status
             ] }) }),
-            /* @__PURE__ */ jsx(Td, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(RatingStars, { children: /* @__PURE__ */ jsx(StarRating, { rating: call.rating, size: 10 }) }) })
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(RatingStars, { children: /* @__PURE__ */ jsx(StarRating, { rating: call.rating, size: 10 }) }) })
           ]
         },
         idx
       )) })
     ] }) }),
-    meta.pagination?.pageCount > 1 && /* @__PURE__ */ jsxs(PaginationContainer, { children: [
+    meta.pagination?.pageCount > 1 && /* @__PURE__ */ jsxs(PaginationContainer$1, { children: [
       /* @__PURE__ */ jsx(
         PaginationButton,
         {
@@ -1959,7 +1960,7 @@ function RecentCallsTable() {
           children: "Previous"
         }
       ),
-      /* @__PURE__ */ jsxs(PaginationInfo, { children: [
+      /* @__PURE__ */ jsxs(PaginationInfo$1, { children: [
         "Page ",
         page,
         " of ",
@@ -2101,7 +2102,7 @@ function KpiSection() {
   ] });
 }
 function DashboardContent() {
-  return /* @__PURE__ */ jsxs(DashboardContainer, { children: [
+  return /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
     /* @__PURE__ */ jsx(Header, {}),
     /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxs(Column, { children: [
@@ -2118,17 +2119,946 @@ function DashboardContent() {
 function CallsLiveDashboard() {
   return /* @__PURE__ */ jsx(DashboardProvider, { children: /* @__PURE__ */ jsx(DashboardContent, {}) });
 }
-const queryClient = new QueryClient();
-const HomePage = () => {
-  const { formatMessage } = useIntl();
-  return /* @__PURE__ */ jsx(Main$1, { children: /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsx(CallsLiveDashboard, {}) }) });
-};
-const App = () => {
-  return /* @__PURE__ */ jsxs(Routes, { children: [
-    /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(HomePage, {}) }),
-    /* @__PURE__ */ jsx(Route, { path: "*", element: /* @__PURE__ */ jsx(Page.Error, {}) })
+const StyledSubNav = styled(SubNav)`
+  width: 200px;
+  flex-shrink: 0;
+`;
+const NavButton = styled(NavLink)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px;
+  text-decoration: none;
+  border-radius: 12px;
+  margin: 4px 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: ${({ theme }) => theme.colors.neutral700};
+  background-color: transparent;
+  position: relative;
+  border: 1px solid transparent;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.neutral150};
+    color: ${({ theme }) => theme.colors.primary600};
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background-color: ${({ theme }) => theme.colors.primary100};
+    color: ${({ theme }) => theme.colors.primary700};
+    font-weight: 600;
+    
+    &::before {
+      content: "";
+      position: absolute;
+      left: -12px;
+      top: 20%;
+      height: 60%;
+      width: 4px;
+      background-color: ${({ theme }) => theme.colors.primary600};
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Target Icon inside active link */
+    svg {
+      color: ${({ theme }) => theme.colors.primary600};
+    }
+  }
+
+  span {
+    font-size: 1.3rem;
+    transition: color 0.2s;
+  }
+`;
+const IconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: ${({ theme }) => theme.colors.neutral500};
+  transition: color 0.2s;
+`;
+const PluginLayout = ({ children }) => {
+  return /* @__PURE__ */ jsxs(Flex, { alignItems: "stretch", children: [
+    /* @__PURE__ */ jsxs(StyledSubNav, { "aria-label": "Analytics navigation", children: [
+      /* @__PURE__ */ jsx(Box, { paddingLeft: 4, paddingTop: 3, paddingBottom: 3, children: /* @__PURE__ */ jsx(Typography, { variant: "beta", fontWeight: "bold", textColor: "neutral800", children: "User Analytics" }) }),
+      /* @__PURE__ */ jsx(Divider, {}),
+      /* @__PURE__ */ jsxs(Box, { paddingTop: 2, children: [
+        /* @__PURE__ */ jsxs(
+          NavButton,
+          {
+            to: `/plugins/${PLUGIN_ID}`,
+            end: true,
+            children: [
+              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Calling Dashboard" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          NavButton,
+          {
+            to: `/plugins/${PLUGIN_ID}/referral-analytics`,
+            children: [
+              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(ChartBubble, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Referral Analytics" })
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(Box, { flex: "1", background: "neutral100", children })
   ] });
 };
+const queryClient$1 = new QueryClient();
+const HomePage = () => {
+  const { formatMessage } = useIntl();
+  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(Main$1, { children: /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsx(CallsLiveDashboard, {}) }) }) });
+};
+const useReferral = () => {
+  const { get } = useFetchClient();
+  const lastFetchedSearch = useRef("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("total_referrals");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [roleFilter, setRoleFilter] = useState("Expert");
+  const pageSize = 10;
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+  const { data, isLoading, isFetching, isPlaceholderData, error } = useQuery({
+    queryKey: ["referralStats", currentPage, sortBy, sortOrder, roleFilter, debouncedSearch],
+    queryFn: async () => {
+      const response = await get(`/${PLUGIN_ID}/referral-stats`, {
+        params: {
+          page: currentPage,
+          pageSize,
+          sort: `${sortBy}:${sortOrder}`,
+          role: roleFilter,
+          search: debouncedSearch
+        }
+      });
+      return response.data;
+    },
+    placeholderData: keepPreviousData
+  });
+  useEffect(() => {
+    if (!isFetching && data) {
+      lastFetchedSearch.current = debouncedSearch;
+    }
+  }, [isFetching, data, debouncedSearch]);
+  const isSearching = isFetching && debouncedSearch !== lastFetchedSearch.current;
+  const paginatedUsers = data?.data || [];
+  const globalStats = data?.meta?.globalStats || {
+    totalReferrals: 0,
+    expertReferrals: 0,
+    clientReferrals: 0,
+    totalProgramSpend: 0
+  };
+  const pagination = data?.meta?.pagination || {
+    page: currentPage,
+    pageSize,
+    total: 0,
+    pageCount: 0
+  };
+  const toggleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+    setCurrentPage(1);
+  };
+  const setRole = (role) => {
+    setRoleFilter(role);
+    setCurrentPage(1);
+  };
+  return {
+    users: paginatedUsers,
+    globalStats,
+    pagination,
+    searchQuery,
+    setSearch: setSearchQuery,
+    currentPage,
+    setPage: setCurrentPage,
+    sortBy,
+    sortOrder,
+    toggleSort,
+    roleFilter,
+    setRoleFilter: setRole,
+    isLoading,
+    isFetching,
+    isSearching,
+    isPlaceholderData,
+    error,
+    totalUsers: pagination.total,
+    filteredCount: pagination.total
+  };
+};
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+const slideUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+const rowFadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+const DashboardContainer = styled.div`
+  width: 100%;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  color: ${({ theme }) => theme.colors.neutral800};
+  padding: 1rem 2rem;
+  animation: ${fadeIn} 0.5s ease-out;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+`;
+const MainContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: stretch;
+`;
+const TableColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+`;
+const SmallBufferSpinner = styled.div`
+  width: 20px;
+  height: 20px;
+  border: 2px solid ${({ theme }) => theme.colors.neutral200};
+  border-top: 2px solid ${({ theme }) => theme.colors.primary500 || "#6366f1"};
+  border-radius: 50%;
+  animation: ${spin} 0.6s linear infinite;
+  flex-shrink: 0;
+  box-sizing: border-box;
+`;
+const SearchContainer = styled.div`
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
+`;
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 3rem;
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: all 0.35s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.primary600};
+    background-color: ${({ theme }) => theme.colors.neutral0};
+    box-shadow: 0 0 0 4px ${({ theme }) => theme.colors.primary100};
+  }
+`;
+const SearchIconWrapper = styled.div`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: ${({ theme }) => theme.colors.neutral400};
+  display: flex;
+  align-items: center;
+`;
+const TableCard = styled.div`
+  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  animation: ${slideUp} 0.6s ease-out;
+`;
+const TableHeader = styled.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+const TableHeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1;
+`;
+const TableHeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+`;
+const FilterSelect = styled.select`
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+`;
+const SortSelect = styled.select`
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+`;
+const TableContainer = styled.div`
+  overflow-x: auto;
+`;
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+const Thead = styled.thead`
+  background-color: ${({ theme }) => theme.colors.neutral100};
+`;
+const Th = styled.th`
+  padding: 1rem;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.neutral600};
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+`;
+const Tbody = styled.tbody``;
+const Tr = styled.tr`
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  animation: ${rowFadeIn} 0.4s ease-out both;
+  animation-delay: ${(props) => (props.index || 0) * 0.05}s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.neutral50};
+  }
+`;
+const Td = styled.td`
+  padding: 1.25rem 1rem;
+  color: ${({ theme }) => theme.colors.neutral700};
+  text-align: center;
+  font-size: 1.2rem;
+`;
+const RoleBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  
+  ${(props) => props.role === "Expert" && css`
+    background-color: ${({ theme }) => theme.colors.success100};
+    color: ${({ theme }) => theme.colors.success700};
+  `}
+  
+  ${(props) => props.role === "Client" && css`
+    background-color: ${({ theme }) => theme.colors.primary100};
+    color: ${({ theme }) => theme.colors.primary700};
+  `}
+`;
+const HighlightValue = styled.span`
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const CurrencyValue = styled.span`
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.success600};
+`;
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;
+const StatCard$1 = styled.div`
+  position: relative;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  animation: ${slideUp} 0.4s ease-out;
+  animation-delay: ${(props) => props.delay || "0s"};
+  animation-fill-mode: both;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: ${({ theme }) => theme.shadows.tableHeader};
+  }
+`;
+const StatCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+`;
+const StatCardBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+const StatIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(props) => {
+  if (props.variant === "purple") return "#8b5cf6";
+  if (props.variant === "blue") return "#3b82f6";
+  if (props.variant === "orange") return "#f59e0b";
+  if (props.variant === "green") return "#10b981";
+  return "#64748b";
+}};
+`;
+const StatLabel = styled.div`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+`;
+const StatValue = styled.div`
+  font-size: 2rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const StatSubtitle = styled.div`
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral500};
+`;
+const StatCornerBubble = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 0 12px 0 40px;
+  opacity: 0.1;
+  background-color: ${(props) => {
+  if (props.variant === "purple") return "#8b5cf6";
+  if (props.variant === "blue") return "#3b82f6";
+  if (props.variant === "orange") return "#f59e0b";
+  if (props.variant === "green") return "#10b981";
+  return "#64748b";
+}};
+`;
+const PaginationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
+`;
+const PaginationInfo = styled.span`
+  font-size: 0.95rem;
+  color: ${({ theme }) => theme.colors.neutral600};
+`;
+const PaginationButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+const PageButton = styled.button`
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  background-color: ${({ theme, $active }) => $active ? theme.colors.primary600 : theme.colors.neutral0};
+  color: ${({ theme, $active }) => $active ? "white" : theme.colors.neutral700};
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme, $active }) => $active ? theme.colors.primary700 : theme.colors.neutral100};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+`;
+const EmptyStateIcon = styled.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+`;
+const EmptyStateText = styled.p`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral700};
+  margin: 0;
+`;
+const EmptyStateSubtext = styled.p`
+  font-size: 1rem;
+  color: ${({ theme }) => theme.colors.neutral500};
+  margin-top: 0.5rem;
+`;
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalItems,
+  pageSize
+}) => {
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalItems);
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+  if (totalPages <= 1) return null;
+  return /* @__PURE__ */ jsxs(PaginationContainer, { children: [
+    /* @__PURE__ */ jsxs(PaginationInfo, { children: [
+      "Showing ",
+      startItem,
+      "-",
+      endItem,
+      " of ",
+      totalItems
+    ] }),
+    /* @__PURE__ */ jsxs(PaginationButtons, { children: [
+      /* @__PURE__ */ jsx(
+        PageButton,
+        {
+          onClick: () => onPageChange(currentPage - 1),
+          disabled: currentPage === 1,
+          children: "Previous"
+        }
+      ),
+      getPageNumbers().map((page, index) => page === "..." ? /* @__PURE__ */ jsx("span", { style: { padding: "0 0.5rem" }, children: "..." }, `ellipsis-${index}`) : /* @__PURE__ */ jsx(
+        PageButton,
+        {
+          $active: page === currentPage,
+          onClick: () => onPageChange(page),
+          children: page
+        },
+        page
+      )),
+      /* @__PURE__ */ jsx(
+        PageButton,
+        {
+          onClick: () => onPageChange(currentPage + 1),
+          disabled: currentPage === totalPages,
+          children: "Next"
+        }
+      )
+    ] })
+  ] });
+};
+const UserReferralTable = ({
+  users,
+  pagination,
+  sortBy,
+  onSort,
+  onPageChange,
+  roleFilter,
+  onRoleFilterChange,
+  searchValue,
+  onSearchChange,
+  isLoading,
+  isSearching
+}) => {
+  const formatCurrency = (value) => {
+    const num = parseFloat(value);
+    return `₹${num.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  };
+  const formatNumber = (value) => {
+    return (value || 0).toLocaleString("en-US");
+  };
+  const sortOptions = [
+    { value: "total_referrals", label: "Referrals" },
+    { value: "total_earnings_from_referrals", label: "Referral Earnings" },
+    { value: "total_wallet_topup", label: "Wallet Topup" },
+    { value: "total_earnings_from_calls", label: "Call Earnings" }
+  ];
+  const showEmptyState = !isLoading && (!users || users.length === 0);
+  const showData = users && users.length > 0;
+  return /* @__PURE__ */ jsx(TableCard, { children: /* @__PURE__ */ jsxs(TableColumn, { children: [
+    /* @__PURE__ */ jsxs(TableHeader, { children: [
+      /* @__PURE__ */ jsx(TableHeaderLeft, { children: /* @__PURE__ */ jsxs(SearchContainer, { children: [
+        /* @__PURE__ */ jsx(
+          SearchInput,
+          {
+            type: "text",
+            placeholder: "Search by name or email...",
+            value: searchValue,
+            onChange: (e) => onSearchChange(e.target.value)
+          }
+        ),
+        /* @__PURE__ */ jsx(SearchIconWrapper, { children: isSearching ? /* @__PURE__ */ jsx(SmallBufferSpinner, {}) : /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+          /* @__PURE__ */ jsx("circle", { cx: "11", cy: "11", r: "8" }),
+          /* @__PURE__ */ jsx("path", { d: "m21 21-4.35-4.35" })
+        ] }) })
+      ] }) }),
+      /* @__PURE__ */ jsxs(TableHeaderRight, { children: [
+        /* @__PURE__ */ jsxs(
+          FilterSelect,
+          {
+            value: roleFilter,
+            onChange: (e) => onRoleFilterChange(e.target.value),
+            children: [
+              /* @__PURE__ */ jsx("option", { value: "all", children: "All Roles" }),
+              /* @__PURE__ */ jsx("option", { value: "Expert", children: "Experts" }),
+              /* @__PURE__ */ jsx("option", { value: "Client", children: "Clients" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          SortSelect,
+          {
+            value: sortBy,
+            onChange: (e) => onSort(e.target.value),
+            children: sortOptions.map((option) => /* @__PURE__ */ jsxs("option", { value: option.value, children: [
+              "Sort by ",
+              option.label
+            ] }, option.value))
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(TableContainer, { children: /* @__PURE__ */ jsxs(Table, { children: [
+      /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs(Tr, { index: 0, children: [
+        /* @__PURE__ */ jsx(Th, { children: "Name" }),
+        /* @__PURE__ */ jsx(Th, { children: "Email" }),
+        /* @__PURE__ */ jsx(Th, { children: "Contact" }),
+        /* @__PURE__ */ jsx(Th, { children: "Role" }),
+        /* @__PURE__ */ jsx(Th, { children: "Referrals" }),
+        /* @__PURE__ */ jsx(Th, { children: "Ref. Earnings" }),
+        /* @__PURE__ */ jsx(Th, { children: "Wallet Topup" }),
+        /* @__PURE__ */ jsx(Th, { children: "Call Earnings" })
+      ] }) }),
+      /* @__PURE__ */ jsx(Tbody, { children: isLoading && !showData ? /* @__PURE__ */ jsx(Tr, { index: 0, children: /* @__PURE__ */ jsx(Td, { colSpan: "8", style: { height: "300px" }, children: /* @__PURE__ */ jsx(SmallBufferSpinner, { style: { margin: "0 auto", width: "40px", height: "40px" } }) }) }) : showEmptyState ? /* @__PURE__ */ jsx(Tr, { index: 0, children: /* @__PURE__ */ jsx(Td, { colSpan: "8", children: /* @__PURE__ */ jsxs(EmptyState, { children: [
+        /* @__PURE__ */ jsx(EmptyStateIcon, { children: "🔍" }),
+        /* @__PURE__ */ jsx(EmptyStateText, { children: "No results found" }),
+        /* @__PURE__ */ jsx(EmptyStateSubtext, { children: "Try different search terms or filters" })
+      ] }) }) }) : users.map((user, index) => /* @__PURE__ */ jsxs(Tr, { index, children: [
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx("strong", { children: user.name }) }),
+        /* @__PURE__ */ jsx(Td, { children: user.email }),
+        /* @__PURE__ */ jsx(Td, { children: user.mobile }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(RoleBadge, { role: user.role, children: user.role }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(HighlightValue, { children: formatNumber(user.total_referrals) }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { children: formatCurrency(user.total_earnings_from_referrals) }) }),
+        /* @__PURE__ */ jsx(Td, { children: formatCurrency(user.total_wallet_topup) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { children: formatCurrency(user.total_earnings_from_calls) }) })
+      ] }, user.id)) })
+    ] }) }),
+    /* @__PURE__ */ jsx(
+      Pagination,
+      {
+        currentPage: pagination.page,
+        totalPages: pagination.pageCount,
+        onPageChange,
+        totalItems: pagination.total,
+        pageSize: pagination.pageSize
+      }
+    )
+  ] }) });
+};
+const StatCard = ({
+  variant = "purple",
+  icon: Icon,
+  label,
+  value,
+  subtitle,
+  delay = "0s"
+}) => {
+  return /* @__PURE__ */ jsxs(StatCard$1, { variant, delay, children: [
+    /* @__PURE__ */ jsx(StatCornerBubble, { variant }),
+    /* @__PURE__ */ jsxs(StatCardHeader, { children: [
+      /* @__PURE__ */ jsx(StatLabel, { children: label }),
+      Icon && /* @__PURE__ */ jsx(StatIconWrapper, { variant, children: /* @__PURE__ */ jsx(Icon, { style: { width: "28px", height: "28px" } }) })
+    ] }),
+    /* @__PURE__ */ jsxs(StatCardBody, { children: [
+      /* @__PURE__ */ jsx(StatValue, { children: value }),
+      subtitle && /* @__PURE__ */ jsx(StatSubtitle, { variant, children: subtitle })
+    ] })
+  ] });
+};
+const GlobalReferralIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsx("path", { d: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsx("circle", { cx: "9", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsx("path", { d: "M23 21v-2a4 4 0 0 0-3-3.87" }),
+  /* @__PURE__ */ jsx("path", { d: "M16 3.13a4 4 0 0 1 0 7.75" })
+] });
+const UserCheckIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsx("circle", { cx: "8.5", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsx("polyline", { points: "17 11 19 13 23 9" })
+] });
+const UserHeartIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsx("circle", { cx: "8.5", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsx("path", { d: "M20.42 4.58a2.83 2.83 0 0 1 0 4l-4.42 4.42-4.42-4.42a2.83 2.83 0 0 1 4-4l.42.42.42-.42a2.83 2.83 0 0 1 4 0Z" })
+] });
+const SpendIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsx("rect", { x: "2", y: "10", width: "20", height: "12", rx: "2", ry: "2" }),
+  /* @__PURE__ */ jsx("path", { d: "M12 22V10" }),
+  /* @__PURE__ */ jsx("path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" })
+] });
+const StatsSection = ({ globalStats }) => {
+  const formatCurrency = (value) => {
+    if (!value) return "₹0";
+    const num = parseFloat(value);
+    return `₹${num.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+  };
+  return /* @__PURE__ */ jsxs(StatsGrid, { children: [
+    /* @__PURE__ */ jsx(
+      StatCard,
+      {
+        variant: "purple",
+        icon: GlobalReferralIcon,
+        label: "Total Referrals",
+        value: globalStats?.totalReferrals || 0,
+        subtitle: "All-time platform total",
+        delay: "0s"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      StatCard,
+      {
+        variant: "blue",
+        icon: UserCheckIcon,
+        label: "Referrals via Experts",
+        value: globalStats?.expertReferrals || 0,
+        subtitle: "Expert contributions",
+        delay: "0.1s"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      StatCard,
+      {
+        variant: "orange",
+        icon: UserHeartIcon,
+        label: "Referrals via Clients",
+        value: globalStats?.clientReferrals || 0,
+        subtitle: "Client contributions",
+        delay: "0.2s"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      StatCard,
+      {
+        variant: "green",
+        icon: SpendIcon,
+        label: "Total Program Spend",
+        value: formatCurrency(globalStats?.totalProgramSpend || 0),
+        subtitle: "Total disbursed earnings",
+        delay: "0.3s"
+      }
+    )
+  ] });
+};
+const HeaderWrapper = styled.div`
+  padding: 0 0 1.5rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+`;
+const HeaderContent = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+`;
+const HeaderLeft = styled.div`
+  flex: 1;
+`;
+const wave = keyframes`
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+`;
+const Title = styled.h1`
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+  
+  background: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.colors.neutral800} 0%,
+    ${({ theme }) => theme.colors.neutral800} 25%,
+    ${({ theme }) => theme.colors.primary600} 50%,
+    ${({ theme }) => theme.colors.neutral800} 75%,
+    ${({ theme }) => theme.colors.neutral800} 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${wave} 4s linear infinite;
+`;
+const Subtitle = styled.p`
+  font-size: 1.2rem;
+  color: ${({ theme }) => theme.colors.neutral600};
+  margin: 0;
+  font-weight: 500;
+`;
+const DashboardHeader = () => {
+  return /* @__PURE__ */ jsx(HeaderWrapper, { children: /* @__PURE__ */ jsx(HeaderContent, { children: /* @__PURE__ */ jsxs(HeaderLeft, { children: [
+    /* @__PURE__ */ jsx(Title, { children: "Referral Analytics" }),
+    /* @__PURE__ */ jsx(Subtitle, { children: "Monitor and analyze referral performance across the network" })
+  ] }) }) });
+};
+const ReferralDashboard = () => {
+  const {
+    users,
+    pagination,
+    searchQuery,
+    setSearch,
+    setPage,
+    sortBy,
+    toggleSort,
+    roleFilter,
+    setRoleFilter,
+    isLoading,
+    isFetching,
+    isSearching,
+    globalStats,
+    isPlaceholderData
+  } = useReferral();
+  return /* @__PURE__ */ jsxs(DashboardContainer, { children: [
+    /* @__PURE__ */ jsx(DashboardHeader, {}),
+    /* @__PURE__ */ jsxs(MainContent, { children: [
+      /* @__PURE__ */ jsx(StatsSection, { globalStats }),
+      /* @__PURE__ */ jsx(TableColumn, { children: /* @__PURE__ */ jsx(
+        UserReferralTable,
+        {
+          users,
+          pagination,
+          sortBy,
+          onSort: toggleSort,
+          onPageChange: setPage,
+          roleFilter,
+          onRoleFilterChange: setRoleFilter,
+          searchValue: searchQuery,
+          onSearchChange: setSearch,
+          isLoading,
+          isFetching,
+          isSearching,
+          isPlaceholderData
+        }
+      ) })
+    ] })
+  ] });
+};
+const ReferralAnalyticsPage = () => {
+  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(ReferralDashboard, {}) });
+};
+const queryClient = new QueryClient();
+const App = () => {
+  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxs(Routes, { children: [
+    /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(HomePage, {}) }),
+    /* @__PURE__ */ jsx(Route, { path: "referral-analytics", element: /* @__PURE__ */ jsx(ReferralAnalyticsPage, {}) }),
+    /* @__PURE__ */ jsx(Route, { path: "*", element: /* @__PURE__ */ jsx(Page.Error, {}) })
+  ] }) });
+};
 export {
-  App
+  App as default
 };

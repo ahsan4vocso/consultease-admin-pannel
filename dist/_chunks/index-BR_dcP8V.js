@@ -82,10 +82,7 @@ const index = {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: PLUGIN_ID
       },
-      Component: async () => {
-        const { App } = await Promise.resolve().then(() => require("./App-Bvg8XvGF.js"));
-        return App;
-      }
+      Component: () => Promise.resolve().then(() => require("./App-D4kCPI-S.js"))
     });
     app.registerPlugin({
       id: PLUGIN_ID,
@@ -114,6 +111,7 @@ exports.CompletedCall = CompletedCall;
 exports.Cross = Cross;
 exports.DeclineCall = DeclineCall;
 exports.Expert = Expert;
+exports.PLUGIN_ID = PLUGIN_ID;
 exports.PluginIcon = PluginIcon;
 exports.Tick = Tick;
 exports.TotalCalls = TotalCalls;

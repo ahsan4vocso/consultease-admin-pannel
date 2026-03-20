@@ -81,10 +81,7 @@ const index = {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: PLUGIN_ID
       },
-      Component: async () => {
-        const { App } = await import("./App-cILa9lje.mjs");
-        return App;
-      }
+      Component: () => import("./App-Dp1oGPj6.mjs")
     });
     app.registerPlugin({
       id: PLUGIN_ID,
@@ -119,5 +116,6 @@ export {
   TotalCalls as c,
   CompletedCall as d,
   CallTime as e,
+  PLUGIN_ID as f,
   index as i
 };

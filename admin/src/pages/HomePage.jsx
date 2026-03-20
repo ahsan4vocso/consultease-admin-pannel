@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { getTranslation } from '../utils/getTranslation';
 import LiveCallsDashboard from '../components/dashboard/LiveCallsDashboard';
+import PluginLayout from '../components/PluginLayout';
 
 const queryClient = new QueryClient();
 
@@ -11,11 +12,13 @@ const HomePage = () => {
   const { formatMessage } = useIntl();
 
   return (
-    <Main>
-      <QueryClientProvider client={queryClient}>
-        <LiveCallsDashboard />
-      </QueryClientProvider>
-    </Main>
+    <PluginLayout>
+      <Main>
+        <QueryClientProvider client={queryClient}>
+          <LiveCallsDashboard />
+        </QueryClientProvider>
+      </Main>
+    </PluginLayout>
   );
 };
 

@@ -1,7 +1,7 @@
 'use strict';
 
 export default {
-    'admin-pannel': {
+    admin: {
         type: 'admin',
         routes: [
             {
@@ -32,6 +32,12 @@ export default {
                 method: 'POST',
                 path: '/callend',
                 handler: 'dashboard.Callend',
+                config: { policies: [] },
+            },
+            {
+                method: "GET",
+                path: "/referral-stats",
+                handler: "dashboard.referralStats",
                 config: { policies: [] },
             },
         ],

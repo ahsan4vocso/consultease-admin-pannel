@@ -8,15 +8,16 @@ const reactIntl = require("react-intl");
 const reactQuery = require("@tanstack/react-query");
 const styled = require("styled-components");
 const react = require("react");
-const index = require("./index-DmEYKmmJ.js");
+const index = require("./index-BR_dcP8V.js");
 const recharts = require("recharts");
+const icons = require("@strapi/icons");
 const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
 const styled__default = /* @__PURE__ */ _interopDefault(styled);
 const pulseInfo = styled.keyframes`
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
 `;
-const DashboardContainer = styled__default.default.div`
+const DashboardContainer$1 = styled__default.default.div`
   min-height: 100vh;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.neutral100};
@@ -32,7 +33,7 @@ const Header$1 = styled__default.default.header`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
 `;
-const HeaderLeft = styled__default.default.div`
+const HeaderLeft$1 = styled__default.default.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -48,14 +49,14 @@ const IconBox = styled__default.default.div`
   color: ${({ theme }) => theme.colors.primary600};
 `;
 const TitleBox = styled__default.default.div``;
-const Title = styled__default.default.h1`
+const Title$1 = styled__default.default.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-const Subtitle = styled__default.default.p`
+const Subtitle$1 = styled__default.default.p`
   font-size: 1.2rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
@@ -375,7 +376,7 @@ const TableSection = styled__default.default.section`
   background-color: ${({ theme }) => theme.colors.neutral0};
   overflow: hidden;
 `;
-const TableHeader = styled__default.default.div`
+const TableHeader$1 = styled__default.default.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -406,7 +407,7 @@ styled__default.default.button`
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const TableContainer = styled__default.default.div`
+const TableContainer$1 = styled__default.default.div`
   overflow-x: auto;
   ${(props) => props.maxHeight && styled.css`
     max-height: ${props.maxHeight};
@@ -416,12 +417,12 @@ const TableContainer = styled__default.default.div`
     min-height: ${props.minHeight};
   `}
 `;
-const Table = styled__default.default.table`
+const Table$1 = styled__default.default.table`
   min-width: 100%;
   font-size: 1.5rem;
   border-collapse: collapse;
 `;
-const Thead = styled__default.default.thead`
+const Thead$1 = styled__default.default.thead`
   background-color: ${({ theme }) => theme.colors.neutral100};
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral200};
   color: ${({ theme }) => theme.colors.neutral500};
@@ -429,7 +430,7 @@ const Thead = styled__default.default.thead`
   letter-spacing: 0.025em;
   font-size: 1.3rem;
 `;
-const Th = styled__default.default.th`
+const Th$1 = styled__default.default.th`
   padding: 0.5rem 1rem;
   white-space: nowrap;
   text-align: ${(props) => props.align || "center"};
@@ -439,13 +440,13 @@ const Th = styled__default.default.th`
   background-color: ${({ theme }) => theme.colors.neutral100};
   z-index: 1;
 `;
-const Tr = styled__default.default.tr`
+const Tr$1 = styled__default.default.tr`
   transition: background-color 0.2s;
   &:hover {
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const Td = styled__default.default.td`
+const Td$1 = styled__default.default.td`
   padding: 0.5rem 1rem;
   white-space: nowrap;
   color: ${(props) => props.color || props.theme.colors.neutral800};
@@ -622,11 +623,11 @@ const EmptyStateContainer = styled__default.default.div`
   gap: 1rem;
   width: 100%;
 `;
-const EmptyStateIcon = styled__default.default.div`
+const EmptyStateIcon$1 = styled__default.default.div`
   font-size: 2.5rem;
   opacity: 0.5;
 `;
-const EmptyStateText = styled__default.default.p`
+const EmptyStateText$1 = styled__default.default.p`
   font-size: 14px;
   margin: 0;
   font-weight: 500;
@@ -638,7 +639,7 @@ const EmptyStateSubText = styled__default.default.p`
   opacity: 0.8;
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-const PaginationContainer = styled__default.default.div`
+const PaginationContainer$1 = styled__default.default.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -679,7 +680,7 @@ const PaginationButton = styled__default.default.button`
     font-weight: 600;
   `}
 `;
-const PaginationInfo = styled__default.default.span`
+const PaginationInfo$1 = styled__default.default.span`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral500};
 `;
@@ -1314,11 +1315,11 @@ function Header() {
     handleFilterChange(preset);
   };
   return /* @__PURE__ */ jsxRuntime.jsxs(Header$1, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft$1, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntime.jsx(index.PluginIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxRuntime.jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Title, { children: "Live Calls Dashboard" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
+        /* @__PURE__ */ jsxRuntime.jsx(Title$1, { children: "Live Calls Dashboard" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Subtitle$1, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
         /* @__PURE__ */ jsxRuntime.jsxs(MetaText, { children: [
           totalCallsToday,
           " ",
@@ -1498,10 +1499,10 @@ function CustomTooltip$1({ active, payload }) {
   }
   return null;
 }
-function EmptyState({ title, subtitle, icon = "📭" }) {
+function EmptyState$1({ title, subtitle, icon = "📭" }) {
   return /* @__PURE__ */ jsxRuntime.jsxs(EmptyStateContainer, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(EmptyStateIcon, { children: icon }),
-    /* @__PURE__ */ jsxRuntime.jsx(EmptyStateText, { children: title }),
+    /* @__PURE__ */ jsxRuntime.jsx(EmptyStateIcon$1, { children: icon }),
+    /* @__PURE__ */ jsxRuntime.jsx(EmptyStateText$1, { children: title }),
     subtitle && /* @__PURE__ */ jsxRuntime.jsx(EmptyStateSubText, { children: subtitle })
   ] });
 }
@@ -1609,7 +1610,7 @@ function CategoryGrid() {
       /* @__PURE__ */ jsxRuntime.jsx(CardSubtitle, { children: "Call distribution by topics" })
     ] }) }),
     /* @__PURE__ */ jsxRuntime.jsx(CategoryGrid$1, { children: categoryStats.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("div", { style: { gridColumn: "1 / -1" }, children: /* @__PURE__ */ jsxRuntime.jsx(
-      EmptyState,
+      EmptyState$1,
       {
         title: "No categories found",
         subtitle: {
@@ -1705,7 +1706,7 @@ function LiveCallsTable() {
     }
   };
   return /* @__PURE__ */ jsxRuntime.jsxs(TableSection, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader$1, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Live calls" }),
         /* @__PURE__ */ jsxRuntime.jsx(CardSubtitle, { children: "Monitor ongoing calls." })
@@ -1717,40 +1718,40 @@ function LiveCallsTable() {
         " ongoing"
       ] }) })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(TableContainer, { maxHeight: "350px", minHeight: "200px", children: /* @__PURE__ */ jsxRuntime.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(Thead, { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Call ID" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Type" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Caller" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Expert" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Start Time" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Duration" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Category" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Status" })
+    /* @__PURE__ */ jsxRuntime.jsx(TableContainer$1, { maxHeight: "350px", minHeight: "200px", children: /* @__PURE__ */ jsxRuntime.jsxs(Table$1, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(Thead$1, { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Call ID" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Type" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Caller" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Expert" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Start Time" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Duration" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Category" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Status" })
       ] }) }),
       /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: liveCalls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "8", children: /* @__PURE__ */ jsxRuntime.jsx(
-        EmptyState,
+        EmptyState$1,
         {
           title: "No live calls",
           subtitle: "Ongoing consultations will appear here."
         }
       ) }) }) : liveCalls.map((call) => /* @__PURE__ */ jsxRuntime.jsxs(
-        Tr,
+        Tr$1,
         {
           style: { cursor: "pointer" },
           onClick: () => setSelectedCall(call),
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontFamily: "monospace", children: call.id }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.caller }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.expert }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
-            /* @__PURE__ */ jsxRuntime.jsxs(Td, { children: [
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontFamily: "monospace", children: call.id }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
+            /* @__PURE__ */ jsxRuntime.jsxs(Td$1, { children: [
               " ",
               /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category })
             ] }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: call.status, children: [
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: call.status, children: [
               /* @__PURE__ */ jsxRuntime.jsx(
                 "span",
                 {
@@ -1870,7 +1871,7 @@ function RecentCallsTable() {
     );
   };
   return /* @__PURE__ */ jsxRuntime.jsxs(TableSection, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader$1, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
         /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Call Activity" }),
         /* @__PURE__ */ jsxRuntime.jsxs(CardSubtitle, { children: [
@@ -1897,20 +1898,20 @@ function RecentCallsTable() {
         )) })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(TableContainer, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxRuntime.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(Thead, { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Call Id" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Type" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Caller" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Expert" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Category" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Start Time" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Duration" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Status" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Rating" })
+    /* @__PURE__ */ jsxRuntime.jsx(TableContainer$1, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxRuntime.jsxs(Table$1, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(Thead$1, { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Call Id" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Type" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Caller" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Expert" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Category" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Start Time" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Duration" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Status" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Rating" })
       ] }) }),
       /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: calls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsxRuntime.jsx(
-        EmptyState,
+        EmptyState$1,
         {
           title: "No completed calls",
           subtitle: {
@@ -1922,19 +1923,19 @@ function RecentCallsTable() {
           }[filter]
         }
       ) }) }) : calls.map((call, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
-        Tr,
+        Tr$1,
         {
           style: { cursor: "pointer" },
           onClick: () => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, "_blank"),
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.id }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.caller }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: call.expert }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category || "Other" }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: formatDateTime(call.time) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: call.status, children: [
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.id }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category || "Other" }) }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: formatDateTime(call.time) }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: call.status, children: [
               /* @__PURE__ */ jsxRuntime.jsx(
                 "span",
                 {
@@ -1948,13 +1949,13 @@ function RecentCallsTable() {
               ),
               call.status === "pending" ? "Calling" : call.status
             ] }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td, { fontSize: "1.4rem", children: /* @__PURE__ */ jsxRuntime.jsx(RatingStars, { children: /* @__PURE__ */ jsxRuntime.jsx(StarRating, { rating: call.rating, size: 10 }) }) })
+            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsxRuntime.jsx(RatingStars, { children: /* @__PURE__ */ jsxRuntime.jsx(StarRating, { rating: call.rating, size: 10 }) }) })
           ]
         },
         idx
       )) })
     ] }) }),
-    meta.pagination?.pageCount > 1 && /* @__PURE__ */ jsxRuntime.jsxs(PaginationContainer, { children: [
+    meta.pagination?.pageCount > 1 && /* @__PURE__ */ jsxRuntime.jsxs(PaginationContainer$1, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(
         PaginationButton,
         {
@@ -1963,7 +1964,7 @@ function RecentCallsTable() {
           children: "Previous"
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsxs(PaginationInfo, { children: [
+      /* @__PURE__ */ jsxRuntime.jsxs(PaginationInfo$1, { children: [
         "Page ",
         page,
         " of ",
@@ -2105,7 +2106,7 @@ function KpiSection() {
   ] });
 }
 function DashboardContent() {
-  return /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer, { children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer$1, { children: [
     /* @__PURE__ */ jsxRuntime.jsx(Header, {}),
     /* @__PURE__ */ jsxRuntime.jsx(Main, { children: /* @__PURE__ */ jsxRuntime.jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
@@ -2122,15 +2123,944 @@ function DashboardContent() {
 function CallsLiveDashboard() {
   return /* @__PURE__ */ jsxRuntime.jsx(DashboardProvider, { children: /* @__PURE__ */ jsxRuntime.jsx(DashboardContent, {}) });
 }
-const queryClient = new reactQuery.QueryClient();
-const HomePage = () => {
-  const { formatMessage } = reactIntl.useIntl();
-  return /* @__PURE__ */ jsxRuntime.jsx(designSystem.Main, { children: /* @__PURE__ */ jsxRuntime.jsx(reactQuery.QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxRuntime.jsx(CallsLiveDashboard, {}) }) });
-};
-const App = () => {
-  return /* @__PURE__ */ jsxRuntime.jsxs(reactRouterDom.Routes, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { index: true, element: /* @__PURE__ */ jsxRuntime.jsx(HomePage, {}) }),
-    /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { path: "*", element: /* @__PURE__ */ jsxRuntime.jsx(admin.Page.Error, {}) })
+const StyledSubNav = styled__default.default(designSystem.SubNav)`
+  width: 200px;
+  flex-shrink: 0;
+`;
+const NavButton = styled__default.default(reactRouterDom.NavLink)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px;
+  text-decoration: none;
+  border-radius: 12px;
+  margin: 4px 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: ${({ theme }) => theme.colors.neutral700};
+  background-color: transparent;
+  position: relative;
+  border: 1px solid transparent;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.neutral150};
+    color: ${({ theme }) => theme.colors.primary600};
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background-color: ${({ theme }) => theme.colors.primary100};
+    color: ${({ theme }) => theme.colors.primary700};
+    font-weight: 600;
+    
+    &::before {
+      content: "";
+      position: absolute;
+      left: -12px;
+      top: 20%;
+      height: 60%;
+      width: 4px;
+      background-color: ${({ theme }) => theme.colors.primary600};
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Target Icon inside active link */
+    svg {
+      color: ${({ theme }) => theme.colors.primary600};
+    }
+  }
+
+  span {
+    font-size: 1.3rem;
+    transition: color 0.2s;
+  }
+`;
+const IconWrapper = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: ${({ theme }) => theme.colors.neutral500};
+  transition: color 0.2s;
+`;
+const PluginLayout = ({ children }) => {
+  return /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Flex, { alignItems: "stretch", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(StyledSubNav, { "aria-label": "Analytics navigation", children: [
+      /* @__PURE__ */ jsxRuntime.jsx(designSystem.Box, { paddingLeft: 4, paddingTop: 3, paddingBottom: 3, children: /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", fontWeight: "bold", textColor: "neutral800", children: "User Analytics" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(designSystem.Divider, {}),
+      /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Box, { paddingTop: 2, children: [
+        /* @__PURE__ */ jsxRuntime.jsxs(
+          NavButton,
+          {
+            to: `/plugins/${index.PLUGIN_ID}`,
+            end: true,
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(index.PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", children: "Calling Dashboard" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsxs(
+          NavButton,
+          {
+            to: `/plugins/${index.PLUGIN_ID}/referral-analytics`,
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(icons.ChartBubble, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", children: "Referral Analytics" })
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx(designSystem.Box, { flex: "1", background: "neutral100", children })
   ] });
 };
-exports.App = App;
+const queryClient$1 = new reactQuery.QueryClient();
+const HomePage = () => {
+  const { formatMessage } = reactIntl.useIntl();
+  return /* @__PURE__ */ jsxRuntime.jsx(PluginLayout, { children: /* @__PURE__ */ jsxRuntime.jsx(designSystem.Main, { children: /* @__PURE__ */ jsxRuntime.jsx(reactQuery.QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsxRuntime.jsx(CallsLiveDashboard, {}) }) }) });
+};
+const useReferral = () => {
+  const { get } = admin.useFetchClient();
+  const lastFetchedSearch = react.useRef("");
+  const [searchQuery, setSearchQuery] = react.useState("");
+  const [debouncedSearch, setDebouncedSearch] = react.useState("");
+  const [currentPage, setCurrentPage] = react.useState(1);
+  const [sortBy, setSortBy] = react.useState("total_referrals");
+  const [sortOrder, setSortOrder] = react.useState("desc");
+  const [roleFilter, setRoleFilter] = react.useState("Expert");
+  const pageSize = 10;
+  react.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+  const { data, isLoading, isFetching, isPlaceholderData, error } = reactQuery.useQuery({
+    queryKey: ["referralStats", currentPage, sortBy, sortOrder, roleFilter, debouncedSearch],
+    queryFn: async () => {
+      const response = await get(`/${index.PLUGIN_ID}/referral-stats`, {
+        params: {
+          page: currentPage,
+          pageSize,
+          sort: `${sortBy}:${sortOrder}`,
+          role: roleFilter,
+          search: debouncedSearch
+        }
+      });
+      return response.data;
+    },
+    placeholderData: reactQuery.keepPreviousData
+  });
+  react.useEffect(() => {
+    if (!isFetching && data) {
+      lastFetchedSearch.current = debouncedSearch;
+    }
+  }, [isFetching, data, debouncedSearch]);
+  const isSearching = isFetching && debouncedSearch !== lastFetchedSearch.current;
+  const paginatedUsers = data?.data || [];
+  const globalStats = data?.meta?.globalStats || {
+    totalReferrals: 0,
+    expertReferrals: 0,
+    clientReferrals: 0,
+    totalProgramSpend: 0
+  };
+  const pagination = data?.meta?.pagination || {
+    page: currentPage,
+    pageSize,
+    total: 0,
+    pageCount: 0
+  };
+  const toggleSort = (column) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(column);
+      setSortOrder("desc");
+    }
+    setCurrentPage(1);
+  };
+  const setRole = (role) => {
+    setRoleFilter(role);
+    setCurrentPage(1);
+  };
+  return {
+    users: paginatedUsers,
+    globalStats,
+    pagination,
+    searchQuery,
+    setSearch: setSearchQuery,
+    currentPage,
+    setPage: setCurrentPage,
+    sortBy,
+    sortOrder,
+    toggleSort,
+    roleFilter,
+    setRoleFilter: setRole,
+    isLoading,
+    isFetching,
+    isSearching,
+    isPlaceholderData,
+    error,
+    totalUsers: pagination.total,
+    filteredCount: pagination.total
+  };
+};
+const fadeIn = styled.keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+const slideUp = styled.keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+const spin = styled.keyframes`
+  to { transform: rotate(360deg); }
+`;
+const rowFadeIn = styled.keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+const DashboardContainer = styled__default.default.div`
+  width: 100%;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  color: ${({ theme }) => theme.colors.neutral800};
+  padding: 1rem 2rem;
+  animation: ${fadeIn} 0.5s ease-out;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+`;
+const MainContent = styled__default.default.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: stretch;
+`;
+const TableColumn = styled__default.default.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+`;
+const SmallBufferSpinner = styled__default.default.div`
+  width: 20px;
+  height: 20px;
+  border: 2px solid ${({ theme }) => theme.colors.neutral200};
+  border-top: 2px solid ${({ theme }) => theme.colors.primary500 || "#6366f1"};
+  border-radius: 50%;
+  animation: ${spin} 0.6s linear infinite;
+  flex-shrink: 0;
+  box-sizing: border-box;
+`;
+const SearchContainer = styled__default.default.div`
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
+`;
+const SearchInput = styled__default.default.input`
+  width: 100%;
+  padding: 0.6rem 1rem 0.6rem 3rem;
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: all 0.35s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.colors.primary600};
+    background-color: ${({ theme }) => theme.colors.neutral0};
+    box-shadow: 0 0 0 4px ${({ theme }) => theme.colors.primary100};
+  }
+`;
+const SearchIconWrapper = styled__default.default.div`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: ${({ theme }) => theme.colors.neutral400};
+  display: flex;
+  align-items: center;
+`;
+const TableCard = styled__default.default.div`
+  border-radius: 16px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  overflow: hidden;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  animation: ${slideUp} 0.6s ease-out;
+`;
+const TableHeader = styled__default.default.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+const TableHeaderLeft = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  flex: 1;
+`;
+const TableHeaderRight = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+`;
+const FilterSelect = styled__default.default.select`
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+`;
+const SortSelect = styled__default.default.select`
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 12px;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+`;
+const TableContainer = styled__default.default.div`
+  overflow-x: auto;
+`;
+const Table = styled__default.default.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+const Thead = styled__default.default.thead`
+  background-color: ${({ theme }) => theme.colors.neutral100};
+`;
+const Th = styled__default.default.th`
+  padding: 1rem;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.neutral600};
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+`;
+const Tbody = styled__default.default.tbody``;
+const Tr = styled__default.default.tr`
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  animation: ${rowFadeIn} 0.4s ease-out both;
+  animation-delay: ${(props) => (props.index || 0) * 0.05}s;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.neutral50};
+  }
+`;
+const Td = styled__default.default.td`
+  padding: 1.25rem 1rem;
+  color: ${({ theme }) => theme.colors.neutral700};
+  text-align: center;
+  font-size: 1.2rem;
+`;
+const RoleBadge = styled__default.default.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  
+  ${(props) => props.role === "Expert" && styled.css`
+    background-color: ${({ theme }) => theme.colors.success100};
+    color: ${({ theme }) => theme.colors.success700};
+  `}
+  
+  ${(props) => props.role === "Client" && styled.css`
+    background-color: ${({ theme }) => theme.colors.primary100};
+    color: ${({ theme }) => theme.colors.primary700};
+  `}
+`;
+const HighlightValue = styled__default.default.span`
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const CurrencyValue = styled__default.default.span`
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.success600};
+`;
+const StatsGrid = styled__default.default.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+`;
+const StatCard$1 = styled__default.default.div`
+  position: relative;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  animation: ${slideUp} 0.4s ease-out;
+  animation-delay: ${(props) => props.delay || "0s"};
+  animation-fill-mode: both;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: ${({ theme }) => theme.shadows.tableHeader};
+  }
+`;
+const StatCardHeader = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+`;
+const StatCardBody = styled__default.default.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+const StatIconWrapper = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(props) => {
+  if (props.variant === "purple") return "#8b5cf6";
+  if (props.variant === "blue") return "#3b82f6";
+  if (props.variant === "orange") return "#f59e0b";
+  if (props.variant === "green") return "#10b981";
+  return "#64748b";
+}};
+`;
+const StatLabel = styled__default.default.div`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+`;
+const StatValue = styled__default.default.div`
+  font-size: 2rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const StatSubtitle = styled__default.default.div`
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral500};
+`;
+const StatCornerBubble = styled__default.default.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 0 12px 0 40px;
+  opacity: 0.1;
+  background-color: ${(props) => {
+  if (props.variant === "purple") return "#8b5cf6";
+  if (props.variant === "blue") return "#3b82f6";
+  if (props.variant === "orange") return "#f59e0b";
+  if (props.variant === "green") return "#10b981";
+  return "#64748b";
+}};
+`;
+const PaginationContainer = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
+`;
+const PaginationInfo = styled__default.default.span`
+  font-size: 0.95rem;
+  color: ${({ theme }) => theme.colors.neutral600};
+`;
+const PaginationButtons = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+const PageButton = styled__default.default.button`
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  background-color: ${({ theme, $active }) => $active ? theme.colors.primary600 : theme.colors.neutral0};
+  color: ${({ theme, $active }) => $active ? "white" : theme.colors.neutral700};
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme, $active }) => $active ? theme.colors.primary700 : theme.colors.neutral100};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+const EmptyState = styled__default.default.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+`;
+const EmptyStateIcon = styled__default.default.div`
+  font-size: 3rem;
+  margin-bottom: 1rem;
+`;
+const EmptyStateText = styled__default.default.p`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral700};
+  margin: 0;
+`;
+const EmptyStateSubtext = styled__default.default.p`
+  font-size: 1rem;
+  color: ${({ theme }) => theme.colors.neutral500};
+  margin-top: 0.5rem;
+`;
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalItems,
+  pageSize
+}) => {
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalItems);
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    if (totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+  if (totalPages <= 1) return null;
+  return /* @__PURE__ */ jsxRuntime.jsxs(PaginationContainer, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(PaginationInfo, { children: [
+      "Showing ",
+      startItem,
+      "-",
+      endItem,
+      " of ",
+      totalItems
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs(PaginationButtons, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        PageButton,
+        {
+          onClick: () => onPageChange(currentPage - 1),
+          disabled: currentPage === 1,
+          children: "Previous"
+        }
+      ),
+      getPageNumbers().map((page, index2) => page === "..." ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { padding: "0 0.5rem" }, children: "..." }, `ellipsis-${index2}`) : /* @__PURE__ */ jsxRuntime.jsx(
+        PageButton,
+        {
+          $active: page === currentPage,
+          onClick: () => onPageChange(page),
+          children: page
+        },
+        page
+      )),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        PageButton,
+        {
+          onClick: () => onPageChange(currentPage + 1),
+          disabled: currentPage === totalPages,
+          children: "Next"
+        }
+      )
+    ] })
+  ] });
+};
+const UserReferralTable = ({
+  users,
+  pagination,
+  sortBy,
+  onSort,
+  onPageChange,
+  roleFilter,
+  onRoleFilterChange,
+  searchValue,
+  onSearchChange,
+  isLoading,
+  isSearching
+}) => {
+  const formatCurrency = (value) => {
+    const num = parseFloat(value);
+    return `₹${num.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  };
+  const formatNumber = (value) => {
+    return (value || 0).toLocaleString("en-US");
+  };
+  const sortOptions = [
+    { value: "total_referrals", label: "Referrals" },
+    { value: "total_earnings_from_referrals", label: "Referral Earnings" },
+    { value: "total_wallet_topup", label: "Wallet Topup" },
+    { value: "total_earnings_from_calls", label: "Call Earnings" }
+  ];
+  const showEmptyState = !isLoading && (!users || users.length === 0);
+  const showData = users && users.length > 0;
+  return /* @__PURE__ */ jsxRuntime.jsx(TableCard, { children: /* @__PURE__ */ jsxRuntime.jsxs(TableColumn, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(TableHeaderLeft, { children: /* @__PURE__ */ jsxRuntime.jsxs(SearchContainer, { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          SearchInput,
+          {
+            type: "text",
+            placeholder: "Search by name or email...",
+            value: searchValue,
+            onChange: (e) => onSearchChange(e.target.value)
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(SearchIconWrapper, { children: isSearching ? /* @__PURE__ */ jsxRuntime.jsx(SmallBufferSpinner, {}) : /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "11", cy: "11", r: "8" }),
+          /* @__PURE__ */ jsxRuntime.jsx("path", { d: "m21 21-4.35-4.35" })
+        ] }) })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs(TableHeaderRight, { children: [
+        /* @__PURE__ */ jsxRuntime.jsxs(
+          FilterSelect,
+          {
+            value: roleFilter,
+            onChange: (e) => onRoleFilterChange(e.target.value),
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "all", children: "All Roles" }),
+              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "Expert", children: "Experts" }),
+              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "Client", children: "Clients" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          SortSelect,
+          {
+            value: sortBy,
+            onChange: (e) => onSort(e.target.value),
+            children: sortOptions.map((option) => /* @__PURE__ */ jsxRuntime.jsxs("option", { value: option.value, children: [
+              "Sort by ",
+              option.label
+            ] }, option.value))
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsx(TableContainer, { children: /* @__PURE__ */ jsxRuntime.jsxs(Table, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(Thead, { children: /* @__PURE__ */ jsxRuntime.jsxs(Tr, { index: 0, children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Name" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Email" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Contact" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Role" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Referrals" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Ref. Earnings" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Wallet Topup" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Call Earnings" })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(Tbody, { children: isLoading && !showData ? /* @__PURE__ */ jsxRuntime.jsx(Tr, { index: 0, children: /* @__PURE__ */ jsxRuntime.jsx(Td, { colSpan: "8", style: { height: "300px" }, children: /* @__PURE__ */ jsxRuntime.jsx(SmallBufferSpinner, { style: { margin: "0 auto", width: "40px", height: "40px" } }) }) }) : showEmptyState ? /* @__PURE__ */ jsxRuntime.jsx(Tr, { index: 0, children: /* @__PURE__ */ jsxRuntime.jsx(Td, { colSpan: "8", children: /* @__PURE__ */ jsxRuntime.jsxs(EmptyState, { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(EmptyStateIcon, { children: "🔍" }),
+        /* @__PURE__ */ jsxRuntime.jsx(EmptyStateText, { children: "No results found" }),
+        /* @__PURE__ */ jsxRuntime.jsx(EmptyStateSubtext, { children: "Try different search terms or filters" })
+      ] }) }) }) : users.map((user, index2) => /* @__PURE__ */ jsxRuntime.jsxs(Tr, { index: index2, children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx("strong", { children: user.name }) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: user.email }),
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: user.mobile }),
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx(RoleBadge, { role: user.role, children: user.role }) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx(HighlightValue, { children: formatNumber(user.total_referrals) }) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx(CurrencyValue, { children: formatCurrency(user.total_earnings_from_referrals) }) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: formatCurrency(user.total_wallet_topup) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx(CurrencyValue, { children: formatCurrency(user.total_earnings_from_calls) }) })
+      ] }, user.id)) })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      Pagination,
+      {
+        currentPage: pagination.page,
+        totalPages: pagination.pageCount,
+        onPageChange,
+        totalItems: pagination.total,
+        pageSize: pagination.pageSize
+      }
+    )
+  ] }) });
+};
+const StatCard = ({
+  variant = "purple",
+  icon: Icon,
+  label,
+  value,
+  subtitle,
+  delay = "0s"
+}) => {
+  return /* @__PURE__ */ jsxRuntime.jsxs(StatCard$1, { variant, delay, children: [
+    /* @__PURE__ */ jsxRuntime.jsx(StatCornerBubble, { variant }),
+    /* @__PURE__ */ jsxRuntime.jsxs(StatCardHeader, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(StatLabel, { children: label }),
+      Icon && /* @__PURE__ */ jsxRuntime.jsx(StatIconWrapper, { variant, children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "28px", height: "28px" } }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs(StatCardBody, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(StatValue, { children: value }),
+      subtitle && /* @__PURE__ */ jsxRuntime.jsx(StatSubtitle, { variant, children: subtitle })
+    ] })
+  ] });
+};
+const GlobalReferralIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "9", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M23 21v-2a4 4 0 0 0-3-3.87" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 3.13a4 4 0 0 1 0 7.75" })
+] });
+const UserCheckIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "8.5", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "17 11 19 13 23 9" })
+] });
+const UserHeartIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "8.5", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M20.42 4.58a2.83 2.83 0 0 1 0 4l-4.42 4.42-4.42-4.42a2.83 2.83 0 0 1 4-4l.42.42.42-.42a2.83 2.83 0 0 1 4 0Z" })
+] });
+const SpendIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "2", y: "10", width: "20", height: "12", rx: "2", ry: "2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M12 22V10" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" })
+] });
+const StatsSection = ({ globalStats }) => {
+  const formatCurrency = (value) => {
+    if (!value) return "₹0";
+    const num = parseFloat(value);
+    return `₹${num.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+  };
+  return /* @__PURE__ */ jsxRuntime.jsxs(StatsGrid, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      StatCard,
+      {
+        variant: "purple",
+        icon: GlobalReferralIcon,
+        label: "Total Referrals",
+        value: globalStats?.totalReferrals || 0,
+        subtitle: "All-time platform total",
+        delay: "0s"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      StatCard,
+      {
+        variant: "blue",
+        icon: UserCheckIcon,
+        label: "Referrals via Experts",
+        value: globalStats?.expertReferrals || 0,
+        subtitle: "Expert contributions",
+        delay: "0.1s"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      StatCard,
+      {
+        variant: "orange",
+        icon: UserHeartIcon,
+        label: "Referrals via Clients",
+        value: globalStats?.clientReferrals || 0,
+        subtitle: "Client contributions",
+        delay: "0.2s"
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx(
+      StatCard,
+      {
+        variant: "green",
+        icon: SpendIcon,
+        label: "Total Program Spend",
+        value: formatCurrency(globalStats?.totalProgramSpend || 0),
+        subtitle: "Total disbursed earnings",
+        delay: "0.3s"
+      }
+    )
+  ] });
+};
+const HeaderWrapper = styled__default.default.div`
+  padding: 0 0 1.5rem 0;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+`;
+const HeaderContent = styled__default.default.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+`;
+const HeaderLeft = styled__default.default.div`
+  flex: 1;
+`;
+const wave = styled.keyframes`
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+`;
+const Title = styled__default.default.h1`
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+  
+  background: linear-gradient(
+    90deg,
+    ${({ theme }) => theme.colors.neutral800} 0%,
+    ${({ theme }) => theme.colors.neutral800} 25%,
+    ${({ theme }) => theme.colors.primary600} 50%,
+    ${({ theme }) => theme.colors.neutral800} 75%,
+    ${({ theme }) => theme.colors.neutral800} 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${wave} 4s linear infinite;
+`;
+const Subtitle = styled__default.default.p`
+  font-size: 1.2rem;
+  color: ${({ theme }) => theme.colors.neutral600};
+  margin: 0;
+  font-weight: 500;
+`;
+const DashboardHeader = () => {
+  return /* @__PURE__ */ jsxRuntime.jsx(HeaderWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(HeaderContent, { children: /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(Title, { children: "Referral Analytics" }),
+    /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Monitor and analyze referral performance across the network" })
+  ] }) }) });
+};
+const ReferralDashboard = () => {
+  const {
+    users,
+    pagination,
+    searchQuery,
+    setSearch,
+    setPage,
+    sortBy,
+    toggleSort,
+    roleFilter,
+    setRoleFilter,
+    isLoading,
+    isFetching,
+    isSearching,
+    globalStats,
+    isPlaceholderData
+  } = useReferral();
+  return /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(DashboardHeader, {}),
+    /* @__PURE__ */ jsxRuntime.jsxs(MainContent, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(StatsSection, { globalStats }),
+      /* @__PURE__ */ jsxRuntime.jsx(TableColumn, { children: /* @__PURE__ */ jsxRuntime.jsx(
+        UserReferralTable,
+        {
+          users,
+          pagination,
+          sortBy,
+          onSort: toggleSort,
+          onPageChange: setPage,
+          roleFilter,
+          onRoleFilterChange: setRoleFilter,
+          searchValue: searchQuery,
+          onSearchChange: setSearch,
+          isLoading,
+          isFetching,
+          isSearching,
+          isPlaceholderData
+        }
+      ) })
+    ] })
+  ] });
+};
+const ReferralAnalyticsPage = () => {
+  return /* @__PURE__ */ jsxRuntime.jsx(PluginLayout, { children: /* @__PURE__ */ jsxRuntime.jsx(ReferralDashboard, {}) });
+};
+const queryClient = new reactQuery.QueryClient();
+const App = () => {
+  return /* @__PURE__ */ jsxRuntime.jsx(reactQuery.QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxRuntime.jsxs(reactRouterDom.Routes, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { index: true, element: /* @__PURE__ */ jsxRuntime.jsx(HomePage, {}) }),
+    /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { path: "referral-analytics", element: /* @__PURE__ */ jsxRuntime.jsx(ReferralAnalyticsPage, {}) }),
+    /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { path: "*", element: /* @__PURE__ */ jsxRuntime.jsx(admin.Page.Error, {}) })
+  ] }) });
+};
+exports.default = App;
