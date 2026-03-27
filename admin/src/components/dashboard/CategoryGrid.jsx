@@ -3,7 +3,6 @@ import { useTheme } from 'styled-components';
 import * as Style from "./styles";
 import { PieChartWithPaddingAngle } from "./KpiCard";
 import EmptyState from "./EmptyState";
-import { useCategoryStats } from "../../hooks/dashboard";
 import { formatDurationFromMinutes } from "../../utils/helper";
 
 const CHART_COLORS = {
@@ -86,8 +85,8 @@ export default function CategoryGrid() {
                         />
                     </div>
                 ) : (
-                    categoryStats.map((row) => (
-                        <Style.CategoryItem key={row.name}>
+                    categoryStats.map((row, idx) => (
+                        <Style.CategoryItem key={row.name} index={idx + 5}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', overflow: 'hidden' }}>
                                     <Style.CategoryName title={row.name}>{row.name}</Style.CategoryName>

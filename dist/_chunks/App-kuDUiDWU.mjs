@@ -1,17 +1,162 @@
-import { jsx, jsxs } from "react/jsx-runtime";
+import { jsxs, jsx } from "react/jsx-runtime";
 import { useFetchClient, Page } from "@strapi/strapi/admin";
 import { NavLink, Routes, Route } from "react-router-dom";
-import { Flex, Box, Typography, Divider, SubNav, Main as Main$1 } from "@strapi/design-system";
-import { useIntl } from "react-intl";
 import { useQuery, QueryClientProvider, QueryClient, keepPreviousData } from "@tanstack/react-query";
+import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import styled, { css, keyframes, useTheme } from "styled-components";
-import { useState, useEffect, createContext, useContext, useRef } from "react";
-import { P as PluginIcon, V as VoiceCall, a as VideoCall, C as Cross, b as ChevronDown, T as Tick, A as ActiveCall, c as TotalCalls, D as DeclineCall, d as CompletedCall, E as Expert, e as CallTime, f as PLUGIN_ID } from "./index-DiF9E2wO.mjs";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar } from "recharts";
-import { ChartBubble } from "@strapi/icons";
+import { Flex, Box, Typography, Divider, SubNav } from "@strapi/design-system";
+import { P as PLUGIN_ID, a as PluginIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, C as Cross, c as ChevronDown, T as Tick, A as ActiveCall, d as TotalCalls, D as DeclineCall, e as CompletedCall, E as Expert, f as CallTime, S as SearchIcon, g as ReferralIcon, W as WalletIcon, h as ConversionIcon, U as UniqueIcon } from "./index-C0G2oRHc.mjs";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar, AreaChart, Area } from "recharts";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const StyledSubNav = styled(SubNav)`
+  width: 200px;
+  flex-shrink: 0;
+`;
+const NavButton = styled(NavLink)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px;
+  text-decoration: none;
+  border-radius: 12px;
+  margin: 4px 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: ${({ theme }) => theme.colors.neutral700};
+  background-color: transparent;
+  position: relative;
+  border: 1px solid transparent;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.neutral150};
+    color: ${({ theme }) => theme.colors.primary600};
+    transform: translateX(4px);
+  }
+
+  &.active {
+    background-color: ${({ theme }) => theme.colors.primary100};
+    color: ${({ theme }) => theme.colors.primary700};
+    font-weight: 600;
+    
+    &::before {
+      content: "";
+      position: absolute;
+      left: -12px;
+      top: 20%;
+      height: 60%;
+      width: 4px;
+      background-color: ${({ theme }) => theme.colors.primary600};
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Target Icon inside active link */
+    svg {
+      color: ${({ theme }) => theme.colors.primary600};
+    }
+  }
+
+  span {
+    font-size: 1.3rem;
+    transition: color 0.2s;
+  }
+`;
+const IconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: ${({ theme }) => theme.colors.neutral500};
+  transition: color 0.2s;
+`;
+const PluginLayout = ({ children }) => {
+  return /* @__PURE__ */ jsxs(Flex, { alignItems: "stretch", children: [
+    /* @__PURE__ */ jsxs(StyledSubNav, { "aria-label": "Analytics navigation", children: [
+      /* @__PURE__ */ jsx(Box, { paddingLeft: 4, paddingTop: 3, paddingBottom: 3, children: /* @__PURE__ */ jsx(Typography, { variant: "beta", fontWeight: "bold", textColor: "neutral800", children: "Dashboards" }) }),
+      /* @__PURE__ */ jsx(Divider, {}),
+      /* @__PURE__ */ jsxs(Box, { paddingTop: 2, children: [
+        /* @__PURE__ */ jsxs(
+          NavButton,
+          {
+            to: `/plugins/${PLUGIN_ID}`,
+            end: true,
+            children: [
+              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Call Analytics" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          NavButton,
+          {
+            to: `/plugins/${PLUGIN_ID}/referral-analytics`,
+            children: [
+              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Referral Analytics" })
+            ]
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(Box, { flex: "1", background: "neutral100", children })
+  ] });
+};
 const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
+`;
+const slideUp$1 = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+const rowFadeIn$1 = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+const fadeIn$1 = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+const scrollbarStyles$1 = css`
+  /* Custom thin scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.neutral300};
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${({ theme }) => theme.colors.neutral400};
+    border: 0px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Support for Firefox (partially) */
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
 `;
 const DashboardContainer$1 = styled.div`
   min-height: 100vh;
@@ -20,8 +165,10 @@ const DashboardContainer$1 = styled.div`
   color: ${({ theme }) => theme.colors.neutral800};
   display: flex;
   flex-direction: column;
+  animation: ${fadeIn$1} 0.5s ease-out both;
+  ${scrollbarStyles$1}
 `;
-const Header$1 = styled.header`
+const Header$2 = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -34,7 +181,7 @@ const HeaderLeft$1 = styled.div`
   align-items: center;
   gap: 0.75rem;
 `;
-const IconBox = styled.div`
+const IconBox$1 = styled.div`
   padding: 10px;
   border-radius: 0.75rem;
   background-color: ${({ theme }) => theme.colors.primary100};
@@ -45,14 +192,14 @@ const IconBox = styled.div`
   color: ${({ theme }) => theme.colors.primary600};
 `;
 const TitleBox = styled.div``;
-const Title$1 = styled.h1`
+const Title = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-const Subtitle$1 = styled.p`
+const Subtitle = styled.p`
   font-size: 1.2rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
@@ -62,7 +209,7 @@ const MetaText = styled.p`
   color: ${({ theme }) => theme.colors.neutral400};
   margin-top: 0.125rem;
 `;
-const HeaderRight = styled.div`
+const HeaderRight$1 = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -122,6 +269,7 @@ styled.button`
 const Main = styled.main`
   flex: 1;
   padding: 1rem;
+  background-color: ${({ theme }) => theme.colors.neutral100};
   @media (min-width: 640px) {
     padding: 1.5rem;
   }
@@ -155,6 +303,8 @@ const Card = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
   padding: 1rem;
+  animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
 const CardHeader = styled.div`
   display: flex;
@@ -201,6 +351,8 @@ const CategoryItem = styled.div`
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
   min-height: 80px;
+  animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
 const CategoryName = styled.p`
   font-size: 1.2rem;
@@ -242,6 +394,7 @@ styled.div`
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
+  animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
 styled.div`
   display: flex;
@@ -310,6 +463,7 @@ styled.div`
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
+  animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
 styled.div`
   display: flex;
@@ -371,6 +525,8 @@ const TableSection = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
   overflow: hidden;
+  animation: ${slideUp$1} 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
 const TableHeader$1 = styled.div`
   display: flex;
@@ -412,6 +568,7 @@ const TableContainer$1 = styled.div`
   ${(props) => props.minHeight && css`
     min-height: ${props.minHeight};
   `}
+  ${scrollbarStyles$1}
 `;
 const Table$1 = styled.table`
   min-width: 100%;
@@ -437,9 +594,13 @@ const Th$1 = styled.th`
   z-index: 1;
 `;
 const Tr$1 = styled.tr`
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  animation: ${rowFadeIn$1} 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${(props) => (props.index || 0) * 0.05}s;
+
   &:hover {
     background-color: ${({ theme }) => theme.colors.neutral100};
+    transform: scale(1.001);
   }
 `;
 const Td$1 = styled.td`
@@ -466,17 +627,17 @@ const StatusBadge = styled.span`
 
   ${(props) => /Live|ongoing/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.success100};
-    color: ${({ theme }) => theme.colors.success600};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.success200 : theme.colors.success600};
     border-color: ${({ theme }) => theme.colors.success200};
   `}
   ${(props) => /declined|missed|busy|pending/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.danger100};
-    color: ${({ theme }) => theme.colors.danger600};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.danger200 : theme.colors.danger600};
     border-color: ${({ theme }) => theme.colors.danger200};
   `}
   ${(props) => /pending/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.warning100};
-    color: ${({ theme }) => theme.colors.warning600};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.warning200 : theme.colors.warning600};
     border-color: ${({ theme }) => theme.colors.warning200};
   `}
   ${(props) => /completed/i.test(props.status) && css`
@@ -521,6 +682,8 @@ const KpiCardContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.neutral0};
   padding: 0.75rem 1.25rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
 const KpiTop = styled.div`
   display: flex;
@@ -590,22 +753,22 @@ const KpiChip = styled.span`
 
   ${(props) => props.tone === "emerald" && css`
     background-color: ${({ theme }) => theme.colors.success100};
-    color: ${({ theme }) => theme.colors.success700};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.success200 : theme.colors.success700};
     border-color: ${({ theme }) => theme.colors.success200};
   `}
   ${(props) => props.tone === "amber" && css`
     background-color: ${({ theme }) => theme.colors.warning100};
-    color: ${({ theme }) => theme.colors.warning700};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.warning200 : theme.colors.warning700};
     border-color: ${({ theme }) => theme.colors.warning200};
   `}
   ${(props) => props.tone === "sky" && css`
     background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary700};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.primary200 : theme.colors.primary700};
     border-color: ${({ theme }) => theme.colors.primary200};
   `}
   ${(props) => props.tone === "rose" && css`
     background-color: ${({ theme }) => theme.colors.danger100};
-    color: ${({ theme }) => theme.colors.danger700};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.danger200 : theme.colors.danger700};
     border-color: ${({ theme }) => theme.colors.danger200};
   `}
 `;
@@ -619,11 +782,11 @@ const EmptyStateContainer = styled.div`
   gap: 1rem;
   width: 100%;
 `;
-const EmptyStateIcon$1 = styled.div`
+const EmptyStateIcon = styled.div`
   font-size: 2.5rem;
   opacity: 0.5;
 `;
-const EmptyStateText$1 = styled.p`
+const EmptyStateText = styled.p`
   font-size: 14px;
   margin: 0;
   font-weight: 500;
@@ -716,7 +879,7 @@ const LiveFilterButton = styled(FilterButton)`
   gap: 8px;
   background-color: ${(props) => props.active ? props.theme.colors.success100 : props.theme.colors.neutral0};
   border: 1px solid ${(props) => props.active ? props.theme.colors.success500 : props.theme.colors.neutral150};
-  color: ${(props) => props.active ? props.theme.colors.success700 : props.theme.colors.neutral600};
+  color: ${(props) => props.active ? props.theme.name === "dark" ? props.theme.colors.success200 : props.theme.colors.success700 : props.theme.colors.neutral600};
   padding: 0.5rem 1.25rem;
   border-radius: 10px;
   box-shadow: ${(props) => props.active ? "0 0 12px rgba(34, 197, 94, 0.2)" : "none"};
@@ -1104,6 +1267,33 @@ const getDateRange = (filter, customRange) => {
     start.setHours(0, 0, 0, 0);
     return { start: start.toISOString(), end: now.toISOString() };
   }
+  if (filter === "month") {
+    start = new Date(now.getFullYear(), now.getMonth(), 1);
+    start.setHours(0, 0, 0, 0);
+    return { start: start.toISOString(), end: now.toISOString() };
+  }
+  if (filter === "last_month") {
+    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    start.setHours(0, 0, 0, 0);
+    end = new Date(now.getFullYear(), now.getMonth(), 0);
+    end.setHours(23, 59, 59, 999);
+    return { start: start.toISOString(), end: end.toISOString() };
+  }
+  if (filter === "last_3_months") {
+    start.setDate(now.getDate() - 90);
+    start.setHours(0, 0, 0, 0);
+    return { start: start.toISOString(), end: now.toISOString() };
+  }
+  if (filter === "quarter") {
+    start.setDate(now.getDate() - 90);
+    start.setHours(0, 0, 0, 0);
+    return { start: start.toISOString(), end: now.toISOString() };
+  }
+  if (filter === "year") {
+    start.setDate(now.getDate() - 365);
+    start.setHours(0, 0, 0, 0);
+    return { start: start.toISOString(), end: now.toISOString() };
+  }
   if (filter === "custom" && customRange?.start && customRange?.end) {
     const customStart = new Date(customRange.start);
     customStart.setHours(0, 0, 0, 0);
@@ -1117,6 +1307,20 @@ const getDateRange = (filter, customRange) => {
   start.setHours(0, 0, 0, 0);
   return { start: start.toISOString(), end: now.toISOString() };
 };
+function formatCurrency(value, useShortener = false) {
+  if (value == null || isNaN(value)) return "₹0";
+  const num = Number(value);
+  if (useShortener && num >= 1e3) {
+    return `₹${(num / 1e3).toFixed(1).replace(/\.0$/, "")}k`;
+  }
+  return `₹${num.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+}
+function getInitials(name) {
+  if (!name) return "??";
+  const parts = name.split(" ").filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
 const useCompletedCalls = (page = 1, filter = "60min", customRange, statuses = []) => {
   const { get } = useFetchClient();
   const { start, end } = getDateRange(filter, customRange);
@@ -1290,7 +1494,7 @@ const DashboardProvider = ({ children }) => {
   };
   return /* @__PURE__ */ jsx(DashboardContext.Provider, { value, children });
 };
-function Header() {
+function Header$1() {
   const { stats, filter, handleFilterChange, customRange } = useDashboardContext();
   const { voice = {}, video = {} } = stats || {};
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
@@ -1310,12 +1514,12 @@ function Header() {
   const handlePresetChange = (preset) => {
     handleFilterChange(preset);
   };
-  return /* @__PURE__ */ jsxs(Header$1, { children: [
+  return /* @__PURE__ */ jsxs(Header$2, { children: [
     /* @__PURE__ */ jsxs(HeaderLeft$1, { children: [
-      /* @__PURE__ */ jsx(IconBox, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "32px", height: "32px" } }) }),
+      /* @__PURE__ */ jsx(IconBox$1, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsx(Title$1, { children: "Live Calls Dashboard" }),
-        /* @__PURE__ */ jsx(Subtitle$1, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
+        /* @__PURE__ */ jsx(Title, { children: "Call Analytics" }),
+        /* @__PURE__ */ jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
         /* @__PURE__ */ jsxs(MetaText, { children: [
           totalCallsToday,
           " ",
@@ -1328,7 +1532,7 @@ function Header() {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsx(HeaderRight, { children: /* @__PURE__ */ jsxs(FilterContainer, { children: [
+    /* @__PURE__ */ jsx(HeaderRight$1, { children: /* @__PURE__ */ jsxs(FilterContainer, { children: [
       /* @__PURE__ */ jsxs(
         LiveFilterButton,
         {
@@ -1341,12 +1545,12 @@ function Header() {
         }
       ),
       /* @__PURE__ */ jsx(FilterDivider, {}),
-      ["yesterday", "week", "quarter"].map((preset) => /* @__PURE__ */ jsx(
+      ["yesterday", "week", "month", "last_month", "quarter", "year"].map((preset) => /* @__PURE__ */ jsx(
         FilterButton,
         {
           active: filter === preset,
           onClick: () => handlePresetChange(preset),
-          children: preset.charAt(0).toUpperCase() + preset.slice(1)
+          children: preset === "last_month" ? "Last Month" : preset === "month" ? "This Month" : preset.charAt(0).toUpperCase() + preset.slice(1)
         },
         preset
       )),
@@ -1495,10 +1699,10 @@ function CustomTooltip$1({ active, payload }) {
   }
   return null;
 }
-function EmptyState$1({ title, subtitle, icon = "📭" }) {
+function EmptyState({ title, subtitle, icon = "📭" }) {
   return /* @__PURE__ */ jsxs(EmptyStateContainer, { children: [
-    /* @__PURE__ */ jsx(EmptyStateIcon$1, { children: icon }),
-    /* @__PURE__ */ jsx(EmptyStateText$1, { children: title }),
+    /* @__PURE__ */ jsx(EmptyStateIcon, { children: icon }),
+    /* @__PURE__ */ jsx(EmptyStateText, { children: title }),
     subtitle && /* @__PURE__ */ jsx(EmptyStateSubText, { children: subtitle })
   ] });
 }
@@ -1606,7 +1810,7 @@ function CategoryGrid() {
       /* @__PURE__ */ jsx(CardSubtitle, { children: "Call distribution by topics" })
     ] }) }),
     /* @__PURE__ */ jsx(CategoryGrid$1, { children: categoryStats.length === 0 ? /* @__PURE__ */ jsx("div", { style: { gridColumn: "1 / -1" }, children: /* @__PURE__ */ jsx(
-      EmptyState$1,
+      EmptyState,
       {
         title: "No categories found",
         subtitle: {
@@ -1616,7 +1820,7 @@ function CategoryGrid() {
         }[filter],
         icon: "📊"
       }
-    ) }) : categoryStats.map((row) => /* @__PURE__ */ jsxs(CategoryItem, { children: [
+    ) }) : categoryStats.map((row, idx) => /* @__PURE__ */ jsxs(CategoryItem, { index: idx + 5, children: [
       /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" }, children: [
         /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "0.25rem", overflow: "hidden" }, children: [
           /* @__PURE__ */ jsx(CategoryName, { title: row.name, children: row.name }),
@@ -1669,6 +1873,18 @@ function CategoryGrid() {
     ] }) }) })
   ] });
 }
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+  return debouncedValue;
+};
 const useMovingTime = () => {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -1695,13 +1911,15 @@ function LiveCallsTable() {
     if (selectedCall) {
       try {
         await post("/admin-pannel/callend", { callId: selectedCall.id });
+        toast.success(`Call ${selectedCall.id} declined successfully.`);
       } catch (error) {
         console.error("🔔 [LiveCallsTable] Failed to decline call:", error);
+        toast.error(error.response?.data?.error?.message || "Failed to decline the call.");
       }
       closeModal();
     }
   };
-  return /* @__PURE__ */ jsxs(TableSection, { children: [
+  return /* @__PURE__ */ jsxs(TableSection, { index: 3, children: [
     /* @__PURE__ */ jsxs(TableHeader$1, { children: [
       /* @__PURE__ */ jsxs("div", { children: [
         /* @__PURE__ */ jsx(CardTitle, { children: "Live calls" }),
@@ -1726,14 +1944,15 @@ function LiveCallsTable() {
         /* @__PURE__ */ jsx(Th$1, { children: "Status" })
       ] }) }),
       /* @__PURE__ */ jsx("tbody", { children: liveCalls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "8", children: /* @__PURE__ */ jsx(
-        EmptyState$1,
+        EmptyState,
         {
           title: "No live calls",
           subtitle: "Ongoing consultations will appear here."
         }
-      ) }) }) : liveCalls.map((call) => /* @__PURE__ */ jsxs(
+      ) }) }) : liveCalls.map((call, idx) => /* @__PURE__ */ jsxs(
         Tr$1,
         {
+          index: idx,
           style: { cursor: "pointer" },
           onClick: () => setSelectedCall(call),
           children: [
@@ -1866,7 +2085,7 @@ function RecentCallsTable() {
       (prev) => prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
     );
   };
-  return /* @__PURE__ */ jsxs(TableSection, { children: [
+  return /* @__PURE__ */ jsxs(TableSection, { index: 4, children: [
     /* @__PURE__ */ jsxs(TableHeader$1, { children: [
       /* @__PURE__ */ jsxs("div", { children: [
         /* @__PURE__ */ jsx(CardTitle, { children: "Call Activity" }),
@@ -1907,7 +2126,7 @@ function RecentCallsTable() {
         /* @__PURE__ */ jsx(Th$1, { children: "Rating" })
       ] }) }),
       /* @__PURE__ */ jsx("tbody", { children: calls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsx(
-        EmptyState$1,
+        EmptyState,
         {
           title: "No completed calls",
           subtitle: {
@@ -1921,6 +2140,7 @@ function RecentCallsTable() {
       ) }) }) : calls.map((call, idx) => /* @__PURE__ */ jsxs(
         Tr$1,
         {
+          index: idx,
           style: { cursor: "pointer" },
           onClick: () => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, "_blank"),
           children: [
@@ -1997,6 +2217,7 @@ function KpiSection() {
       /* @__PURE__ */ jsx(
         KpiCard,
         {
+          index: 0,
           label: "Ongoing calls",
           value: totalLiveCalls,
           tone: "emerald",
@@ -2012,6 +2233,7 @@ function KpiSection() {
       /* @__PURE__ */ jsx(
         KpiCard,
         {
+          index: 1,
           label: "Total calls",
           value: totalCallsToday,
           chip: "Including free & paid",
@@ -2028,6 +2250,7 @@ function KpiSection() {
       /* @__PURE__ */ jsx(
         KpiCard,
         {
+          index: 2,
           label: "Declined/Missed calls",
           value: totalDeclined,
           tone: "rose",
@@ -2053,6 +2276,7 @@ function KpiSection() {
       /* @__PURE__ */ jsx(
         KpiCard,
         {
+          index: 3,
           label: "Completed calls",
           value: totalCompletedCalls,
           tone: "emerald",
@@ -2070,6 +2294,7 @@ function KpiSection() {
       /* @__PURE__ */ jsx(
         KpiCard,
         {
+          index: 4,
           label: "Experts online",
           value: expertsOnline,
           tone: "sky",
@@ -2088,6 +2313,7 @@ function KpiSection() {
       /* @__PURE__ */ jsx(
         KpiCard,
         {
+          index: 5,
           label: "Total call duration",
           value: minutesToMMSS(totalAvgDuration),
           tone: "emerald",
@@ -2101,9 +2327,10 @@ function KpiSection() {
     ] })
   ] });
 }
-function DashboardContent() {
-  return /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
-    /* @__PURE__ */ jsx(Header, {}),
+const queryClient$1 = new QueryClient();
+const HomePage = () => {
+  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsx(DashboardProvider, { children: /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
+    /* @__PURE__ */ jsx(Header$1, {}),
     /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxs(Column, { children: [
         /* @__PURE__ */ jsx(KpiSection, {}),
@@ -2114,195 +2341,32 @@ function DashboardContent() {
         /* @__PURE__ */ jsx(RecentCallsTable, {})
       ] })
     ] }) })
-  ] });
-}
-function CallsLiveDashboard() {
-  return /* @__PURE__ */ jsx(DashboardProvider, { children: /* @__PURE__ */ jsx(DashboardContent, {}) });
-}
-const StyledSubNav = styled(SubNav)`
-  width: 200px;
-  flex-shrink: 0;
-`;
-const NavButton = styled(NavLink)`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 2px;
-  text-decoration: none;
-  border-radius: 12px;
-  margin: 4px 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  color: ${({ theme }) => theme.colors.neutral700};
-  background-color: transparent;
-  position: relative;
-  border: 1px solid transparent;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.colors.neutral150};
-    color: ${({ theme }) => theme.colors.primary600};
-    transform: translateX(4px);
-  }
-
-  &.active {
-    background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary700};
-    font-weight: 600;
-    
-    &::before {
-      content: "";
-      position: absolute;
-      left: -12px;
-      top: 20%;
-      height: 60%;
-      width: 4px;
-      background-color: ${({ theme }) => theme.colors.primary600};
-      border-radius: 0 4px 4px 0;
-    }
-
-    /* Target Icon inside active link */
-    svg {
-      color: ${({ theme }) => theme.colors.primary600};
-    }
-  }
-
-  span {
-    font-size: 1.3rem;
-    transition: color 0.2s;
-  }
-`;
-const IconWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  color: ${({ theme }) => theme.colors.neutral500};
-  transition: color 0.2s;
-`;
-const PluginLayout = ({ children }) => {
-  return /* @__PURE__ */ jsxs(Flex, { alignItems: "stretch", children: [
-    /* @__PURE__ */ jsxs(StyledSubNav, { "aria-label": "Analytics navigation", children: [
-      /* @__PURE__ */ jsx(Box, { paddingLeft: 4, paddingTop: 3, paddingBottom: 3, children: /* @__PURE__ */ jsx(Typography, { variant: "beta", fontWeight: "bold", textColor: "neutral800", children: "User Analytics" }) }),
-      /* @__PURE__ */ jsx(Divider, {}),
-      /* @__PURE__ */ jsxs(Box, { paddingTop: 2, children: [
-        /* @__PURE__ */ jsxs(
-          NavButton,
-          {
-            to: `/plugins/${PLUGIN_ID}`,
-            end: true,
-            children: [
-              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
-              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Calling Dashboard" })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxs(
-          NavButton,
-          {
-            to: `/plugins/${PLUGIN_ID}/referral-analytics`,
-            children: [
-              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(ChartBubble, { style: { width: "2rem", height: "2rem" } }) }),
-              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Referral Analytics" })
-            ]
-          }
-        )
-      ] })
-    ] }),
-    /* @__PURE__ */ jsx(Box, { flex: "1", background: "neutral100", children })
-  ] });
+  ] }) }) }) });
 };
-const queryClient$1 = new QueryClient();
-const HomePage = () => {
-  const { formatMessage } = useIntl();
-  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(Main$1, { children: /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsx(CallsLiveDashboard, {}) }) }) });
-};
-const useReferral = () => {
+const useReferralStats = () => {
   const { get } = useFetchClient();
-  const lastFetchedSearch = useRef("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState("total_referrals");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [roleFilter, setRoleFilter] = useState("Expert");
-  const pageSize = 10;
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      setCurrentPage(1);
-    }, 300);
-    return () => clearTimeout(handler);
-  }, [searchQuery]);
-  const { data, isLoading, isFetching, isPlaceholderData, error } = useQuery({
-    queryKey: ["referralStats", currentPage, sortBy, sortOrder, roleFilter, debouncedSearch],
+  return useQuery({
+    queryKey: ["referral_stats"],
     queryFn: async () => {
-      const response = await get(`/${PLUGIN_ID}/referral-stats`, {
-        params: {
-          page: currentPage,
-          pageSize,
-          sort: `${sortBy}:${sortOrder}`,
-          role: roleFilter,
-          search: debouncedSearch
-        }
-      });
+      const response = await get(`/${PLUGIN_ID}/referral-stats`);
+      return response.data.data;
+    }
+  });
+};
+const useReferralUserStats = (params) => {
+  const { get } = useFetchClient();
+  return useQuery({
+    queryKey: ["referral_table_stats", params],
+    queryFn: async () => {
+      const response = await get(`/${PLUGIN_ID}/referral-table-data`, { params });
       return response.data;
     },
     placeholderData: keepPreviousData
   });
-  useEffect(() => {
-    if (!isFetching && data) {
-      lastFetchedSearch.current = debouncedSearch;
-    }
-  }, [isFetching, data, debouncedSearch]);
-  const isSearching = isFetching && debouncedSearch !== lastFetchedSearch.current;
-  const paginatedUsers = data?.data || [];
-  const globalStats = data?.meta?.globalStats || {
-    totalReferrals: 0,
-    expertReferrals: 0,
-    clientReferrals: 0,
-    totalProgramSpend: 0
-  };
-  const pagination = data?.meta?.pagination || {
-    page: currentPage,
-    pageSize,
-    total: 0,
-    pageCount: 0
-  };
-  const toggleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortOrder("desc");
-    }
-    setCurrentPage(1);
-  };
-  const setRole = (role) => {
-    setRoleFilter(role);
-    setCurrentPage(1);
-  };
-  return {
-    users: paginatedUsers,
-    globalStats,
-    pagination,
-    searchQuery,
-    setSearch: setSearchQuery,
-    currentPage,
-    setPage: setCurrentPage,
-    sortBy,
-    sortOrder,
-    toggleSort,
-    roleFilter,
-    setRoleFilter: setRole,
-    isLoading,
-    isFetching,
-    isSearching,
-    isPlaceholderData,
-    error,
-    totalUsers: pagination.total,
-    filteredCount: pagination.total
-  };
+};
+const gradients = {
+  gold: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
+  blue: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)"
 };
 const fadeIn = keyframes`
   from {
@@ -2337,95 +2401,275 @@ const rowFadeIn = keyframes`
     transform: translateX(0);
   }
 `;
+const scrollbarStyles = css`
+  /* Custom thin scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.neutral300};
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${({ theme }) => theme.colors.neutral400};
+    border: 0px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Support for Firefox (partially) */
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
+`;
+const Header = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  background-color: ${({ theme }) => theme.colors.neutral0};
+`;
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+const IconBox = styled.div`
+  padding: 10px;
+  border-radius: 0.75rem;
+  background-color: ${({ theme }) => theme.colors.primary100};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const HeaderTitleBox = styled.div``;
+const HeaderTitle = styled.h1`
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+`;
+const HeaderSubtitle = styled.p`
+  font-size: 1.2rem;
+  color: ${({ theme }) => theme.colors.neutral500};
+  margin: 0;
+`;
+const HeaderMetaText = styled.p`
+  font-size: 11px;
+  color: ${({ theme }) => theme.colors.neutral400};
+  margin-top: 0.125rem;
+`;
+const HeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
 const DashboardContainer = styled.div`
   width: 100%;
-  background-color: ${({ theme }) => theme.colors.neutral0};
+  min-height: 100vh;
+  background-color: ${({ theme }) => theme.colors.neutral100};
   color: ${({ theme }) => theme.colors.neutral800};
-  padding: 1rem 2rem;
-  animation: ${fadeIn} 0.5s ease-out;
-
-  @media (max-width: 768px) {
-    padding: 1rem;
+  display: flex;
+  flex-direction: column;
+`;
+const DashboardMain = styled.main`
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  ${scrollbarStyles}
+  @media (min-width: 640px) {
+    padding: 1.5rem;
   }
 `;
 const MainContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  align-items: stretch;
+  gap: 2.5rem;
+
+  @media (min-width: 1600px) {
+    flex-direction: row;
+    align-items: stretch; /* Stretch children to match height */
+    gap: 2rem;
+  }
 `;
 const TableColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
   position: relative;
+  flex: 1;
+  min-width: 0;
+  align-items: stretch;
+
+  @media (min-width: 1600px) {
+    order: 1;
+    height: 760px; 
+  }
 `;
 const SmallBufferSpinner = styled.div`
   width: 20px;
   height: 20px;
-  border: 2px solid ${({ theme }) => theme.colors.neutral200};
-  border-top: 2px solid ${({ theme }) => theme.colors.primary500 || "#6366f1"};
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
   border-radius: 50%;
   animation: ${spin} 0.6s linear infinite;
   flex-shrink: 0;
   box-sizing: border-box;
 `;
 const SearchContainer = styled.div`
-  position: relative;
   flex: 1;
   max-width: 400px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 
-  @media (max-width: 768px) {
+  @media (max-width: 992px) {
     max-width: 100%;
+    margin-top: 1rem;
+  }
+`;
+const SearchGroup = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border-radius: 100px;
+  border: 2px solid ${({ theme }) => theme.colors.neutral150};
+  padding: 0 0.25rem 0 1.25rem;
+  width: 100%;
+  height: 42px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+
+  &:focus-within {
+    border-color: ${({ theme }) => theme.colors.primary600};
   }
 `;
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.6rem 1rem 0.6rem 3rem;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.colors.neutral200};
-  background-color: ${({ theme }) => theme.colors.neutral100};
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 400;
   color: ${({ theme }) => theme.colors.neutral800};
-  font-size: 1.2rem;
-  font-weight: 500;
-  transition: all 0.35s ease;
+  min-width: 0;
+  height: 100%;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.neutral400};
+  }
 
   &:focus {
     outline: none;
-    border-color: ${({ theme }) => theme.colors.primary600};
-    background-color: ${({ theme }) => theme.colors.neutral0};
-    box-shadow: 0 0 0 4px ${({ theme }) => theme.colors.primary100};
   }
 `;
-const SearchIconWrapper = styled.div`
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: ${({ theme }) => theme.colors.neutral400};
+const StandaloneFilter = styled.div`
   display: flex;
   align-items: center;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  border-radius: 100px;
+  border: 2px solid ${({ theme }) => theme.colors.neutral150};
+  padding: 0 0.8rem;
+  height: 42px;
+  transition: all 0.3s ease;
+  overflow: hidden; /* Fixes background bleeding on rounded corners */
+`;
+const FilterSelect = styled.select`
+  border: none;
+  background-color: transparent;
+  padding: 0 2rem 0 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: ${({ theme }) => theme.colors.neutral800};
+  cursor: pointer;
+  appearance: none;
+
+  option {
+    background-color: ${({ theme }) => theme.colors.neutral0};
+    color: ${({ theme }) => theme.colors.neutral800};
+  }
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  height: 100%;
+  width: 100%;
+
+  &:focus {
+    outline: none;
+  }
+`;
+const SearchButton = styled.button`
+  height: 34px;
+  width: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary500} 0%, ${({ theme }) => theme.colors.primary600} 100%);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
+  }
+
+  svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 4px;
+  }
 `;
 const TableCard = styled.div`
-  border-radius: 16px;
-  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  border-radius: 24px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
   overflow: hidden;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  animation: ${slideUp} 0.6s ease-out;
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.07);
+  animation: ${slideUp} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (min-width: 1600px) {
+    flex: 1;
+    min-height: 0; /* Important for flex child with overflow */
+  }
 `;
 const TableHeader = styled.div`
-  padding: 1.5rem;
+  padding: 1rem 3rem;
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 2rem;
+  background-color: ${({ theme }) => theme.colors.neutral0};
 
-  @media (max-width: 768px) {
+  @media (max-width: 992px) {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    padding: 1.5rem;
   }
 `;
 const TableHeaderLeft = styled.div`
@@ -2436,108 +2680,221 @@ const TableHeaderLeft = styled.div`
 const TableHeaderRight = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
+  flex: 1;
+  justify-content: flex-end;
 
-  @media (max-width: 768px) {
+  @media (max-width: 992px) {
     width: 100%;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-end;
   }
 `;
-const FilterSelect = styled.select`
-  padding: 0.6rem 2.5rem 0.6rem 1rem;
-  border: 1px solid ${({ theme }) => theme.colors.neutral200};
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.neutral100};
-  color: ${({ theme }) => theme.colors.neutral800};
-  font-size: 1.1rem;
-  font-weight: 500;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-`;
-const SortSelect = styled.select`
-  padding: 0.6rem 2.5rem 0.6rem 1rem;
-  border: 1px solid ${({ theme }) => theme.colors.neutral200};
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.neutral100};
-  color: ${({ theme }) => theme.colors.neutral800};
-  font-size: 1.1rem;
-  font-weight: 500;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-`;
 const TableContainer = styled.div`
+  width: 100%;
   overflow-x: auto;
+  border-radius: 0 0 16px 16px;
+  background-color: ${({ theme }) => theme.colors.neutral0};
+  ${scrollbarStyles}
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Stacking root */
+
+  @media (min-width: 1600px) {
+    flex: 1;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.colors.neutral200};
+      border-radius: 10px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
 `;
 const Table = styled.table`
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 `;
 const Thead = styled.thead`
   background-color: ${({ theme }) => theme.colors.neutral100};
+  position: sticky;
+  top: 0;
+  z-index: 998;
 `;
 const Th = styled.th`
-  padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  padding: 1.2rem 1rem;
   text-align: center;
   color: ${({ theme }) => theme.colors.neutral600};
   text-transform: uppercase;
   font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   white-space: nowrap;
+  border-bottom: 3px solid ${({ theme }) => theme.colors.neutral150};
+  transition: all 0.2s ease;
+  background-color: ${({ theme }) => theme.colors.neutral100};
+  
+  &:first-child {
+    text-align: left;
+    padding-left: 3.5rem;
+    z-index: 1000;
+  }
 `;
 const Tbody = styled.tbody``;
 const Tr = styled.tr`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
-  animation: ${rowFadeIn} 0.4s ease-out both;
-  animation-delay: ${(props) => (props.index || 0) * 0.05}s;
+  animation: ${rowFadeIn} 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${(props) => (props.index || 0) * 0.04}s;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.neutral50};
+    background-color: ${({ theme }) => theme.colors.neutral100};
+    transform: scale(1.001);
+    box-shadow: inset 4px 0 0 0 ${({ theme }) => theme.colors.primary600};
+  }
+
+  &:last-child {
+    border-bottom: none;
   }
 `;
 const Td = styled.td`
-  padding: 1.25rem 1rem;
-  color: ${({ theme }) => theme.colors.neutral700};
+  padding: 0.4rem 1rem;
+  vertical-align: middle;
   text-align: center;
-  font-size: 1.2rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
+  color: ${({ theme }) => theme.colors.neutral800};
+  font-size: 1.15rem;
+  font-weight: 400;
+  
+  &:first-child {
+    text-align: left;
+    padding-left: 3.5rem;
+  }
 `;
-const RoleBadge = styled.span`
+styled.span`
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 500;
   
   ${(props) => props.role === "Expert" && css`
     background-color: ${({ theme }) => theme.colors.success100};
-    color: ${({ theme }) => theme.colors.success700};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.success200 : theme.colors.success700};
   `}
   
   ${(props) => props.role === "Client" && css`
     background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary700};
+    color: ${({ theme }) => theme.name === "dark" ? theme.colors.primary200 : theme.colors.primary700};
   `}
 `;
 const HighlightValue = styled.span`
-  font-weight: 700;
-  color: ${({ theme }) => theme.colors.primary600};
+  font-weight: 400;
+  color: ${({ theme }) => theme.name === "dark" ? theme.colors.primary400 : theme.colors.primary600};
 `;
 const CurrencyValue = styled.span`
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.success600};
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const ProfileCell = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+`;
+const Avatar = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: white;
+  background: ${(props) => props.role === "Expert" ? gradients.gold : gradients.blue};
+  box-shadow: 0 4px 12px ${(props) => props.role === "Expert" ? "rgba(253, 160, 133, 0.3)" : "rgba(102, 166, 255, 0.3)"};
+  flex-shrink: 0;
+  border: 2px solid white;
+`;
+const NameInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+  text-align: left;
+`;
+const NameLabel = styled.div`
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: ${({ theme }) => theme.colors.neutral800};
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+const ExpertTag = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.8rem;
+  background: ${({ theme }) => theme.colors.warning100};
+  border: 1px solid ${({ theme }) => theme.colors.warning200};
+  border-radius: 10px;
+  color: ${({ theme }) => theme.name === "dark" ? theme.colors.warning200 : theme.colors.warning600};
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 4px rgba(255, 212, 59, 0.1);
+  width: fit-content;
+`;
+const ClientTag = styled.div`
+  display: inline-flex;
+  padding: 0.3rem 0.8rem;
+  background: ${({ theme }) => theme.colors.primary100};
+  border: 1px solid ${({ theme }) => theme.colors.primary200};
+  border-radius: 10px;
+  color: ${({ theme }) => theme.name === "dark" ? theme.colors.primary200 : theme.colors.primary600};
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  width: fit-content;
+`;
+const CrownIcon = styled.span`
+  font-size: 1.1rem;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
 `;
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
   margin-bottom: 2rem;
+  width: 100%;
+
+  @media (min-width: 1600px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 340px;
+    margin-bottom: 0;
+    order: 2;
+    height: 760px; /* Matches the table height exactly */
+  }
 
   @media (max-width: 1200px) {
     grid-template-columns: repeat(2, 1fr);
@@ -2547,84 +2904,121 @@ const StatsGrid = styled.div`
     grid-template-columns: 1fr;
   }
 `;
-const StatCard$1 = styled.div`
-  position: relative;
-  background-color: ${({ theme }) => theme.colors.neutral0};
+const StatCardPremium = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border-radius: 20px;
+  padding: 1.5rem 1.5rem 0rem 1.5rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 0.2s ease;
-  animation: ${slideUp} 0.4s ease-out;
-  animation-delay: ${(props) => props.delay || "0s"};
-  animation-fill-mode: both;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: ${({ theme }) => theme.shadows.tableHeader};
-  }
-`;
-const StatCardHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-`;
-const StatCardBody = styled.div`
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: ${slideUp} 0.5s ease-out both;
+  animation-delay: ${(props) => props.delay || "0s"};
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
 `;
-const StatIconWrapper = styled.div`
+const StatTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+`;
+const StatTitle = styled.div`
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral500};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+const StatMainValue = styled.div`
+  font-size: 3rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+  letter-spacing: -0.02em;
+`;
+const SparklineWrapper = styled.div`
+  width: 110px;
+  height: 70px; /* Adjusted to balance visibility and space */
+  margin-top: -5px; 
+  opacity: 0.95;
+  position: relative;
+`;
+const HoverDate = styled.div`
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.primary600};
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  animation: ${fadeIn} 0.2s ease-out;
+  white-space: nowrap;
+  z-index: 100;
+`;
+const PieChartWrapper = styled.div`
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  margin-left: auto;
+`;
+const ProgressRingWrapper = styled.div`
+  width: 55px;
+  height: 55px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${(props) => {
-  if (props.variant === "purple") return "#8b5cf6";
-  if (props.variant === "blue") return "#3b82f6";
-  if (props.variant === "orange") return "#f59e0b";
-  if (props.variant === "green") return "#10b981";
-  return "#64748b";
-}};
 `;
-const StatLabel = styled.div`
-  font-size: 1.1rem;
+const StatFooterPremium = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  border-top: 1px dashed ${({ theme }) => theme.colors.neutral200};
+`;
+const FooterItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+`;
+const FooterLabel = styled.div`
+  font-size: 0.85rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.colors.neutral500};
+  color: ${({ theme }) => theme.colors.neutral400};
   text-transform: uppercase;
   letter-spacing: 0.025em;
 `;
-const StatValue = styled.div`
-  font-size: 2rem;
-  font-weight: 800;
-  color: ${({ theme }) => theme.colors.neutral800};
+const FooterValue = styled.div`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: ${(props) => props.color || (props.theme.name === "dark" ? props.theme.colors.neutral100 : props.theme.colors.neutral600)};
 `;
-const StatSubtitle = styled.div`
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.neutral500};
-`;
-const StatCornerBubble = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 0 12px 0 40px;
-  opacity: 0.1;
-  background-color: ${(props) => {
-  if (props.variant === "purple") return "#8b5cf6";
-  if (props.variant === "blue") return "#3b82f6";
-  if (props.variant === "orange") return "#f59e0b";
-  if (props.variant === "green") return "#10b981";
-  return "#64748b";
-}};
+const StatIconBox = styled.div`
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => props.bg || props.theme.colors.neutral100};
+  color: ${(props) => props.color || props.theme.colors.neutral500};
 `;
 const PaginationContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  padding: 1.5rem 2rem;
   border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
+  background-color: ${({ theme }) => theme.colors.neutral100};
 `;
 const PaginationInfo = styled.span`
   font-size: 0.95rem;
@@ -2636,26 +3030,30 @@ const PaginationButtons = styled.div`
   gap: 0.5rem;
 `;
 const PageButton = styled.button`
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.neutral200};
   background-color: ${({ theme, $active }) => $active ? theme.colors.primary600 : theme.colors.neutral0};
-  color: ${({ theme, $active }) => $active ? "white" : theme.colors.neutral700};
-  font-size: 1rem;
-  font-weight: 600;
+  color: ${({ theme, $active }) => $active ? "white" : theme.colors.neutral600};
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: ${({ $active }) => $active ? "0 4px 12px rgba(99, 102, 241, 0.3)" : "none"};
 
   &:hover:not(:disabled) {
     background-color: ${({ theme, $active }) => $active ? theme.colors.primary700 : theme.colors.neutral100};
+    border-color: ${({ theme, $active }) => $active ? theme.colors.primary700 : theme.colors.neutral200};
+    transform: translateY(-1px);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
+    transform: none;
   }
 `;
-const EmptyState = styled.div`
+styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2663,17 +3061,17 @@ const EmptyState = styled.div`
   padding: 4rem 2rem;
   text-align: center;
 `;
-const EmptyStateIcon = styled.div`
+styled.div`
   font-size: 3rem;
   margin-bottom: 1rem;
 `;
-const EmptyStateText = styled.p`
+styled.p`
   font-size: 1.25rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral700};
   margin: 0;
 `;
-const EmptyStateSubtext = styled.p`
+styled.p`
   font-size: 1rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin-top: 0.5rem;
@@ -2754,310 +3152,401 @@ const Pagination = ({
     ] })
   ] });
 };
-const UserReferralTable = ({
-  users,
-  pagination,
-  sortBy,
-  onSort,
-  onPageChange,
-  roleFilter,
-  onRoleFilterChange,
-  searchValue,
-  onSearchChange,
-  isLoading,
-  isSearching
-}) => {
-  const formatCurrency = (value) => {
-    const num = parseFloat(value);
-    return `₹${num.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+const UserReferralTable = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("total_referrals");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [roleFilter, setRoleFilter] = useState("Expert");
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, roleFilter, sortBy]);
+  const { data, isLoading, isFetching } = useReferralUserStats({
+    page: currentPage,
+    pageSize: 10,
+    sort: `${sortBy}:${sortOrder}`,
+    role: roleFilter,
+    search: debouncedSearch
+  });
+  const items = data?.data || [];
+  const pagination = data?.meta?.pagination || { pageSize: 10, total: 0, pageCount: 0 };
+  const toggleSort = (col) => {
+    setSortBy(col);
+    setSortOrder(col === "name" ? "asc" : "desc");
   };
-  const formatNumber = (value) => {
-    return (value || 0).toLocaleString("en-US");
+  const handleSortChange = (e) => {
+    const field = e.target.value;
+    setSortBy(field);
+    setSortOrder(field === "name" ? "asc" : "desc");
   };
-  const sortOptions = [
-    { value: "total_referrals", label: "Referrals" },
-    { value: "total_earnings_from_referrals", label: "Referral Earnings" },
-    { value: "total_wallet_topup", label: "Wallet Topup" },
-    { value: "total_earnings_from_calls", label: "Call Earnings" }
-  ];
-  const showEmptyState = !isLoading && (!users || users.length === 0);
-  const showData = users && users.length > 0;
-  return /* @__PURE__ */ jsx(TableCard, { children: /* @__PURE__ */ jsxs(TableColumn, { children: [
+  return /* @__PURE__ */ jsxs(TableCard, { children: [
     /* @__PURE__ */ jsxs(TableHeader, { children: [
-      /* @__PURE__ */ jsx(TableHeaderLeft, { children: /* @__PURE__ */ jsxs(SearchContainer, { children: [
-        /* @__PURE__ */ jsx(
-          SearchInput,
-          {
-            type: "text",
-            placeholder: "Search by name or email...",
-            value: searchValue,
-            onChange: (e) => onSearchChange(e.target.value)
-          }
-        ),
-        /* @__PURE__ */ jsx(SearchIconWrapper, { children: isSearching ? /* @__PURE__ */ jsx(SmallBufferSpinner, {}) : /* @__PURE__ */ jsxs("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", children: [
-          /* @__PURE__ */ jsx("circle", { cx: "11", cy: "11", r: "8" }),
-          /* @__PURE__ */ jsx("path", { d: "m21 21-4.35-4.35" })
-        ] }) })
-      ] }) }),
+      /* @__PURE__ */ jsxs(TableHeaderLeft, { style: { flexDirection: "column", alignItems: "flex-start" }, children: [
+        /* @__PURE__ */ jsx("h2", { style: { fontSize: "2rem", fontWeight: 500, margin: "0 2px", color: "inherit" }, children: "Referral Performance" }),
+        /* @__PURE__ */ jsx("p", { style: { fontSize: "1.2rem", color: "inherit", opacity: 0.7, margin: "0 0 2px 4px" }, children: "Detailed metrics for user contributions" }),
+        /* @__PURE__ */ jsxs("p", { style: { fontSize: "1.1rem", color: "inherit", opacity: 0.5, margin: "0 0 0 4px" }, children: [
+          pagination.total,
+          " records • ",
+          pagination.pageCount,
+          " pages"
+        ] })
+      ] }),
       /* @__PURE__ */ jsxs(TableHeaderRight, { children: [
-        /* @__PURE__ */ jsxs(
+        /* @__PURE__ */ jsx(StandaloneFilter, { children: /* @__PURE__ */ jsxs(
           FilterSelect,
           {
             value: roleFilter,
-            onChange: (e) => onRoleFilterChange(e.target.value),
+            onChange: (e) => setRoleFilter(e.target.value),
             children: [
               /* @__PURE__ */ jsx("option", { value: "all", children: "All Roles" }),
               /* @__PURE__ */ jsx("option", { value: "Expert", children: "Experts" }),
               /* @__PURE__ */ jsx("option", { value: "Client", children: "Clients" })
             ]
           }
-        ),
-        /* @__PURE__ */ jsx(
-          SortSelect,
+        ) }),
+        /* @__PURE__ */ jsx(StandaloneFilter, { children: /* @__PURE__ */ jsxs(
+          FilterSelect,
           {
             value: sortBy,
-            onChange: (e) => onSort(e.target.value),
-            children: sortOptions.map((option) => /* @__PURE__ */ jsxs("option", { value: option.value, children: [
-              "Sort by ",
-              option.label
-            ] }, option.value))
+            onChange: handleSortChange,
+            children: [
+              /* @__PURE__ */ jsx("option", { value: "total_referrals", children: "By Referrals" }),
+              /* @__PURE__ */ jsx("option", { value: "total_earnings_from_referrals", children: "By Earnings" }),
+              /* @__PURE__ */ jsx("option", { value: "total_wallet_topup", children: "By Wallet" }),
+              /* @__PURE__ */ jsx("option", { value: "name", children: "By Name" })
+            ]
           }
-        )
+        ) }),
+        /* @__PURE__ */ jsx(SearchContainer, { children: /* @__PURE__ */ jsxs(SearchGroup, { children: [
+          /* @__PURE__ */ jsx(
+            SearchInput,
+            {
+              type: "text",
+              placeholder: "What are you looking for?",
+              value: searchQuery,
+              onChange: (e) => setSearchQuery(e.target.value)
+            }
+          ),
+          /* @__PURE__ */ jsx(SearchButton, { children: isFetching ? /* @__PURE__ */ jsx(SmallBufferSpinner, {}) : /* @__PURE__ */ jsx(SearchIcon, {}) })
+        ] }) })
       ] })
     ] }),
     /* @__PURE__ */ jsx(TableContainer, { children: /* @__PURE__ */ jsxs(Table, { children: [
-      /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs(Tr, { index: 0, children: [
-        /* @__PURE__ */ jsx(Th, { children: "Name" }),
-        /* @__PURE__ */ jsx(Th, { children: "Email" }),
-        /* @__PURE__ */ jsx(Th, { children: "Contact" }),
-        /* @__PURE__ */ jsx(Th, { children: "Role" }),
-        /* @__PURE__ */ jsx(Th, { children: "Referrals" }),
-        /* @__PURE__ */ jsx(Th, { children: "Ref. Earnings" }),
-        /* @__PURE__ */ jsx(Th, { children: "Wallet Topup" }),
-        /* @__PURE__ */ jsx(Th, { children: "Call Earnings" })
+      /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs(Tr, { children: [
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("name"), style: { cursor: "pointer" }, children: [
+          "User Profile ",
+          sortBy === "name" ? "↑" : ""
+        ] }),
+        /* @__PURE__ */ jsx(Th, { children: "Contact Details" }),
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("total_referrals"), style: { cursor: "pointer" }, children: [
+          "Referrals ",
+          sortBy === "total_referrals" ? "↓" : ""
+        ] }),
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("total_earnings_from_referrals"), style: { cursor: "pointer" }, children: [
+          "Ref. Earnings ",
+          sortBy === "total_earnings_from_referrals" ? "↓" : ""
+        ] }),
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("total_wallet_topup"), style: { cursor: "pointer" }, children: [
+          "Wallet Topup ",
+          sortBy === "total_wallet_topup" ? "↓" : ""
+        ] })
       ] }) }),
-      /* @__PURE__ */ jsx(Tbody, { children: isLoading && !showData ? /* @__PURE__ */ jsx(Tr, { index: 0, children: /* @__PURE__ */ jsx(Td, { colSpan: "8", style: { height: "300px" }, children: /* @__PURE__ */ jsx(SmallBufferSpinner, { style: { margin: "0 auto", width: "40px", height: "40px" } }) }) }) : showEmptyState ? /* @__PURE__ */ jsx(Tr, { index: 0, children: /* @__PURE__ */ jsx(Td, { colSpan: "8", children: /* @__PURE__ */ jsxs(EmptyState, { children: [
-        /* @__PURE__ */ jsx(EmptyStateIcon, { children: "🔍" }),
-        /* @__PURE__ */ jsx(EmptyStateText, { children: "No results found" }),
-        /* @__PURE__ */ jsx(EmptyStateSubtext, { children: "Try different search terms or filters" })
-      ] }) }) }) : users.map((user, index) => /* @__PURE__ */ jsxs(Tr, { index, children: [
-        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx("strong", { children: user.name }) }),
-        /* @__PURE__ */ jsx(Td, { children: user.email }),
-        /* @__PURE__ */ jsx(Td, { children: user.mobile }),
-        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(RoleBadge, { role: user.role, children: user.role }) }),
-        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(HighlightValue, { children: formatNumber(user.total_referrals) }) }),
-        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { children: formatCurrency(user.total_earnings_from_referrals) }) }),
-        /* @__PURE__ */ jsx(Td, { children: formatCurrency(user.total_wallet_topup) }),
-        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { children: formatCurrency(user.total_earnings_from_calls) }) })
+      /* @__PURE__ */ jsx(Tbody, { children: isLoading ? /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { colSpan: "5", style: { padding: "8rem" }, children: "Gathering referral data..." }) }) : items.length === 0 ? /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { colSpan: "5", style: { padding: "8rem" }, children: "No records discovered." }) }) : items.map((user, idx) => /* @__PURE__ */ jsxs(Tr, { index: idx, children: [
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(ProfileCell, { children: [
+          /* @__PURE__ */ jsx(Avatar, { role: user.role, children: getInitials(user.name) }),
+          /* @__PURE__ */ jsxs(NameInfo, { children: [
+            /* @__PURE__ */ jsxs(NameLabel, { children: [
+              user.name,
+              user.role === "Expert" && /* @__PURE__ */ jsx(CrownIcon, { children: "👑" })
+            ] }),
+            user.role === "Expert" ? /* @__PURE__ */ jsx(ExpertTag, { children: "Expert" }) : /* @__PURE__ */ jsx(ClientTag, { children: "Client" })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "center" }, children: [
+          /* @__PURE__ */ jsx("div", { style: { fontSize: "1.25rem", color: "inherit" }, children: user.mobile }),
+          /* @__PURE__ */ jsx("div", { style: { fontSize: "1.1rem", color: "inherit", opacity: 0.6 }, children: user.email })
+        ] }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(HighlightValue, { style: { fontSize: "1.5rem", display: "block", color: "inherit" }, children: user.total_referrals || 0 }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { style: { fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_earnings_from_referrals) }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx("span", { style: { color: "inherit", fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_wallet_topup) }) })
       ] }, user.id)) })
     ] }) }),
-    /* @__PURE__ */ jsx(
+    !isLoading && pagination.pageCount > 1 && /* @__PURE__ */ jsx(
       Pagination,
       {
-        currentPage: pagination.page,
+        currentPage,
         totalPages: pagination.pageCount,
-        onPageChange,
+        onPageChange: setCurrentPage,
         totalItems: pagination.total,
         pageSize: pagination.pageSize
       }
     )
-  ] }) });
+  ] });
 };
-const StatCard = ({
-  variant = "purple",
-  icon: Icon,
-  label,
-  value,
-  subtitle,
-  delay = "0s"
-}) => {
-  return /* @__PURE__ */ jsxs(StatCard$1, { variant, delay, children: [
-    /* @__PURE__ */ jsx(StatCornerBubble, { variant }),
-    /* @__PURE__ */ jsxs(StatCardHeader, { children: [
-      /* @__PURE__ */ jsx(StatLabel, { children: label }),
-      Icon && /* @__PURE__ */ jsx(StatIconWrapper, { variant, children: /* @__PURE__ */ jsx(Icon, { style: { width: "28px", height: "28px" } }) })
-    ] }),
-    /* @__PURE__ */ jsxs(StatCardBody, { children: [
-      /* @__PURE__ */ jsx(StatValue, { children: value }),
-      subtitle && /* @__PURE__ */ jsx(StatSubtitle, { variant, children: subtitle })
+const Sparkline = ({ data, color, theme }) => {
+  const [hoveredName, setHoveredName] = useState(null);
+  if (!data || data.length < 2) return null;
+  return /* @__PURE__ */ jsxs(React.Fragment, { children: [
+    /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "85%", children: /* @__PURE__ */ jsxs(
+      AreaChart,
+      {
+        data,
+        onMouseMove: (e) => {
+          if (e && e.activePayload && e.activePayload.length > 0) {
+            setHoveredName(e.activePayload[0].payload.name);
+          } else if (e && e.activeTooltipIndex !== void 0) {
+            setHoveredName(data[e.activeTooltipIndex].name);
+          }
+        },
+        onMouseLeave: () => setHoveredName(null),
+        children: [
+          /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: `gradient-${color}`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsx("stop", { offset: "5%", stopColor: color, stopOpacity: 0.3 }),
+            /* @__PURE__ */ jsx("stop", { offset: "95%", stopColor: color, stopOpacity: 0 })
+          ] }) }),
+          /* @__PURE__ */ jsx(
+            Tooltip,
+            {
+              content: ({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return /* @__PURE__ */ jsx("div", { style: {
+                    backgroundColor: theme.colors.neutral0,
+                    padding: "4px 8px",
+                    borderRadius: "6px",
+                    fontSize: "10px",
+                    fontWeight: "700",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    border: `1px solid ${color}`,
+                    color: theme.colors.neutral800
+                  }, children: /* @__PURE__ */ jsx("div", { children: payload[0].value }) });
+                }
+                return null;
+              },
+              cursor: { stroke: color, strokeWidth: 1, strokeDasharray: "4 4" }
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Area,
+            {
+              type: "monotone",
+              dataKey: "value",
+              stroke: color,
+              strokeWidth: 3,
+              fillOpacity: 1,
+              fill: `url(#gradient-${color})`,
+              isAnimationActive: false
+            }
+          )
+        ]
+      }
+    ) }),
+    hoveredName && /* @__PURE__ */ jsx(HoverDate, { color, children: hoveredName })
+  ] });
+};
+const MiniPieChart = ({ expert, client, theme }) => {
+  const data = [
+    { name: "Expert", value: expert || 0 },
+    { name: "Client", value: client || 0 }
+  ];
+  const COLORS = [
+    theme.name === "dark" ? theme.colors.warning400 : "#eab308",
+    // Expert
+    theme.name === "dark" ? theme.colors.primary400 : "#3b82f6"
+    // Client
+  ];
+  if (expert === 0 && client === 0) return null;
+  return /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsx(PieChart, { children: /* @__PURE__ */ jsx(
+    Pie,
+    {
+      data,
+      innerRadius: "60%",
+      outerRadius: "100%",
+      paddingAngle: 2,
+      dataKey: "value",
+      stroke: "none",
+      children: data.map((entry, index) => /* @__PURE__ */ jsx(Cell, { fill: COLORS[index % COLORS.length] }, `cell-${index}`))
+    }
+  ) }) });
+};
+const ProgressRing = ({ percent, color, theme }) => {
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - percent / 100 * circumference;
+  return /* @__PURE__ */ jsxs("svg", { width: "55", height: "55", viewBox: "0 0 55 55", children: [
+    /* @__PURE__ */ jsx("circle", { cx: "27.5", cy: "27.5", r: radius, stroke: theme.colors.neutral150, strokeWidth: "4.5", fill: "none" }),
+    /* @__PURE__ */ jsx(
+      "circle",
+      {
+        cx: "27.5",
+        cy: "27.5",
+        r: radius,
+        stroke: color,
+        strokeWidth: "4.5",
+        fill: "none",
+        strokeDasharray: circumference,
+        strokeDashoffset: offset,
+        strokeLinecap: "round",
+        transform: "rotate(-90 27.5 27.5)"
+      }
+    ),
+    /* @__PURE__ */ jsxs("text", { x: "50%", y: "54%", textAnchor: "middle", fontSize: "11", fontWeight: "800", fill: theme.colors.neutral600, children: [
+      percent,
+      "%"
     ] })
   ] });
 };
-const GlobalReferralIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-  /* @__PURE__ */ jsx("path", { d: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
-  /* @__PURE__ */ jsx("circle", { cx: "9", cy: "7", r: "4" }),
-  /* @__PURE__ */ jsx("path", { d: "M23 21v-2a4 4 0 0 0-3-3.87" }),
-  /* @__PURE__ */ jsx("path", { d: "M16 3.13a4 4 0 0 1 0 7.75" })
-] });
-const UserCheckIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-  /* @__PURE__ */ jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
-  /* @__PURE__ */ jsx("circle", { cx: "8.5", cy: "7", r: "4" }),
-  /* @__PURE__ */ jsx("polyline", { points: "17 11 19 13 23 9" })
-] });
-const UserHeartIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-  /* @__PURE__ */ jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
-  /* @__PURE__ */ jsx("circle", { cx: "8.5", cy: "7", r: "4" }),
-  /* @__PURE__ */ jsx("path", { d: "M20.42 4.58a2.83 2.83 0 0 1 0 4l-4.42 4.42-4.42-4.42a2.83 2.83 0 0 1 4-4l.42.42.42-.42a2.83 2.83 0 0 1 4 0Z" })
-] });
-const SpendIcon = ({ style }) => /* @__PURE__ */ jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-  /* @__PURE__ */ jsx("rect", { x: "2", y: "10", width: "20", height: "12", rx: "2", ry: "2" }),
-  /* @__PURE__ */ jsx("path", { d: "M12 22V10" }),
-  /* @__PURE__ */ jsx("path", { d: "M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" })
-] });
-const StatsSection = ({ globalStats }) => {
-  const formatCurrency = (value) => {
-    if (!value) return "₹0";
-    const num = parseFloat(value);
-    return `₹${num.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
-  };
-  return /* @__PURE__ */ jsxs(StatsGrid, { children: [
-    /* @__PURE__ */ jsx(
-      StatCard,
-      {
-        variant: "purple",
-        icon: GlobalReferralIcon,
-        label: "Total Referrals",
-        value: globalStats?.totalReferrals || 0,
-        subtitle: "All-time platform total",
-        delay: "0s"
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      StatCard,
-      {
-        variant: "blue",
-        icon: UserCheckIcon,
-        label: "Referrals via Experts",
-        value: globalStats?.expertReferrals || 0,
-        subtitle: "Expert contributions",
-        delay: "0.1s"
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      StatCard,
-      {
-        variant: "orange",
-        icon: UserHeartIcon,
-        label: "Referrals via Clients",
-        value: globalStats?.clientReferrals || 0,
-        subtitle: "Client contributions",
-        delay: "0.2s"
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      StatCard,
-      {
-        variant: "green",
-        icon: SpendIcon,
-        label: "Total Program Spend",
-        value: formatCurrency(globalStats?.totalProgramSpend || 0),
-        subtitle: "Total disbursed earnings",
-        delay: "0.3s"
-      }
-    )
-  ] });
-};
-const HeaderWrapper = styled.div`
-  padding: 0 0 1.5rem 0;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
-`;
-const HeaderContent = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-`;
-const HeaderLeft = styled.div`
-  flex: 1;
-`;
-const wave = keyframes`
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
-`;
-const Title = styled.h1`
-  font-size: 3rem;
-  font-weight: 800;
-  margin: 0 0 0.5rem 0;
-  letter-spacing: -0.025em;
-  
-  background: linear-gradient(
-    90deg,
-    ${({ theme }) => theme.colors.neutral800} 0%,
-    ${({ theme }) => theme.colors.neutral800} 25%,
-    ${({ theme }) => theme.colors.primary600} 50%,
-    ${({ theme }) => theme.colors.neutral800} 75%,
-    ${({ theme }) => theme.colors.neutral800} 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: ${wave} 4s linear infinite;
-`;
-const Subtitle = styled.p`
-  font-size: 1.2rem;
-  color: ${({ theme }) => theme.colors.neutral600};
-  margin: 0;
-  font-weight: 500;
-`;
-const DashboardHeader = () => {
-  return /* @__PURE__ */ jsx(HeaderWrapper, { children: /* @__PURE__ */ jsx(HeaderContent, { children: /* @__PURE__ */ jsxs(HeaderLeft, { children: [
-    /* @__PURE__ */ jsx(Title, { children: "Referral Analytics" }),
-    /* @__PURE__ */ jsx(Subtitle, { children: "Monitor and analyze referral performance across the network" })
-  ] }) }) });
-};
-const ReferralDashboard = () => {
-  const {
-    users,
-    pagination,
-    searchQuery,
-    setSearch,
-    setPage,
-    sortBy,
-    toggleSort,
-    roleFilter,
-    setRoleFilter,
-    isLoading,
-    isFetching,
-    isSearching,
-    globalStats,
-    isPlaceholderData
-  } = useReferral();
-  return /* @__PURE__ */ jsxs(DashboardContainer, { children: [
-    /* @__PURE__ */ jsx(DashboardHeader, {}),
-    /* @__PURE__ */ jsxs(MainContent, { children: [
-      /* @__PURE__ */ jsx(StatsSection, { globalStats }),
-      /* @__PURE__ */ jsx(TableColumn, { children: /* @__PURE__ */ jsx(
-        UserReferralTable,
+const PremiumStatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
+  const theme = useTheme();
+  const color = typeof colorProp === "function" ? colorProp({ theme }) : colorProp;
+  const bg = typeof bgProp === "function" ? bgProp({ theme }) : bgProp;
+  return /* @__PURE__ */ jsxs(StatCardPremium, { delay, children: [
+    /* @__PURE__ */ jsxs(StatTop, { children: [
+      /* @__PURE__ */ jsxs(StatTitle, { children: [
+        /* @__PURE__ */ jsx(StatIconBox, { bg, color, children: /* @__PURE__ */ jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
+        title
+      ] }),
+      variant === "chart" ? /* @__PURE__ */ jsx(SparklineWrapper, { children: /* @__PURE__ */ jsx(Sparkline, { data: sparkData, color, theme }) }) : /* @__PURE__ */ jsx(ProgressRingWrapper, { children: /* @__PURE__ */ jsx(ProgressRing, { percent: chartData?.percentage || 0, color, theme }) })
+    ] }),
+    /* @__PURE__ */ jsx(StatMainValue, { children: value }),
+    /* @__PURE__ */ jsxs(StatFooterPremium, { children: [
+      /* @__PURE__ */ jsxs(FooterItem, { children: [
+        /* @__PURE__ */ jsx(FooterLabel, { children: "Expert" }),
+        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.warning400 : "#eab308", children: typeof expertVal === "number" ? expertVal : formatCurrency(expertVal, true) })
+      ] }),
+      /* @__PURE__ */ jsxs(FooterItem, { children: [
+        /* @__PURE__ */ jsx(FooterLabel, { children: "Client" }),
+        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.primary400 : "#3b82f6", children: typeof clientVal === "number" ? clientVal : formatCurrency(clientVal, true) })
+      ] }),
+      /* @__PURE__ */ jsx(PieChartWrapper, { children: /* @__PURE__ */ jsx(
+        MiniPieChart,
         {
-          users,
-          pagination,
-          sortBy,
-          onSort: toggleSort,
-          onPageChange: setPage,
-          roleFilter,
-          onRoleFilterChange: setRoleFilter,
-          searchValue: searchQuery,
-          onSearchChange: setSearch,
-          isLoading,
-          isFetching,
-          isSearching,
-          isPlaceholderData
+          expert: typeof expertVal === "number" ? expertVal : expertVal,
+          client: typeof clientVal === "number" ? clientVal : clientVal,
+          theme
         }
       ) })
     ] })
   ] });
 };
+const StatsSection = () => {
+  const { data: stats } = useReferralStats();
+  const d = stats || {};
+  const refs = d.referrals || { total: 0, expert: 0, client: 0, graph: [0, 0, 0, 0, 0] };
+  const expends = d.platform_expends || { total: 0, referrer: { expert: 0, client: 0 }, reciever: { expert: 0, client: 0 }, graph: [0, 0, 0, 0, 0] };
+  const conv = d.referral_conversion || { total: 0, expert: 0, client: 0, percentage: 0 };
+  const direct = d.direct_conversion || { total: 0, expert: 0, client: 0, percentage: 0 };
+  const formatSparkData = (graph) => graph.map((v, i) => ({
+    name: d.meta?.months?.[i] || "",
+    value: v
+  }));
+  return /* @__PURE__ */ jsxs(StatsGrid, { children: [
+    /* @__PURE__ */ jsx(
+      PremiumStatCard,
+      {
+        title: "Total Referrals",
+        value: refs.total,
+        expertVal: refs.expert,
+        clientVal: refs.client,
+        icon: ReferralIcon,
+        color: ({ theme }) => theme.colors.primary600,
+        bg: ({ theme }) => theme.colors.primary100,
+        variant: "chart",
+        sparkData: formatSparkData(refs.graph),
+        delay: "0s"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      PremiumStatCard,
+      {
+        title: "Platform Expends",
+        value: formatCurrency(expends.total, true),
+        expertVal: expends.referrer.expert + expends.reciever.expert,
+        clientVal: expends.referrer.client + expends.reciever.client,
+        icon: WalletIcon,
+        color: ({ theme }) => theme.colors.success600,
+        bg: ({ theme }) => theme.colors.success100,
+        variant: "chart",
+        sparkData: formatSparkData(expends.graph),
+        delay: "0.1s"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      PremiumStatCard,
+      {
+        title: "Referral Conversion",
+        value: conv.total,
+        expertVal: conv.expert,
+        clientVal: conv.client,
+        icon: ConversionIcon,
+        color: ({ theme }) => theme.colors.secondary600,
+        bg: ({ theme }) => theme.colors.secondary100,
+        variant: "ring",
+        chartData: { percentage: conv.percentage },
+        delay: "0.2s"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      PremiumStatCard,
+      {
+        title: "Direct Conversion",
+        value: direct.total,
+        expertVal: direct.expert,
+        clientVal: direct.client,
+        icon: UniqueIcon,
+        color: ({ theme }) => theme.colors.warning600,
+        bg: ({ theme }) => theme.colors.warning100,
+        variant: "ring",
+        chartData: { percentage: direct.percentage },
+        delay: "0.3s"
+      }
+    )
+  ] });
+};
+const DashboardHeader = () => {
+  const { data: stats } = useReferralStats();
+  const d = stats || {};
+  const totalRefs = d.referrals?.total || 0;
+  const conversions = d.referral_conversion?.total || 0;
+  const convRate = d.referral_conversion?.percentage || 0;
+  return /* @__PURE__ */ jsxs(Header, { children: [
+    /* @__PURE__ */ jsxs(HeaderLeft, { children: [
+      /* @__PURE__ */ jsx(IconBox, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "38px", height: "38px" } }) }),
+      /* @__PURE__ */ jsxs(HeaderTitleBox, { children: [
+        /* @__PURE__ */ jsx(HeaderTitle, { children: "Referral Analytics" }),
+        /* @__PURE__ */ jsx(HeaderSubtitle, { children: "Monitor and analyze referral performance across the network" }),
+        /* @__PURE__ */ jsxs(HeaderMetaText, { children: [
+          totalRefs,
+          " total referrals • ",
+          conversions,
+          " conversions (",
+          convRate,
+          "%)"
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(HeaderRight, {})
+  ] });
+};
 const ReferralAnalyticsPage = () => {
-  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(ReferralDashboard, {}) });
+  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsxs(DashboardContainer, { children: [
+    /* @__PURE__ */ jsx(DashboardHeader, {}),
+    /* @__PURE__ */ jsx(DashboardMain, { children: /* @__PURE__ */ jsxs(MainContent, { children: [
+      /* @__PURE__ */ jsx(StatsSection, {}),
+      /* @__PURE__ */ jsx(TableColumn, { children: /* @__PURE__ */ jsx(UserReferralTable, {}) })
+    ] }) })
+  ] }) });
 };
 const queryClient = new QueryClient();
 const App = () => {
-  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxs(Routes, { children: [
-    /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(HomePage, {}) }),
-    /* @__PURE__ */ jsx(Route, { path: "referral-analytics", element: /* @__PURE__ */ jsx(ReferralAnalyticsPage, {}) }),
-    /* @__PURE__ */ jsx(Route, { path: "*", element: /* @__PURE__ */ jsx(Page.Error, {}) })
-  ] }) });
+  return /* @__PURE__ */ jsxs(QueryClientProvider, { client: queryClient, children: [
+    /* @__PURE__ */ jsx(ToastContainer, { position: "top-right", autoClose: 4e3, hideProgressBar: false, style: { width: "450px", fontSize: "16px" } }),
+    /* @__PURE__ */ jsxs(Routes, { children: [
+      /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(HomePage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "referral-analytics", element: /* @__PURE__ */ jsx(ReferralAnalyticsPage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "*", element: /* @__PURE__ */ jsx(Page.Error, {}) })
+    ] })
+  ] });
 };
 export {
   App as default

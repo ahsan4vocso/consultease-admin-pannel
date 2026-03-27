@@ -3070,7 +3070,7 @@ var require_server = __commonJS({
           });
         } catch (error) {
           strapi2.log.error("Callend Error:", error);
-          return ctx.internalServerError("An error occurred while ending call.");
+          return ctx.internalServerError(error);
         }
       }
     });

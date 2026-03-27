@@ -1,66 +1,35 @@
-import styled, { keyframes } from 'styled-components';
-
-const HeaderWrapper = styled.div`
-  padding: 0 0 1.5rem 0;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
-`;
-
-const HeaderContent = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-`;
-
-const HeaderLeft = styled.div`
-  flex: 1;
-`;
-
-const wave = keyframes`
-  0% { background-position: 0% center; }
-  100% { background-position: 200% center; }
-`;
-
-const Title = styled.h1`
-  font-size: 3rem;
-  font-weight: 800;
-  margin: 0 0 0.5rem 0;
-  letter-spacing: -0.025em;
-  
-  background: linear-gradient(
-    90deg,
-    ${({ theme }) => theme.colors.neutral800} 0%,
-    ${({ theme }) => theme.colors.neutral800} 25%,
-    ${({ theme }) => theme.colors.primary600} 50%,
-    ${({ theme }) => theme.colors.neutral800} 75%,
-    ${({ theme }) => theme.colors.neutral800} 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: ${wave} 4s linear infinite;
-`;
-
-const Subtitle = styled.p`
-  font-size: 1.2rem;
-  color: ${({ theme }) => theme.colors.neutral600};
-  margin: 0;
-  font-weight: 500;
-`;
+import { ReferralLogo } from '../Icons';
+import * as Style from './styles';
+import { useReferralStats } from '../../hooks/referral';
 
 const DashboardHeader = () => {
+  const { data: stats } = useReferralStats();
+  const d = stats || {};
+  
+  const totalRefs = d.referrals?.total || 0;
+  const conversions = d.referral_conversion?.total || 0;
+  const convRate = d.referral_conversion?.percentage || 0;
+
   return (
-    <HeaderWrapper>
-      <HeaderContent>
-        <HeaderLeft>
-          <Title>Referral Analytics</Title>
-          <Subtitle>
+    <Style.Header>
+      <Style.HeaderLeft>
+        <Style.IconBox>
+          <ReferralLogo style={{ width: '38px', height: '38px' }} />
+        </Style.IconBox>
+        <Style.HeaderTitleBox>
+          <Style.HeaderTitle>Referral Analytics</Style.HeaderTitle>
+          <Style.HeaderSubtitle>
             Monitor and analyze referral performance across the network
-          </Subtitle>
-        </HeaderLeft>
-      </HeaderContent>
-    </HeaderWrapper>
+          </Style.HeaderSubtitle>
+          <Style.HeaderMetaText>
+            {totalRefs} total referrals • {conversions} conversions ({convRate}%)
+          </Style.HeaderMetaText>
+        </Style.HeaderTitleBox>
+      </Style.HeaderLeft>
+      <Style.HeaderRight>
+        {/* Reservation for future filters like Call Analytics */}
+      </Style.HeaderRight>
+    </Style.Header>
   );
 };
 

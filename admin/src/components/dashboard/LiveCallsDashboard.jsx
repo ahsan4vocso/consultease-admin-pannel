@@ -1,6 +1,6 @@
 import * as Style from "./styles";
 import Header from "./Header";
-import { DashboardProvider, useDashboardContext } from "../../context/DashboardContext";
+import { DashboardProvider } from "../../context/DashboardContext";
 import CategoryGrid from "./CategoryGrid";
 import LiveCallsTable from "./LiveCallsTable";
 import RecentCallsTable from "./RecentCallsTable";

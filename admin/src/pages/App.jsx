@@ -6,11 +6,15 @@ import ReferralAnalyticsPage from './ReferralAnalyticsPage';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
+      <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} style={{ width: '450px', fontSize: '16px' }} />
       <Routes>
         <Route index element={<HomePage />} />
         <Route path="referral-analytics" element={<ReferralAnalyticsPage />} />

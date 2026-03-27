@@ -63,7 +63,7 @@ export default function RecentCallsTable() {
     };
 
     return (
-        <Style.TableSection>
+        <Style.TableSection index={4}>
             <Style.TableHeader>
                 <div>
                     <Style.CardTitle>Call Activity</Style.CardTitle>
@@ -133,6 +133,7 @@ export default function RecentCallsTable() {
                             calls.map((call, idx) => (
                                 <Style.Tr
                                     key={idx}
+                                    index={idx}
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, '_blank')}
                                 >

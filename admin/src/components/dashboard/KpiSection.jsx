@@ -26,6 +26,7 @@ export default function KpiSection() {
         <Style.KpiSection>
             <Style.KpiGrid>
                 <KpiCard
+                    index={0}
                     label="Ongoing calls"
                     value={totalLiveCalls}
                     tone="emerald"
@@ -42,6 +43,7 @@ export default function KpiSection() {
                         `&page=1`, '_blank')}
                 />
                 <KpiCard
+                    index={1}
                     label="Total calls"
                     value={totalCallsToday}
                     chip="Including free & paid"
@@ -57,6 +59,7 @@ export default function KpiSection() {
 
             <Style.KpiGrid>
                 <KpiCard
+                    index={2}
                     label="Declined/Missed calls"
                     value={totalDeclined}
                     tone="rose"
@@ -84,6 +87,7 @@ export default function KpiSection() {
                         `&page=1`, '_blank')}
                 />
                 <KpiCard
+                    index={3}
                     label="Completed calls"
                     value={totalCompletedCalls}
                     tone="emerald"
@@ -102,6 +106,7 @@ export default function KpiSection() {
             </Style.KpiGrid>
             <Style.KpiGrid>
                 <KpiCard
+                    index={4}
                     label="Experts online"
                     value={expertsOnline}
                     tone="sky"
@@ -125,6 +130,7 @@ export default function KpiSection() {
                     }
                 />
                 <KpiCard
+                    index={5}
                     label="Total call duration"
                     value={minutesToMMSS(totalAvgDuration)}
                     tone="emerald"

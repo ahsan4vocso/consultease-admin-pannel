@@ -1,79 +1,245 @@
-import StatCard from './StatCard';
+import React, { useState } from 'react';
+import { useTheme } from 'styled-components';
+import { AreaChart, Area, Tooltip as ReTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useReferralStats } from '../../hooks/referral';
 import * as Style from './styles';
+import { formatCurrency } from '../../utils/helper';
+import { ReferralIcon, WalletIcon, UniqueIcon, ConversionIcon } from '../Icons';
 
-// Minimal SVG icons
-const GlobalReferralIcon = ({ style }) => (
-    <svg style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-);
+const Sparkline = ({ data, color, theme }) => {
+    const [hoveredName, setHoveredName] = useState(null);
+    if (!data || data.length < 2) return null;
 
-const UserCheckIcon = ({ style }) => (
-    <svg style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="8.5" cy="7" r="4" />
-        <polyline points="17 11 19 13 23 9" />
-    </svg>
-);
+    return (
+        <React.Fragment>
+            <ResponsiveContainer width="100%" height="85%">
+                <AreaChart
+                    data={data}
+                    onMouseMove={(e) => {
+                        if (e && e.activePayload && e.activePayload.length > 0) {
+                            setHoveredName(e.activePayload[0].payload.name);
+                        } else if (e && e.activeTooltipIndex !== undefined) {
+                            setHoveredName(data[e.activeTooltipIndex].name);
+                        }
+                    }}
+                    onMouseLeave={() => setHoveredName(null)}
+                >
+                    <defs>
+                        <linearGradient id={`gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={color} stopOpacity={0.3} />
+                            <stop offset="95%" stopColor={color} stopOpacity={0} />
+                        </linearGradient>
+                    </defs>
+                    <ReTooltip
+                        content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                                return (
+                                    <div style={{
+                                        backgroundColor: theme.colors.neutral0,
+                                        padding: '4px 8px',
+                                        borderRadius: '6px',
+                                        fontSize: '10px',
+                                        fontWeight: '700',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                                        border: `1px solid ${color}`,
+                                        color: theme.colors.neutral800
+                                    }}>
+                                        <div>{payload[0].value}</div>
+                                    </div>
+                                );
+                            }
+                            return null;
+                        }}
+                        cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: '4 4' }}
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke={color}
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill={`url(#gradient-${color})`}
+                        isAnimationActive={false}
+                    />
+                </AreaChart>
+            </ResponsiveContainer>
+            {hoveredName && (
+                <Style.HoverDate color={color}>
+                    {hoveredName}
+                </Style.HoverDate>
+            )}
+        </React.Fragment>
+    );
+};
 
-const UserHeartIcon = ({ style }) => (
-    <svg style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="8.5" cy="7" r="4" />
-        <path d="M20.42 4.58a2.83 2.83 0 0 1 0 4l-4.42 4.42-4.42-4.42a2.83 2.83 0 0 1 4-4l.42.42.42-.42a2.83 2.83 0 0 1 4 0Z" />
-    </svg>
-);
+const MiniPieChart = ({ expert, client, theme }) => {
+    const data = [
+        { name: 'Expert', value: expert || 0 },
+        { name: 'Client', value: client || 0 }
+    ];
+    const COLORS = [
+        theme.name === 'dark' ? theme.colors.warning400 : '#eab308', // Expert
+        theme.name === 'dark' ? theme.colors.primary400 : '#3b82f6'  // Client
+    ];
 
-const SpendIcon = ({ style }) => (
-    <svg style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="10" width="20" height="12" rx="2" ry="2" />
-        <path d="M12 22V10" />
-        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-    </svg>
-);
+    if (expert === 0 && client === 0) return null;
 
-const StatsSection = ({ globalStats }) => {
-    const formatCurrency = (value) => {
-        if (!value) return '₹0';
-        const num = parseFloat(value);
-        return `₹${num.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
-    };
+    return (
+        <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+                <Pie
+                    data={data}
+                    innerRadius="60%"
+                    outerRadius="100%"
+                    paddingAngle={2}
+                    dataKey="value"
+                    stroke="none"
+                >
+                    {data.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                </Pie>
+            </PieChart>
+        </ResponsiveContainer>
+    );
+};
+
+const ProgressRing = ({ percent, color, theme }) => {
+    const radius = 22;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (percent / 100) * circumference;
+    return (
+        <svg width="55" height="55" viewBox="0 0 55 55">
+            <circle cx="27.5" cy="27.5" r={radius} stroke={theme.colors.neutral150} strokeWidth="4.5" fill="none" />
+            <circle
+                cx="27.5" cy="27.5" r={radius}
+                stroke={color} strokeWidth="4.5" fill="none"
+                strokeDasharray={circumference}
+                strokeDashoffset={offset}
+                strokeLinecap="round"
+                transform="rotate(-90 27.5 27.5)"
+            />
+            <text x="50%" y="54%" textAnchor="middle" fontSize="11" fontWeight="800" fill={theme.colors.neutral600}>{percent}%</text>
+        </svg>
+    );
+};
+
+const PremiumStatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
+    const theme = useTheme();
+    const color = typeof colorProp === 'function' ? colorProp({ theme }) : colorProp;
+    const bg = typeof bgProp === 'function' ? bgProp({ theme }) : bgProp;
+
+    return (
+        <Style.StatCardPremium delay={delay}>
+            <Style.StatTop>
+                <Style.StatTitle>
+                    <Style.StatIconBox bg={bg} color={color}>
+                        <Icon style={{ width: '18px', height: '18px' }} />
+                    </Style.StatIconBox>
+                    {title}
+                </Style.StatTitle>
+                {variant === 'chart' ? (
+                    <Style.SparklineWrapper>
+                        <Sparkline data={sparkData} color={color} theme={theme} />
+                    </Style.SparklineWrapper>
+                ) : (
+                    <Style.ProgressRingWrapper>
+                        <ProgressRing percent={chartData?.percentage || 0} color={color} theme={theme} />
+                    </Style.ProgressRingWrapper>
+                )}
+            </Style.StatTop>
+
+            <Style.StatMainValue>{value}</Style.StatMainValue>
+
+            <Style.StatFooterPremium>
+                <Style.FooterItem>
+                    <Style.FooterLabel>Expert</Style.FooterLabel>
+                    <Style.FooterValue color={theme.name === 'dark' ? theme.colors.warning400 : '#eab308'}>
+                        {typeof expertVal === 'number' ? expertVal : formatCurrency(expertVal, true)}
+                    </Style.FooterValue>
+                </Style.FooterItem>
+                <Style.FooterItem>
+                    <Style.FooterLabel>Client</Style.FooterLabel>
+                    <Style.FooterValue color={theme.name === 'dark' ? theme.colors.primary400 : '#3b82f6'}>
+                        {typeof clientVal === 'number' ? clientVal : formatCurrency(clientVal, true)}
+                    </Style.FooterValue>
+                </Style.FooterItem>
+                <Style.PieChartWrapper>
+                    <MiniPieChart
+                        expert={typeof expertVal === 'number' ? expertVal : expertVal}
+                        client={typeof clientVal === 'number' ? clientVal : clientVal}
+                        theme={theme}
+                    />
+                </Style.PieChartWrapper>
+            </Style.StatFooterPremium>
+        </Style.StatCardPremium>
+    );
+};
+
+const StatsSection = () => {
+    const { data: stats } = useReferralStats();
+    const d = stats || {};
+
+    // Map Backend Data
+    const refs = d.referrals || { total: 0, expert: 0, client: 0, graph: [0, 0, 0, 0, 0] };
+    const expends = d.platform_expends || { total: 0, referrer: { expert: 0, client: 0 }, reciever: { expert: 0, client: 0 }, graph: [0, 0, 0, 0, 0] };
+    const conv = d.referral_conversion || { total: 0, expert: 0, client: 0, percentage: 0 };
+    const direct = d.direct_conversion || { total: 0, expert: 0, client: 0, percentage: 0 };
+
+    // Format Sparkline Data with Month Names
+    const formatSparkData = (graph) => graph.map((v, i) => ({
+        name: d.meta?.months?.[i] || '',
+        value: v
+    }));
 
     return (
         <Style.StatsGrid>
-            <StatCard
-                variant="purple"
-                icon={GlobalReferralIcon}
-                label="Total Referrals"
-                value={globalStats?.totalReferrals || 0}
-                subtitle="All-time platform total"
+            <PremiumStatCard
+                title="Total Referrals"
+                value={refs.total}
+                expertVal={refs.expert}
+                clientVal={refs.client}
+                icon={ReferralIcon}
+                color={({ theme }) => theme.colors.primary600}
+                bg={({ theme }) => theme.colors.primary100}
+                variant="chart"
+                sparkData={formatSparkData(refs.graph)}
                 delay="0s"
             />
-            <StatCard
-                variant="blue"
-                icon={UserCheckIcon}
-                label="Referrals via Experts"
-                value={globalStats?.expertReferrals || 0}
-                subtitle="Expert contributions"
+            <PremiumStatCard
+                title="Platform Expends"
+                value={formatCurrency(expends.total, true)}
+                expertVal={expends.referrer.expert + expends.reciever.expert}
+                clientVal={expends.referrer.client + expends.reciever.client}
+                icon={WalletIcon}
+                color={({ theme }) => theme.colors.success600}
+                bg={({ theme }) => theme.colors.success100}
+                variant="chart"
+                sparkData={formatSparkData(expends.graph)}
                 delay="0.1s"
             />
-            <StatCard
-                variant="orange"
-                icon={UserHeartIcon}
-                label="Referrals via Clients"
-                value={globalStats?.clientReferrals || 0}
-                subtitle="Client contributions"
+            <PremiumStatCard
+                title="Referral Conversion"
+                value={conv.total}
+                expertVal={conv.expert}
+                clientVal={conv.client}
+                icon={ConversionIcon}
+                color={({ theme }) => theme.colors.secondary600}
+                bg={({ theme }) => theme.colors.secondary100}
+                variant="ring"
+                chartData={{ percentage: conv.percentage }}
                 delay="0.2s"
             />
-            <StatCard
-                variant="green"
-                icon={SpendIcon}
-                label="Total Program Spend"
-                value={formatCurrency(globalStats?.totalProgramSpend || 0)}
-                subtitle="Total disbursed earnings"
+            <PremiumStatCard
+                title="Direct Conversion"
+                value={direct.total}
+                expertVal={direct.expert}
+                clientVal={direct.client}
+                icon={UniqueIcon}
+                color={({ theme }) => theme.colors.warning600}
+                bg={({ theme }) => theme.colors.warning100}
+                variant="ring"
+                chartData={{ percentage: direct.percentage }}
                 delay="0.3s"
             />
         </Style.StatsGrid>

@@ -12,7 +12,7 @@ export default {
       icon: PluginIcon,
       intlLabel: {
         id: `${PLUGIN_ID}.plugin.name`,
-        defaultMessage: PLUGIN_ID,
+        defaultMessage: 'Dashboards',
       },
       Component: () => import('./pages/App'),
     });

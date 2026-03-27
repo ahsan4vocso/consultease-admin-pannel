@@ -8,8 +8,7 @@ import {
   Typography,
   Divider
 } from '@strapi/design-system';
-import { PluginIcon } from './Icons';
-import { ChartBubble } from '@strapi/icons';
+import { PluginIcon, ReferralLogo } from './Icons';
 import { PLUGIN_ID } from '../pluginId';
 
 const StyledSubNav = styled(SubNav)`
@@ -83,7 +82,7 @@ const PluginLayout = ({ children }) => {
       <StyledSubNav aria-label="Analytics navigation">
         <Box paddingLeft={4} paddingTop={3} paddingBottom={3}>
           <Typography variant="beta" fontWeight="bold" textColor="neutral800">
-            User Analytics
+            Dashboards
           </Typography>
         </Box>
         <Divider />
@@ -96,7 +95,7 @@ const PluginLayout = ({ children }) => {
             <IconWrapper>
               <PluginIcon style={{ width: '2rem', height: '2rem' }} />
             </IconWrapper>
-            <Typography variant="beta">Calling Dashboard</Typography>
+            <Typography variant="beta">Call Analytics</Typography>
           </NavButton>
 
           {/* Referral Analytics */}
@@ -104,7 +103,7 @@ const PluginLayout = ({ children }) => {
             to={`/plugins/${PLUGIN_ID}/referral-analytics`}
           >
             <IconWrapper>
-              <ChartBubble style={{ width: '2rem', height: '2rem' }} />
+              <ReferralLogo style={{ width: '2rem', height: '2rem' }} />
             </IconWrapper>
             <Typography variant="beta">Referral Analytics</Typography>
           </NavButton>

@@ -128,6 +128,38 @@ export const getDateRange = (filter, customRange) => {
         return { start: start.toISOString(), end: now.toISOString() };
     }
 
+    if (filter === 'month') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: now.toISOString() };
+    }
+
+    if (filter === 'last_month') {
+        start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(now.getFullYear(), now.getMonth(), 0);
+        end.setHours(23, 59, 59, 999);
+        return { start: start.toISOString(), end: end.toISOString() };
+    }
+
+    if (filter === 'last_3_months') {
+        start.setDate(now.getDate() - 90);
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: now.toISOString() };
+    }
+
+    if (filter === 'quarter') {
+        start.setDate(now.getDate() - 90);
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: now.toISOString() };
+    }
+
+    if (filter === 'year') {
+        start.setDate(now.getDate() - 365);
+        start.setHours(0, 0, 0, 0);
+        return { start: start.toISOString(), end: now.toISOString() };
+    }
+
     if (filter === 'custom' && customRange?.start && customRange?.end) {
         const customStart = new Date(customRange.start);
         customStart.setHours(0, 0, 0, 0);
@@ -142,3 +174,21 @@ export const getDateRange = (filter, customRange) => {
     start.setHours(0, 0, 0, 0);
     return { start: start.toISOString(), end: now.toISOString() };
 };
+
+export function formatCurrency(value, useShortener = false) {
+    if (value == null || isNaN(value)) return "₹0";
+    const num = Number(value);
+
+    if (useShortener && num >= 1000) {
+        return `₹${(num / 1000).toFixed(1).replace(/\.0$/, "")}k`;
+    }
+
+    return `₹${num.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+}
+
+export function getInitials(name) {
+    if (!name) return '??';
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+}

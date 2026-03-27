@@ -1,5 +1,5 @@
 "use strict";
-const react = require("react");
+const React = require("react");
 const jsxRuntime = require("react/jsx-runtime");
 const __variableDynamicImportRuntimeHelper = (glob, path, segs) => {
   const v = glob[path];
@@ -19,8 +19,8 @@ const __variableDynamicImportRuntimeHelper = (glob, path, segs) => {
 };
 const PLUGIN_ID = "admin-pannel";
 const Initializer = ({ setPlugin }) => {
-  const ref = react.useRef(setPlugin);
-  react.useEffect(() => {
+  const ref = React.useRef(setPlugin);
+  React.useEffect(() => {
     ref.current(PLUGIN_ID);
   }, []);
   return null;
@@ -73,6 +73,26 @@ const PluginIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style
 const Cross = ({ style }) => /* @__PURE__ */ jsxRuntime.jsx("svg", { style, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M18 6L6 18M6 6L18 18", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" }) });
 const Tick = ({ style }) => /* @__PURE__ */ jsxRuntime.jsx("svg", { style, width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M10 3L4.5 8.5L2 6", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" }) });
 const ChevronDown = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { width: "12", height: "12", viewBox: "0 0 12 12", fill: "none", xmlns: "http://www.w3.org/2000/svg", style: { marginLeft: "4px" }, children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M2.5 4.5L6 8L9.5 4.5", stroke: "currentColor", strokeWidth: "1.5", strokeLinecap: "round", strokeLinejoin: "round" }) });
+const ReferralLogo = ({ style }) => /* @__PURE__ */ jsxRuntime.jsx("svg", { style, xmlns: "http://www.w3.org/2000/svg", width: "425", height: "403", viewBox: "0 0 425 403", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M 228.00 373.41 C183.84,368.15 151.44,353.06 130.87,328.18 C127.09,323.61 124.00,319.45 124.00,318.93 C124.00,317.02 121.06,318.11 116.93,321.56 C114.58,323.52 111.41,325.77 109.88,326.56 C106.23,328.45 100.01,328.39 97.22,326.44 C93.80,324.05 94.06,314.41 98.54,277.50 C99.41,270.35 100.47,259.81 100.90,254.08 C101.62,244.46 101.89,243.49 104.40,241.33 C107.67,238.52 109.83,238.49 121.50,241.07 C130.30,243.02 164.07,250.16 173.00,251.96 C179.99,253.36 193.32,257.78 195.52,259.41 C197.36,260.78 197.39,261.08 195.97,263.68 C195.12,265.22 189.72,270.03 183.97,274.37 C178.21,278.72 173.64,282.77 173.81,283.38 C174.85,287.16 184.71,302.65 191.58,311.31 C207.97,331.98 228.35,348.94 248.47,358.67 C256.45,362.52 259.42,363.42 266.11,364.01 C272.22,364.55 274.65,365.21 276.19,366.74 C278.72,369.28 277.86,372.72 274.35,374.06 C270.76,375.42 241.43,375.02 228.00,373.41 ZM 222.36 357.39 C207.19,346.55 192.92,333.60 182.25,321.00 C173.55,310.72 157.00,284.57 157.00,281.09 C157.00,280.08 157.83,278.63 158.85,277.87 C173.40,267.06 176.82,264.10 175.71,263.28 C175.05,262.78 171.57,261.82 168.00,261.13 C164.43,260.45 158.80,259.26 155.50,258.49 C152.20,257.73 143.88,255.94 137.00,254.53 C130.12,253.12 123.01,251.56 121.19,251.06 C118.29,250.26 117.79,250.41 117.05,252.33 C115.54,256.23 110.29,308.63 111.31,309.64 C111.67,310.00 113.71,309.09 115.84,307.61 C120.84,304.15 125.80,303.33 129.66,305.32 C132.56,306.83 134.33,309.09 140.93,319.72 C146.68,328.99 162.66,341.88 177.50,349.23 C191.67,356.25 214.05,362.56 225.86,362.88 L 230.21 363.00 L 222.36 357.39 ZM 256.49 358.21 C250.98,356.13 247.00,353.88 247.00,352.85 C247.00,351.62 269.44,350.68 338.96,348.98 C386.91,347.81 387.58,347.74 390.10,343.61 C391.83,340.76 391.99,338.24 391.99,313.50 C391.99,276.85 390.00,264.91 381.47,250.35 C375.21,239.68 361.93,227.71 350.50,222.44 C336.54,216.00 333.90,215.77 272.49,215.63 C242.06,215.56 216.84,215.18 216.45,214.78 C215.33,213.66 218.05,208.04 220.30,206.84 C221.67,206.11 240.18,205.72 277.91,205.63 L 333.50 205.50 L 343.41 208.26 C369.58,215.56 388.71,231.26 399.49,254.27 C406.17,268.55 406.34,269.79 406.76,309.37 L 407.14 345.24 L 402.26 349.93 C398.97,353.11 395.95,355.00 392.94,355.77 C387.08,357.26 345.60,358.95 299.00,359.58 C263.96,360.06 261.17,359.97 256.49,358.21 ZM 33.00 290.15 C27.25,288.87 25.13,287.22 24.13,283.23 C23.61,281.18 22.96,270.57 22.68,259.66 C21.73,222.89 26.14,205.65 40.42,190.28 C46.72,183.50 53.98,178.89 64.17,175.20 L 71.50 172.55 L 117.50 172.21 C157.67,171.91 164.39,172.08 170.50,173.53 C182.58,176.39 193.49,183.79 201.08,194.26 C203.86,198.11 203.93,198.42 202.32,200.19 C201.39,201.22 199.11,203.01 197.25,204.16 L 193.86 206.25 L 192.28 203.87 C191.41,202.57 187.50,198.31 183.59,194.41 C178.34,189.18 174.90,186.69 170.49,184.91 L 164.50 182.50 L 120.50 182.50 C80.72,182.50 76.01,182.67 71.34,184.30 C56.90,189.34 44.41,204.39 41.31,220.50 C39.78,228.43 38.35,271.73 39.43,277.48 L 40.14 281.25 L 50.82 280.63 C56.69,280.29 66.68,279.93 73.00,279.82 L 84.50 279.63 L 84.50 283.99 C84.50,287.99 84.25,288.42 81.50,289.17 C77.35,290.29 37.30,291.10 33.00,290.15 ZM 262.50 191.34 C230.33,184.48 205.12,159.41 198.59,127.79 C194.41,107.54 198.03,86.25 208.73,68.11 C219.33,50.15 239.91,35.35 261.00,30.52 C269.45,28.58 288.55,28.58 297.00,30.52 C326.41,37.26 350.61,60.43 358.58,89.50 C361.04,98.44 361.59,117.87 359.65,127.23 C351.71,165.63 317.46,193.28 278.29,192.92 C273.46,192.87 266.35,192.16 262.50,191.34 ZM 297.99 176.99 C341.91,164.51 361.61,113.27 337.44,74.38 C329.69,61.90 316.43,51.03 303.00,46.15 C288.59,40.92 270.52,40.57 257.19,45.26 C236.27,52.64 220.68,68.23 213.25,89.19 C210.95,95.71 210.66,98.02 210.64,110.50 C210.63,123.05 210.89,125.29 213.25,132.09 C225.66,167.95 262.01,187.21 297.99,176.99 ZM 99.17 159.12 C83.75,153.66 72.00,143.50 65.05,129.61 C58.78,117.08 56.83,104.96 59.06,92.43 C63.44,67.84 82.27,48.55 106.82,43.50 C116.05,41.60 121.02,41.61 130.14,43.53 C152.92,48.32 170.97,65.60 176.60,87.98 C178.64,96.07 178.04,114.17 175.51,121.00 C168.72,139.33 155.15,153.07 137.84,159.14 C133.00,160.84 128.66,161.45 119.50,161.72 C108.28,162.05 106.96,161.88 99.17,159.12 ZM 128.87 149.55 C150.46,143.80 163.98,125.88 163.98,103.00 C163.98,70.73 135.31,46.87 107.36,55.87 C100.39,58.11 98.16,59.26 92.50,63.49 C72.87,78.19 67.42,104.03 79.26,126.32 C82.85,133.08 91.03,141.76 97.23,145.39 C106.17,150.63 118.64,152.27 128.87,149.55 Z", fill: "currentColor" }) });
+const ReferralIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "8.5", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "17 11 19 13 23 9" })
+] });
+const WalletIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "2", y: "5", width: "20", height: "14", rx: "2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M12 11V18" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 8H8" })
+] });
+const UniqueIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsx("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" }) });
+const ConversionIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14" }),
+  /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "22 4 12 14.01 9 11.01" })
+] });
+const SearchIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "11", cy: "11", r: "8" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "m21 21-4.3-4.3" })
+] });
 const index = {
   register(app) {
     app.addMenuLink({
@@ -80,9 +100,9 @@ const index = {
       icon: PluginIcon,
       intlLabel: {
         id: `${PLUGIN_ID}.plugin.name`,
-        defaultMessage: PLUGIN_ID
+        defaultMessage: "Dashboards"
       },
-      Component: () => Promise.resolve().then(() => require("./App-D4kCPI-S.js"))
+      Component: () => Promise.resolve().then(() => require("./App-Dq5031sf.js"))
     });
     app.registerPlugin({
       id: PLUGIN_ID,
@@ -108,13 +128,19 @@ exports.ActiveCall = ActiveCall;
 exports.CallTime = CallTime;
 exports.ChevronDown = ChevronDown;
 exports.CompletedCall = CompletedCall;
+exports.ConversionIcon = ConversionIcon;
 exports.Cross = Cross;
 exports.DeclineCall = DeclineCall;
 exports.Expert = Expert;
 exports.PLUGIN_ID = PLUGIN_ID;
 exports.PluginIcon = PluginIcon;
+exports.ReferralIcon = ReferralIcon;
+exports.ReferralLogo = ReferralLogo;
+exports.SearchIcon = SearchIcon;
 exports.Tick = Tick;
 exports.TotalCalls = TotalCalls;
+exports.UniqueIcon = UniqueIcon;
 exports.VideoCall = VideoCall;
 exports.VoiceCall = VoiceCall;
+exports.WalletIcon = WalletIcon;
 exports.index = index;

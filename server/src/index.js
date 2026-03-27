@@ -13,7 +13,8 @@ import contentTypes from './content-types';
 import controllers from './controllers';
 import middlewares from './middlewares';
 import policies from './policies';
-import routes from './routes';
+import callingRoutes from './routes/calling';
+import referralRoutes from './routes/referral';
 import services from './services';
 
 export default {
@@ -26,6 +27,9 @@ export default {
   contentTypes,
   middlewares,
   policies,
-  routes,
+  routes: {
+    calling: callingRoutes,
+    referral: referralRoutes,
+  },
   services,
 };

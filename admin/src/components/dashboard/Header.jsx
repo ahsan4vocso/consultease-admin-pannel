@@ -36,7 +36,7 @@ export default function Header() {
             <Style.HeaderLeft>
                 <Style.IconBox><PluginIcon style={{ width: "32px", height: "32px" }} /></Style.IconBox>
                 <Style.TitleBox>
-                    <Style.Title>Live Calls Dashboard</Style.Title>
+                    <Style.Title>Call Analytics</Style.Title>
                     <Style.Subtitle>Realtime view of ConsultEase calls, categories & expert load.</Style.Subtitle>
                     <Style.MetaText>
                         {totalCallsToday} {filter === 'live' ? 'calls today' : `calls in this ${filter}`} • {totalDeclinedCalls} declined ({droppedRate}%)
@@ -54,13 +54,15 @@ export default function Header() {
 
                     <Style.FilterDivider />
 
-                    {['yesterday', 'week', 'quarter'].map((preset) => (
+                    {['yesterday', 'week', 'month', 'last_month', 'quarter', 'year'].map((preset) => (
                         <Style.FilterButton
                             key={preset}
                             active={filter === preset}
                             onClick={() => handlePresetChange(preset)}
                         >
-                            {preset.charAt(0).toUpperCase() + preset.slice(1)}
+                            {preset === 'last_month' ? 'Last Month' :
+                                preset === 'month' ? 'This Month' :
+                                    preset.charAt(0).toUpperCase() + preset.slice(1)}
                         </Style.FilterButton>
                     ))}
 

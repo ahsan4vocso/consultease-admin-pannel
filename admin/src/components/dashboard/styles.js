@@ -6,6 +6,62 @@ const pulseInfo = keyframes`
   50% { opacity: .5; }
 `;
 
+const slideUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const rowFadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const scrollbarStyles = css`
+  /* Custom thin scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({ theme }) => theme.colors.neutral300};
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${({ theme }) => theme.colors.neutral400};
+    border: 0px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* Support for Firefox (partially) */
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
+`;
+
 export const DashboardContainer = styled.div`
   min-height: 100vh;
   width: 100%;
@@ -13,6 +69,8 @@ export const DashboardContainer = styled.div`
   color: ${({ theme }) => theme.colors.neutral800};
   display: flex;
   flex-direction: column;
+  animation: ${fadeIn} 0.5s ease-out both;
+  ${scrollbarStyles}
 `;
 
 // --- Header ---
@@ -132,6 +190,7 @@ export const RefreshButton = styled.button`
 export const Main = styled.main`
   flex: 1;
   padding: 1rem;
+  background-color: ${({ theme }) => theme.colors.neutral100};
   @media (min-width: 640px) {
     padding: 1.5rem;
   }
@@ -171,6 +230,8 @@ export const Card = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
   padding: 1rem;
+  animation: ${slideUp} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${props => (props.index || 0) * 0.1}s;
 `;
 
 export const CardHeader = styled.div`
@@ -224,6 +285,8 @@ export const CategoryItem = styled.div`
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
   min-height: 80px;
+  animation: ${slideUp} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${props => (props.index || 0) * 0.1}s;
 `;
 
 export const CategoryName = styled.p`
@@ -272,6 +335,7 @@ export const ExpertRow = styled.div`
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
+  animation: ${slideUp} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
 
 export const ExpertInfo = styled.div`
@@ -351,6 +415,7 @@ export const ConsultantRow = styled.div`
   background-color: ${({ theme }) => theme.colors.neutral100};
   padding: 0.5rem 0.75rem;
   margin-bottom: 0.5rem;
+  animation: ${slideUp} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
 
 export const ConsultantInfo = styled.div`
@@ -424,6 +489,8 @@ export const TableSection = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
   overflow: hidden;
+  animation: ${slideUp} 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${props => (props.index || 0) * 0.1}s;
 `;
 
 export const TableHeader = styled.div`
@@ -469,6 +536,7 @@ export const TableContainer = styled.div`
   ${props => props.minHeight && css`
     min-height: ${props.minHeight};
   `}
+  ${scrollbarStyles}
 `;
 
 export const Table = styled.table`
@@ -498,9 +566,13 @@ export const Th = styled.th`
 `;
 
 export const Tr = styled.tr`
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  animation: ${rowFadeIn} 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${props => (props.index || 0) * 0.05}s;
+
   &:hover {
     background-color: ${({ theme }) => theme.colors.neutral100};
+    transform: scale(1.001);
   }
 `;
 
@@ -529,17 +601,17 @@ export const StatusBadge = styled.span`
 
   ${props => /Live|ongoing/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.success100};
-    color: ${({ theme }) => theme.colors.success600};
+    color: ${({ theme }) => theme.name === 'dark' ? theme.colors.success200 : theme.colors.success600};
     border-color: ${({ theme }) => theme.colors.success200};
   `}
   ${props => /declined|missed|busy|pending/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.danger100};
-    color: ${({ theme }) => theme.colors.danger600};
+    color: ${({ theme }) => theme.name === 'dark' ? theme.colors.danger200 : theme.colors.danger600};
     border-color: ${({ theme }) => theme.colors.danger200};
   `}
   ${props => /pending/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.warning100};
-    color: ${({ theme }) => theme.colors.warning600};
+    color: ${({ theme }) => theme.name === 'dark' ? theme.colors.warning200 : theme.colors.warning600};
     border-color: ${({ theme }) => theme.colors.warning200};
   `}
   ${props => /completed/i.test(props.status) && css`
@@ -592,6 +664,8 @@ export const KpiCardContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.neutral0};
   padding: 0.75rem 1.25rem;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  animation: ${slideUp} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${props => (props.index || 0) * 0.1}s;
 `;
 
 export const KpiTop = styled.div`
@@ -670,22 +744,22 @@ export const KpiChip = styled.span`
 
   ${props => props.tone === 'emerald' && css`
     background-color: ${({ theme }) => theme.colors.success100};
-    color: ${({ theme }) => theme.colors.success700};
+    color: ${({ theme }) => theme.name === 'dark' ? theme.colors.success200 : theme.colors.success700};
     border-color: ${({ theme }) => theme.colors.success200};
   `}
   ${props => props.tone === 'amber' && css`
     background-color: ${({ theme }) => theme.colors.warning100};
-    color: ${({ theme }) => theme.colors.warning700};
+    color: ${({ theme }) => theme.name === 'dark' ? theme.colors.warning200 : theme.colors.warning700};
     border-color: ${({ theme }) => theme.colors.warning200};
   `}
   ${props => props.tone === 'sky' && css`
     background-color: ${({ theme }) => theme.colors.primary100};
-    color: ${({ theme }) => theme.colors.primary700};
+    color: ${({ theme }) => theme.name === 'dark' ? theme.colors.primary200 : theme.colors.primary700};
     border-color: ${({ theme }) => theme.colors.primary200};
   `}
   ${props => props.tone === 'rose' && css`
     background-color: ${({ theme }) => theme.colors.danger100};
-    color: ${({ theme }) => theme.colors.danger700};
+    color: ${({ theme }) => theme.name === 'dark' ? theme.colors.danger200 : theme.colors.danger700};
     border-color: ${({ theme }) => theme.colors.danger200};
   `}
 `;
@@ -809,7 +883,7 @@ export const LiveFilterButton = styled(FilterButton)`
   gap: 8px;
   background-color: ${props => props.active ? props.theme.colors.success100 : props.theme.colors.neutral0};
   border: 1px solid ${props => props.active ? props.theme.colors.success500 : props.theme.colors.neutral150};
-  color: ${props => props.active ? props.theme.colors.success700 : props.theme.colors.neutral600};
+  color: ${props => props.active ? (props.theme.name === 'dark' ? props.theme.colors.success200 : props.theme.colors.success700) : props.theme.colors.neutral600};
   padding: 0.5rem 1.25rem;
   border-radius: 10px;
   box-shadow: ${props => props.active ? '0 0 12px rgba(34, 197, 94, 0.2)' : 'none'};

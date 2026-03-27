@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useTheme } from "styled-components";
 import { useFetchClient } from "@strapi/strapi/admin";
+import { toast } from "react-toastify";
 import * as Style from "./styles";
 import EmptyState from "./EmptyState";
 import { formatTimeAMPM, minutesToMMSS } from "../../utils/helper";
 import { VideoCall, VoiceCall, Cross } from "../Icons";
-import { useMovingTime } from "../../hooks/useFormater";
+import { useMovingTime } from "../../hooks/helper";
 import { useDashboardContext } from "../../context/DashboardContext";
 
 export default function LiveCallsTable() {
@@ -29,15 +30,17 @@ export default function LiveCallsTable() {
         if (selectedCall) {
             try {
                 await post("/admin-pannel/callend", { callId: selectedCall.id });
+                toast.success(`Call ${selectedCall.id} declined successfully.`);
             } catch (error) {
                 console.error("🔔 [LiveCallsTable] Failed to decline call:", error);
+                toast.error(error.response?.data?.error?.message || "Failed to decline the call.");
             }
             closeModal();
         }
     };
 
     return (
-        <Style.TableSection>
+        <Style.TableSection index={3}>
             <Style.TableHeader>
                 <div>
                     <Style.CardTitle>Live calls</Style.CardTitle>
@@ -72,9 +75,10 @@ export default function LiveCallsTable() {
                                 </td>
                             </tr>
                         ) : (
-                            liveCalls.map((call) => (
+                            liveCalls.map((call, idx) => (
                                 <Style.Tr
                                     key={call.id}
+                                    index={idx}
                                     style={{ cursor: 'pointer' }}
                                     onClick={() => setSelectedCall(call)}
                                 >

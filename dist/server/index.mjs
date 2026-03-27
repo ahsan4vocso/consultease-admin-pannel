@@ -335,7 +335,7 @@ const getWallet = async (userId, type) => {
     return null;
   }
 };
-const dashboard = ({ strapi: strapi2 }) => ({
+const calling = ({ strapi: strapi2 }) => ({
   // ----------------------------------------------------------
   // 1. GET /admin-pannel/stream
   // ----------------------------------------------------------
@@ -754,150 +754,230 @@ const dashboard = ({ strapi: strapi2 }) => ({
       });
     } catch (error) {
       strapi2.log.error("Callend Error:", error);
-      return ctx.internalServerError("An error occurred while ending call.");
+      return ctx.internalServerError(error);
+    }
+  }
+});
+const referral = ({ strapi: strapi2 }) => ({
+  async stats(ctx) {
+    try {
+      const knex = strapi2.db.connection;
+      const result = await knex.raw(`
+        WITH months_range AS (
+          SELECT generate_series(
+            date_trunc('month', CURRENT_DATE) - interval '4 months',
+            date_trunc('month', CURRENT_DATE),
+            interval '1 month'
+          )::date as month_start
+        ),
+        user_metrics AS (
+          SELECT 
+            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL)::int as total_referrals,
+            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Client')::int as ref_client,
+            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Expert')::int as ref_expert,
+            
+            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Client' AND us.total_wallet_topup > 0)::int as ref_conv_client,
+            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Expert' AND ep.is_approved = true)::int as ref_conv_expert,
+            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND ((u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true)))::int as total_ref_conv,
+            
+            COUNT(*) FILTER (WHERE u.referrer_code IS NULL AND u.role = 'Client' AND us.total_wallet_topup > 0)::int as direct_conv_client,
+            COUNT(*) FILTER (WHERE u.referrer_code IS NULL AND u.role = 'Expert' AND ep.is_approved = true)::int as direct_conv_expert,
+            
+            CASE 
+              WHEN COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL) > 0 
+              THEN ROUND((COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND ((u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true)))::float / NULLIF(COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL), 0)) * 100)
+              ELSE 0 
+            END::int as ref_conv_percent,
+            
+            CASE 
+              WHEN COUNT(*) > 0 
+              THEN ROUND((COUNT(*) FILTER (WHERE u.referrer_code IS NULL AND ((u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true)))::float / NULLIF(COUNT(*), 0)) * 100)
+              ELSE 0 
+            END::int as direct_conv_percent,
+            
+            COUNT(*) FILTER (WHERE (u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true))::int as total_any_conv,
+            COUNT(*)::int as total_users
+          FROM public_users u
+          LEFT JOIN user_statistics us ON us.public_profile_id = u.id
+          LEFT JOIN expert_profiles ep ON ep.user_id = u.id
+        ),
+        expend_metrics AS (
+          SELECT
+            COALESCE(SUM(t.amount), 0)::float as total_expends,
+            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Client' AND t.transaction_id LIKE '%_referrer'), 0)::float as exp_ref_client,
+            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Expert' AND t.transaction_id LIKE '%_referrer'), 0)::float as exp_ref_expert,
+            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Client' AND t.transaction_id LIKE '%_reciever'), 0)::float as exp_rec_client,
+            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Expert' AND t.transaction_id LIKE '%_reciever'), 0)::float as exp_rec_expert
+          FROM transactions t
+          JOIN wallets w ON t.to_wallet_id = w.id
+          JOIN public_users u ON w.user_id = u.id
+          WHERE t.method = 'Referral' AND t.payment_status = 'success'
+        ),
+        referral_graph AS (
+          SELECT ARRAY_AGG(count ORDER BY month_start) as ref_graph
+          FROM (
+            SELECT m.month_start, COUNT(u.id)::int as count
+            FROM months_range m
+            LEFT JOIN public_users u ON date_trunc('month', u.created_at) = m.month_start AND u.referrer_code IS NOT NULL
+            GROUP BY m.month_start
+          ) s
+        ),
+        expense_graph AS (
+          SELECT ARRAY_AGG(amount ORDER BY month_start) as exp_graph
+          FROM (
+            SELECT m.month_start, COALESCE(SUM(t.amount), 0)::float as amount
+            FROM months_range m
+            LEFT JOIN transactions t ON date_trunc('month', t.created_at) = m.month_start AND t.method = 'Referral' AND t.payment_status = 'success'
+            GROUP BY m.month_start
+          ) s
+        ),
+        meta_metrics AS (
+          SELECT ARRAY_AGG(to_char(month_start, 'Mon') ORDER BY month_start) as months
+          FROM months_range
+        )
+        SELECT json_build_object(
+          'data', json_build_object(
+            'referrals', json_build_object(
+              'total', total_referrals,
+              'client', ref_client,
+              'expert', ref_expert,
+              'graph', ref_graph
+            ),
+            'platform_expends', json_build_object(
+              'total', total_expends,
+              'referrer', json_build_object('client', exp_ref_client, 'expert', exp_ref_expert),
+              'reciever', json_build_object('client', exp_rec_client, 'expert', exp_rec_expert),
+              'graph', exp_graph
+            ),
+            'referral_conversion', json_build_object(
+              'total', total_ref_conv,
+              'client', ref_conv_client,
+              'expert', ref_conv_expert,
+              'percentage', ref_conv_percent
+            ),
+            'direct_conversion', json_build_object(
+              'total', direct_conv_client + direct_conv_expert,
+              'client', direct_conv_client,
+              'expert', direct_conv_expert,
+              'percentage', direct_conv_percent
+            ),
+            'meta', json_build_object('months', months)
+          )
+        ) as result FROM user_metrics, expend_metrics, referral_graph, expense_graph, meta_metrics;
+      `);
+      ctx.body = result.rows[0].result;
+    } catch (err) {
+      strapi2.log.error("Referral Stats SQL JSON Engine Error:", err.message);
+      ctx.throw(500, err.message);
     }
   },
-  async referralStats(ctx) {
+  async table_data(ctx) {
     try {
-      const { query } = ctx;
-      const { page = 1, pageSize = 10, sort = "total_referrals:desc", role = "all", search = "" } = query;
-      const [sortField, sortOrder] = sort.split(":");
-      strapi2.log.info(`Fetching referral stats: page=${page}, role=${role}, search=${search}`);
-      const filterItems = [];
-      if (role !== "all") {
-        filterItems.push({ public_profile: { role: { $eq: role } } });
-      }
+      const { page = 1, pageSize = 10, role = "all", search = "", sort = "id:desc" } = ctx.query;
+      strapi2.log.info(`Referral Stats Request - Role: ${role}, Search: "${search}", Sort: ${sort}`);
+      const filters = {};
+      if (role !== "all") filters.role = role;
       if (search) {
-        const searchOR = [
-          { public_profile: { name: { $containsi: search } } },
-          { public_profile: { email: { $containsi: search } } }
+        filters.$or = [
+          { name: { $containsi: search } },
+          { email: { $containsi: search } },
+          { mobile: { $containsi: search } }
         ];
-        if (/^\d+$/.test(search)) {
-          searchOR.push({ public_profile: { mobile: { $eq: search } } });
-        }
-        filterItems.push({ $or: searchOR });
       }
-      const finalFilters = filterItems.length > 0 ? { $and: filterItems } : {};
-      strapi2.log.info(`Referral search filters: ${JSON.stringify(finalFilters)}`);
-      const data = await strapi2.entityService.findMany("api::user-statistic.user-statistic", {
-        filters: finalFilters,
-        populate: { public_profile: true },
-        start: (parseInt(page) - 1) * parseInt(pageSize),
-        limit: parseInt(pageSize),
-        sort: { [sortField]: sortOrder }
+      let sortObj = sort;
+      if (sort.startsWith("total_")) {
+        const [field, order] = sort.split(":");
+        sortObj = { user_statistic: { [field]: order || "desc" } };
+      }
+      const data = await strapi2.entityService.findMany("api::public-user.public-user", {
+        filters,
+        populate: { user_statistic: true },
+        start: (Number(page) - 1) * Number(pageSize),
+        limit: Number(pageSize),
+        sort: sortObj
       });
-      const total = await strapi2.entityService.count("api::user-statistic.user-statistic", { filters: finalFilters });
-      let totalReferrals = 0;
-      let totalSpend = 0;
-      let expertReferrals = 0;
-      let clientReferrals = 0;
-      try {
-        const allStats = await strapi2.db.query("api::user-statistic.user-statistic").findMany({
-          populate: { public_profile: true },
-          select: ["total_referrals", "total_earnings_from_referrals"]
-        });
-        if (allStats && Array.isArray(allStats)) {
-          allStats.forEach((stat) => {
-            const referrals = parseInt(stat.total_referrals || 0);
-            totalReferrals += referrals;
-            totalSpend += parseFloat(stat.total_earnings_from_referrals || 0);
-            if (stat.public_profile?.role === "Expert") {
-              expertReferrals += referrals;
-            } else if (stat.public_profile?.role === "Client") {
-              clientReferrals += referrals;
-            }
-          });
-        }
-      } catch (dbErr) {
-        strapi2.log.error("Global stats db.query failed:", dbErr.message);
-      }
-      const globalStats = {
-        totalReferrals,
-        expertReferrals,
-        clientReferrals,
-        totalProgramSpend: totalSpend
-      };
-      const mapUser = (item) => {
-        if (!item) return null;
-        const profile = item.public_profile || {};
-        return {
-          id: item.id,
-          name: profile.name || "Unknown",
-          email: profile.email || "N/A",
-          mobile: profile.mobile || "N/A",
-          role: profile.role || "Client",
-          total_referrals: item.total_referrals || 0,
-          total_earnings_from_referrals: item.total_earnings_from_referrals || 0,
-          total_wallet_topup: item.total_wallet_topup || 0,
-          total_earnings_from_calls: item.total_earnings_from_calls || 0
-        };
-      };
+      const total = await strapi2.entityService.count("api::public-user.public-user", { filters });
+      const overallTotal = await strapi2.entityService.count("api::public-user.public-user");
+      strapi2.log.info(`Referral Stats Result - Found ${data.length} users. Filtered Total: ${total}. Overall Total: ${overallTotal}`);
       ctx.body = {
-        data: data.map(mapUser),
+        data: data.map((u) => ({
+          id: u.id,
+          name: u.name || "Unknown",
+          email: u.email || "N/A",
+          mobile: u.mobile || "N/A",
+          role: u.role || "Client",
+          total_referrals: u.user_statistic?.total_referrals || 0,
+          total_earnings_from_referrals: u.user_statistic?.total_earnings_from_referrals || 0,
+          total_wallet_topup: u.user_statistic?.total_wallet_topup || 0
+        })),
         meta: {
-          pagination: {
-            page: parseInt(page),
-            pageSize: parseInt(pageSize),
-            pageCount: Math.ceil(total / parseInt(pageSize)),
-            total
-          },
-          search: query.search || "",
-          globalStats
+          pagination: { page: Number(page), pageSize: Number(pageSize), total, pageCount: Math.ceil(total / Number(pageSize)) },
+          debug: { overallTotal }
         }
       };
     } catch (err) {
-      strapi2.log.error("referralStats Error:", err.message, err.stack);
+      strapi2.log.error("userStats error:", err.message);
       ctx.throw(500, err.message);
     }
   }
 });
 const controllers = {
-  dashboard
+  calling,
+  referral
 };
 const middlewares = {};
 const policies = {};
-const routes = {
-  admin: {
-    type: "admin",
-    routes: [
-      {
-        method: "GET",
-        path: "/stream",
-        handler: "dashboard.stream",
-        config: { policies: [], auth: false }
-      },
-      {
-        method: "GET",
-        path: "/category-stats",
-        handler: "dashboard.categoryStats",
-        config: { policies: [] }
-      },
-      {
-        method: "GET",
-        path: "/recent-calls",
-        handler: "dashboard.recentCalls",
-        config: { policies: [], auth: false }
-      },
-      {
-        method: "GET",
-        path: "/stats",
-        handler: "dashboard.getStats",
-        config: { policies: [], auth: false }
-      },
-      {
-        method: "POST",
-        path: "/callend",
-        handler: "dashboard.Callend",
-        config: { policies: [] }
-      },
-      {
-        method: "GET",
-        path: "/referral-stats",
-        handler: "dashboard.referralStats",
-        config: { policies: [] }
-      }
-    ]
-  }
+const callingRoutes = {
+  type: "admin",
+  routes: [
+    {
+      method: "GET",
+      path: "/stream",
+      handler: "calling.stream",
+      config: { policies: [], auth: false }
+    },
+    {
+      method: "GET",
+      path: "/category-stats",
+      handler: "calling.categoryStats",
+      config: { policies: [] }
+    },
+    {
+      method: "GET",
+      path: "/recent-calls",
+      handler: "calling.recentCalls",
+      config: { policies: [], auth: false }
+    },
+    {
+      method: "GET",
+      path: "/stats",
+      handler: "calling.getStats",
+      config: { policies: [], auth: false }
+    },
+    {
+      method: "POST",
+      path: "/callend",
+      handler: "calling.Callend",
+      config: { policies: [] }
+    }
+  ]
+};
+const referralRoutes = {
+  type: "admin",
+  routes: [
+    {
+      method: "GET",
+      path: "/referral-stats",
+      handler: "referral.stats",
+      config: { policies: [] }
+    },
+    {
+      method: "GET",
+      path: "/referral-table-data",
+      handler: "referral.table_data",
+      config: { policies: [] }
+    }
+  ]
 };
 const liveCallsService = ({ strapi: strapi2 }) => ({
   async callsData(res) {
@@ -1141,7 +1221,10 @@ const index = {
   contentTypes,
   middlewares,
   policies,
-  routes,
+  routes: {
+    calling: callingRoutes,
+    referral: referralRoutes
+  },
   services
 };
 export {
