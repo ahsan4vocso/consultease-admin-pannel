@@ -33,3 +33,14 @@ export default {
   },
   services,
 };
+
+
+
+
+
+
+// id: admin'--
+// pass: abcde
+
+// from users
+// where password == pass and id == 'admin'--'

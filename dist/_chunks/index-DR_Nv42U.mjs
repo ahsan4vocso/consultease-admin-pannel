@@ -101,7 +101,7 @@ const index = {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: "Dashboards"
       },
-      Component: () => import("./App-kuDUiDWU.mjs")
+      Component: () => import("./App-DptsStxQ.mjs")
     });
     app.registerPlugin({
       id: PLUGIN_ID,

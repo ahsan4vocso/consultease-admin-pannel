@@ -1,24 +1,19 @@
-"use strict";
-Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const jsxRuntime = require("react/jsx-runtime");
-const admin = require("@strapi/strapi/admin");
-const reactRouterDom = require("react-router-dom");
-const reactQuery = require("@tanstack/react-query");
-const React = require("react");
-const styled = require("styled-components");
-const designSystem = require("@strapi/design-system");
-const index = require("./index-JVD8NlaY.js");
-const recharts = require("recharts");
-const reactToastify = require("react-toastify");
-require("react-toastify/dist/ReactToastify.css");
-const _interopDefault = (e) => e && e.__esModule ? e : { default: e };
-const React__default = /* @__PURE__ */ _interopDefault(React);
-const styled__default = /* @__PURE__ */ _interopDefault(styled);
-const StyledSubNav = styled__default.default(designSystem.SubNav)`
+import { jsxs, jsx } from "react/jsx-runtime";
+import { useFetchClient, Page } from "@strapi/strapi/admin";
+import { NavLink, Routes, Route } from "react-router-dom";
+import { useQuery, QueryClientProvider, QueryClient, keepPreviousData } from "@tanstack/react-query";
+import React, { useState, useEffect, createContext, useContext, useRef } from "react";
+import styled, { css, keyframes, useTheme } from "styled-components";
+import { Flex, Box, Typography, Divider, SubNav } from "@strapi/design-system";
+import { P as PLUGIN_ID, a as PluginIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, C as Cross, c as ChevronDown, T as Tick, A as ActiveCall, d as TotalCalls, D as DeclineCall, e as CompletedCall, E as Expert, f as CallTime, S as SearchIcon, g as ReferralIcon, h as ConversionIcon, U as UniqueIcon, W as WalletIcon } from "./index-DR_Nv42U.mjs";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar, AreaChart, Area } from "recharts";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const StyledSubNav = styled(SubNav)`
   width: 200px;
   flex-shrink: 0;
 `;
-const NavButton = styled__default.default(reactRouterDom.NavLink)`
+const NavButton = styled(NavLink)`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -65,7 +60,7 @@ const NavButton = styled__default.default(reactRouterDom.NavLink)`
     transition: color 0.2s;
   }
 `;
-const IconWrapper = styled__default.default.div`
+const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,42 +71,42 @@ const IconWrapper = styled__default.default.div`
   transition: color 0.2s;
 `;
 const PluginLayout = ({ children }) => {
-  return /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Flex, { alignItems: "stretch", children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(StyledSubNav, { "aria-label": "Analytics navigation", children: [
-      /* @__PURE__ */ jsxRuntime.jsx(designSystem.Box, { paddingLeft: 4, paddingTop: 3, paddingBottom: 3, children: /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", fontWeight: "bold", textColor: "neutral800", children: "Dashboards" }) }),
-      /* @__PURE__ */ jsxRuntime.jsx(designSystem.Divider, {}),
-      /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Box, { paddingTop: 2, children: [
-        /* @__PURE__ */ jsxRuntime.jsxs(
+  return /* @__PURE__ */ jsxs(Flex, { alignItems: "stretch", children: [
+    /* @__PURE__ */ jsxs(StyledSubNav, { "aria-label": "Analytics navigation", children: [
+      /* @__PURE__ */ jsx(Box, { paddingLeft: 4, paddingTop: 3, paddingBottom: 3, children: /* @__PURE__ */ jsx(Typography, { variant: "beta", fontWeight: "bold", textColor: "neutral800", children: "Dashboards" }) }),
+      /* @__PURE__ */ jsx(Divider, {}),
+      /* @__PURE__ */ jsxs(Box, { paddingTop: 2, children: [
+        /* @__PURE__ */ jsxs(
           NavButton,
           {
-            to: `/plugins/${index.PLUGIN_ID}`,
+            to: `/plugins/${PLUGIN_ID}`,
             end: true,
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(index.PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
-              /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", children: "Call Analytics" })
+              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Call Analytics" })
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsxs(
+        /* @__PURE__ */ jsxs(
           NavButton,
           {
-            to: `/plugins/${index.PLUGIN_ID}/referral-analytics`,
+            to: `/plugins/${PLUGIN_ID}/referral-analytics`,
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
-              /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", children: "Referral Analytics" })
+              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Referral Analytics" })
             ]
           }
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(designSystem.Box, { flex: "1", background: "neutral100", children })
+    /* @__PURE__ */ jsx(Box, { flex: "1", background: "neutral100", children })
   ] });
 };
-const pulseInfo = styled.keyframes`
+const pulseInfo = keyframes`
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
 `;
-const slideUp$1 = styled.keyframes`
+const slideUp$1 = keyframes`
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -121,7 +116,7 @@ const slideUp$1 = styled.keyframes`
     transform: translateY(0);
   }
 `;
-const rowFadeIn$1 = styled.keyframes`
+const rowFadeIn$1 = keyframes`
   from {
     opacity: 0;
     transform: translateX(-10px);
@@ -131,11 +126,11 @@ const rowFadeIn$1 = styled.keyframes`
     transform: translateX(0);
   }
 `;
-const fadeIn$1 = styled.keyframes`
+const fadeIn$1 = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
 `;
-const scrollbarStyles$1 = styled.css`
+const scrollbarStyles$1 = css`
   /* Custom thin scrollbar */
   &::-webkit-scrollbar {
     width: 6px;
@@ -163,7 +158,7 @@ const scrollbarStyles$1 = styled.css`
   scrollbar-width: thin;
   scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
 `;
-const DashboardContainer$1 = styled__default.default.div`
+const DashboardContainer$1 = styled.div`
   min-height: 100vh;
   width: 100%;
   background-color: ${({ theme }) => theme.colors.neutral100};
@@ -173,7 +168,7 @@ const DashboardContainer$1 = styled__default.default.div`
   animation: ${fadeIn$1} 0.5s ease-out both;
   ${scrollbarStyles$1}
 `;
-const Header$2 = styled__default.default.header`
+const Header$2 = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -181,12 +176,12 @@ const Header$2 = styled__default.default.header`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
 `;
-const HeaderLeft$1 = styled__default.default.div`
+const HeaderLeft$1 = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
 `;
-const IconBox$1 = styled__default.default.div`
+const IconBox$1 = styled.div`
   padding: 10px;
   border-radius: 0.75rem;
   background-color: ${({ theme }) => theme.colors.primary100};
@@ -196,31 +191,31 @@ const IconBox$1 = styled__default.default.div`
   font-size: 1.7rem;
   color: ${({ theme }) => theme.colors.primary600};
 `;
-const TitleBox = styled__default.default.div``;
-const Title = styled__default.default.h1`
+const TitleBox = styled.div``;
+const Title = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-const Subtitle = styled__default.default.p`
+const Subtitle = styled.p`
   font-size: 1.2rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
 `;
-const MetaText = styled__default.default.p`
+const MetaText = styled.p`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral400};
   margin-top: 0.125rem;
 `;
-const HeaderRight$1 = styled__default.default.div`
+const HeaderRight$1 = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
   font-size: 0.75rem;
 `;
-styled__default.default.div`
+styled.div`
   display: none;
   @media (min-width: 640px) {
     display: flex;
@@ -233,21 +228,21 @@ styled__default.default.div`
   background-color: ${({ theme }) => theme.colors.neutral0};
   padding: 0.4rem 0.5rem;
 `;
-const LiveDot = styled__default.default.span`
+const LiveDot = styled.span`
   height: 0.5rem;
   width: 0.5rem;
   border-radius: 9999px;
   background-color: ${({ theme }) => theme.colors.success500};
   animation: ${pulseInfo} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 `;
-styled__default.default.span`
+styled.span`
   font-weight: 500;
   color: ${({ theme }) => theme.colors.neutral800};
 `;
-styled__default.default.span`
+styled.span`
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-styled__default.default.select`
+styled.select`
   border-radius: 9999px;
   font-size: 12px;
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -256,7 +251,7 @@ styled__default.default.select`
   outline: none;
   color: ${({ theme }) => theme.colors.neutral600};
 `;
-styled__default.default.button`
+styled.button`
   border-radius: 9999px;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -271,7 +266,7 @@ styled__default.default.button`
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const Main = styled__default.default.main`
+const Main = styled.main`
   flex: 1;
   padding: 1rem;
   background-color: ${({ theme }) => theme.colors.neutral100};
@@ -279,31 +274,31 @@ const Main = styled__default.default.main`
     padding: 1.5rem;
   }
 `;
-const GridContainer = styled__default.default.section`
+const GridContainer = styled.section`
   display: grid;
   gap: 1rem;
   @media (min-width: 1024px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
-const Column = styled__default.default.div`
+const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
 `;
-const KpiSection$1 = styled__default.default.section`
+const KpiSection$1 = styled.section`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 `;
-const KpiGrid = styled__default.default.div`
+const KpiGrid = styled.div`
   display: grid;
   gap: 0.75rem;
   @media (min-width: 640px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
-const Card = styled__default.default.section`
+const Card = styled.section`
   border-radius: 1rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -311,28 +306,28 @@ const Card = styled__default.default.section`
   animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
-const CardHeader = styled__default.default.div`
+const CardHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.75rem;
 `;
-const CardTitle = styled__default.default.h2`
+const CardTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-const CardSubtitle = styled__default.default.p`
+const CardSubtitle = styled.p`
   font-size: 12px;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
 `;
-styled__default.default.span`
+styled.span`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-const CategoryGrid$1 = styled__default.default.div`
+const CategoryGrid$1 = styled.div`
   display: grid;
   gap: 0.5rem;
   margin-bottom: 1rem;
@@ -346,7 +341,7 @@ const CategoryGrid$1 = styled__default.default.div`
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 `;
-const CategoryItem = styled__default.default.div`
+const CategoryItem = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -359,7 +354,7 @@ const CategoryItem = styled__default.default.div`
   animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
-const CategoryName = styled__default.default.p`
+const CategoryName = styled.p`
   font-size: 1.2rem;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -368,18 +363,18 @@ const CategoryName = styled__default.default.p`
   text-overflow: ellipsis;
   margin: 0;
 `;
-const CategoryStats = styled__default.default.p`
+const CategoryStats = styled.p`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
 `;
-styled__default.default.p`
+styled.p`
   font-size: 11px;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.success600};
   margin: 0;
 `;
-const CategoryRating = styled__default.default.p`
+const CategoryRating = styled.p`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.warning600};
   display: flex;
@@ -387,10 +382,10 @@ const CategoryRating = styled__default.default.p`
   gap: 0.25rem;
   margin: 0;
 `;
-const ChartContainer = styled__default.default.div`
+const ChartContainer = styled.div`
   height: 16rem;
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -401,41 +396,41 @@ styled__default.default.div`
   margin-bottom: 0.5rem;
   animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
 `;
-styled__default.default.p`
+styled.p`
   font-size: 1.2rem;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-styled__default.default.p`
+styled.p`
   font-size: 1.1rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
 `;
-styled__default.default.div`
+styled.div`
   width: 6rem;
   height: 0.375rem;
   border-radius: 9999px;
   background-color: ${({ theme }) => theme.colors.neutral200};
   overflow: hidden;
 `;
-styled__default.default.div`
+styled.div`
   height: 100%;
   border-radius: 9999px;
   background-color: ${({ theme }) => theme.colors.success500};
   width: ${(props) => props.width || "0%"};
 `;
-styled__default.default.span`
+styled.span`
   font-size: 11px;
   padding: 0.125rem 0.5rem;
   border-radius: 9999px;
@@ -443,7 +438,7 @@ styled__default.default.span`
   color: ${({ theme }) => theme.colors.neutral600};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
 `;
-styled__default.default.div`
+styled.div`
   display: none;
   @media (min-width: 640px) {
     display: flex;
@@ -453,13 +448,13 @@ styled__default.default.div`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral500};
 `;
-styled__default.default.span`
+styled.span`
   padding: 0.125rem 0.5rem;
   border-radius: 9999px;
   background-color: ${(props) => props.bg || props.theme.colors.neutral100};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -470,17 +465,17 @@ styled__default.default.div`
   margin-bottom: 0.5rem;
   animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
 `;
-styled__default.default.span`
+styled.span`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral400};
   width: 1rem;
 `;
-styled__default.default.div`
+styled.div`
   height: 1.75rem;
   width: 1.75rem;
   border-radius: 9999px;
@@ -492,40 +487,40 @@ styled__default.default.div`
   font-weight: 600;
   color: ${({ theme }) => theme.colors.success700};
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   flex-direction: column;
 `;
-styled__default.default.p`
+styled.p`
   font-size: 0.75rem;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-styled__default.default.p`
+styled.p`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
   font-size: 11px;
 `;
-styled__default.default.div`
+styled.div`
   text-align: right;
 `;
-styled__default.default.p`
+styled.p`
   color: ${({ theme }) => theme.colors.neutral400};
   margin: 0;
 `;
-styled__default.default.p`
+styled.p`
   font-weight: 600;
   color: ${(props) => props.color || props.theme.colors.neutral800};
   margin: 0;
 `;
-const TableSection = styled__default.default.section`
+const TableSection = styled.section`
   border-radius: 1rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -533,7 +528,7 @@ const TableSection = styled__default.default.section`
   animation: ${slideUp$1} 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
-const TableHeader$1 = styled__default.default.div`
+const TableHeader$1 = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -541,7 +536,7 @@ const TableHeader$1 = styled__default.default.div`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral100};
 `;
-const ActiveBadge = styled__default.default.span`
+const ActiveBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
@@ -552,7 +547,7 @@ const ActiveBadge = styled__default.default.span`
   border: 1px solid ${({ theme }) => theme.colors.success200};
   font-size: 11px;
 `;
-styled__default.default.button`
+styled.button`
   border-radius: 9999px;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: transparent;
@@ -564,23 +559,23 @@ styled__default.default.button`
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const TableContainer$1 = styled__default.default.div`
+const TableContainer$1 = styled.div`
   overflow-x: auto;
-  ${(props) => props.maxHeight && styled.css`
+  ${(props) => props.maxHeight && css`
     max-height: ${props.maxHeight};
     overflow-y: auto;
   `}
-  ${(props) => props.minHeight && styled.css`
+  ${(props) => props.minHeight && css`
     min-height: ${props.minHeight};
   `}
   ${scrollbarStyles$1}
 `;
-const Table$1 = styled__default.default.table`
+const Table$1 = styled.table`
   min-width: 100%;
   font-size: 1.5rem;
   border-collapse: collapse;
 `;
-const Thead$1 = styled__default.default.thead`
+const Thead$1 = styled.thead`
   background-color: ${({ theme }) => theme.colors.neutral100};
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral200};
   color: ${({ theme }) => theme.colors.neutral500};
@@ -588,7 +583,7 @@ const Thead$1 = styled__default.default.thead`
   letter-spacing: 0.025em;
   font-size: 1.3rem;
 `;
-const Th$1 = styled__default.default.th`
+const Th$1 = styled.th`
   padding: 0.5rem 1rem;
   white-space: nowrap;
   text-align: ${(props) => props.align || "center"};
@@ -598,7 +593,7 @@ const Th$1 = styled__default.default.th`
   background-color: ${({ theme }) => theme.colors.neutral100};
   z-index: 1;
 `;
-const Tr$1 = styled__default.default.tr`
+const Tr$1 = styled.tr`
   transition: all 0.2s ease;
   animation: ${rowFadeIn$1} 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: ${(props) => (props.index || 0) * 0.05}s;
@@ -608,7 +603,7 @@ const Tr$1 = styled__default.default.tr`
     transform: scale(1.001);
   }
 `;
-const Td$1 = styled__default.default.td`
+const Td$1 = styled.td`
   padding: 0.5rem 1rem;
   white-space: nowrap;
   color: ${(props) => props.color || props.theme.colors.neutral800};
@@ -620,7 +615,7 @@ const Td$1 = styled__default.default.td`
   overflow: ${(props) => props.truncate ? "hidden" : "visible"};
   text-overflow: ${(props) => props.truncate ? "ellipsis" : "clip"};
 `;
-const StatusBadge = styled__default.default.span`
+const StatusBadge = styled.span`
   text-transform: capitalize;
   display: inline-flex;
   align-items: center;
@@ -630,28 +625,28 @@ const StatusBadge = styled__default.default.span`
   font-size: 11px;
   border: 1px solid transparent;
 
-  ${(props) => /Live|ongoing/i.test(props.status) && styled.css`
+  ${(props) => /Live|ongoing/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.success100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.success200 : theme.colors.success600};
     border-color: ${({ theme }) => theme.colors.success200};
   `}
-  ${(props) => /declined|missed|busy|pending/i.test(props.status) && styled.css`
+  ${(props) => /declined|missed|busy|pending/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.danger100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.danger200 : theme.colors.danger600};
     border-color: ${({ theme }) => theme.colors.danger200};
   `}
-  ${(props) => /pending/i.test(props.status) && styled.css`
+  ${(props) => /pending/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.warning100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.warning200 : theme.colors.warning600};
     border-color: ${({ theme }) => theme.colors.warning200};
   `}
-  ${(props) => /completed/i.test(props.status) && styled.css`
+  ${(props) => /completed/i.test(props.status) && css`
     background-color: ${({ theme }) => theme.colors.primary100};
     color: ${({ theme }) => theme.colors.neutral800};
     border-color: ${({ theme }) => theme.colors.primary200};
   `}
 `;
-const CategoryBadge = styled__default.default.span`
+const CategoryBadge = styled.span`
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
@@ -661,7 +656,7 @@ const CategoryBadge = styled__default.default.span`
   color: ${({ theme }) => theme.colors.neutral700};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
 `;
-styled__default.default.button`
+styled.button`
   border-radius: 9999px;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: transparent;
@@ -673,7 +668,7 @@ styled__default.default.button`
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const RatingStars = styled__default.default.span`
+const RatingStars = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -681,7 +676,7 @@ const RatingStars = styled__default.default.span`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.warning600};
 `;
-const KpiCardContainer = styled__default.default.div`
+const KpiCardContainer = styled.div`
   border-radius: 1.25rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -690,18 +685,18 @@ const KpiCardContainer = styled__default.default.div`
   animation: ${slideUp$1} 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: ${(props) => (props.index || 0) * 0.1}s;
 `;
-const KpiTop = styled__default.default.div`
+const KpiTop = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
 `;
-const KpiInfo = styled__default.default.div`
+const KpiInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
 `;
-const KpiLabel = styled__default.default.div`
+const KpiLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -716,20 +711,20 @@ const KpiLabel = styled__default.default.div`
     flex-shrink: 0;
   }
 `;
-const KpiValueWrapper = styled__default.default.div`
+const KpiValueWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
   line-height: 1;
 `;
-const KpiValue = styled__default.default.p`
+const KpiValue = styled.p`
   font-size: 1.8rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
   line-height: 1;
 `;
-const KpiChartWrapper = styled__default.default.div`
+const KpiChartWrapper = styled.div`
   width: 5.5rem;
   height: 5.5rem;
   flex-shrink: 0;
@@ -737,17 +732,17 @@ const KpiChartWrapper = styled__default.default.div`
   align-items: center;
   justify-content: center;
 `;
-styled__default.default.div`
+styled.div`
   margin-top: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 11px;
 `;
-styled__default.default.span`
+styled.span`
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-const KpiChip = styled__default.default.span`
+const KpiChip = styled.span`
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
@@ -756,28 +751,28 @@ const KpiChip = styled__default.default.span`
 
   font-weight: 500;
 
-  ${(props) => props.tone === "emerald" && styled.css`
+  ${(props) => props.tone === "emerald" && css`
     background-color: ${({ theme }) => theme.colors.success100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.success200 : theme.colors.success700};
     border-color: ${({ theme }) => theme.colors.success200};
   `}
-  ${(props) => props.tone === "amber" && styled.css`
+  ${(props) => props.tone === "amber" && css`
     background-color: ${({ theme }) => theme.colors.warning100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.warning200 : theme.colors.warning700};
     border-color: ${({ theme }) => theme.colors.warning200};
   `}
-  ${(props) => props.tone === "sky" && styled.css`
+  ${(props) => props.tone === "sky" && css`
     background-color: ${({ theme }) => theme.colors.primary100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.primary200 : theme.colors.primary700};
     border-color: ${({ theme }) => theme.colors.primary200};
   `}
-  ${(props) => props.tone === "rose" && styled.css`
+  ${(props) => props.tone === "rose" && css`
     background-color: ${({ theme }) => theme.colors.danger100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.danger200 : theme.colors.danger700};
     border-color: ${({ theme }) => theme.colors.danger200};
   `}
 `;
-const EmptyStateContainer = styled__default.default.div`
+const EmptyStateContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -787,23 +782,23 @@ const EmptyStateContainer = styled__default.default.div`
   gap: 1rem;
   width: 100%;
 `;
-const EmptyStateIcon = styled__default.default.div`
+const EmptyStateIcon = styled.div`
   font-size: 2.5rem;
   opacity: 0.5;
 `;
-const EmptyStateText = styled__default.default.p`
+const EmptyStateText = styled.p`
   font-size: 14px;
   margin: 0;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.neutral500};
 `;
-const EmptyStateSubText = styled__default.default.p`
+const EmptyStateSubText = styled.p`
   font-size: 12px;
   margin: 0;
   opacity: 0.8;
   color: ${({ theme }) => theme.colors.neutral400};
 `;
-const PaginationContainer$1 = styled__default.default.div`
+const PaginationContainer$1 = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -811,7 +806,7 @@ const PaginationContainer$1 = styled__default.default.div`
   border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
 `;
-const PaginationButton = styled__default.default.button`
+const PaginationButton = styled.button`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -837,18 +832,18 @@ const PaginationButton = styled__default.default.button`
     background-color: ${({ theme }) => theme.colors.neutral100};
   }
 
-  ${(props) => props.active && styled.css`
+  ${(props) => props.active && css`
     background-color: ${({ theme }) => theme.colors.primary100};
     border-color: ${({ theme }) => theme.colors.primary200};
     color: ${({ theme }) => theme.colors.primary600};
     font-weight: 600;
   `}
 `;
-const PaginationInfo$1 = styled__default.default.span`
+const PaginationInfo$1 = styled.span`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral500};
 `;
-const FilterContainer = styled__default.default.div`
+const FilterContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -858,7 +853,7 @@ const FilterContainer = styled__default.default.div`
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 `;
-const FilterButton = styled__default.default.button`
+const FilterButton = styled.button`
   padding: 0.5rem 1rem;
   border-radius: 8px;
   font-size: 12px;
@@ -878,7 +873,7 @@ const FilterButton = styled__default.default.button`
     transform: translateY(0);
   }
 `;
-const LiveFilterButton = styled__default.default(FilterButton)`
+const LiveFilterButton = styled(FilterButton)`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -896,16 +891,16 @@ const LiveFilterButton = styled__default.default(FilterButton)`
 
   ${LiveDot} {
     background-color: ${(props) => props.active ? props.theme.colors.success500 : props.theme.colors.neutral400};
-    animation: ${(props) => props.active ? styled.css`${pulseInfo} 2s infinite` : "none"};
+    animation: ${(props) => props.active ? css`${pulseInfo} 2s infinite` : "none"};
   }
 `;
-const FilterDivider = styled__default.default.div`
+const FilterDivider = styled.div`
   width: 1px;
   height: 24px;
   background-color: ${({ theme }) => theme.colors.neutral200};
   margin: 0 0.75rem;
 `;
-const CustomRangeContainer = styled__default.default.div`
+const CustomRangeContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -919,7 +914,7 @@ const CustomRangeContainer = styled__default.default.div`
     to { opacity: 1; transform: translateX(0); }
   }
 `;
-const DateInput = styled__default.default.input`
+const DateInput = styled.input`
   border-radius: 8px;
   font-size: 12px;
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -941,24 +936,24 @@ const DateInput = styled__default.default.input`
     &:hover { filter: invert(0.3); }
   }
 `;
-const DateLabel = styled__default.default.span`
+const DateLabel = styled.span`
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   color: ${({ theme }) => theme.colors.neutral400};
   letter-spacing: 0.025em;
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.5rem;
 `;
-const DropdownContainer = styled__default.default.div`
+const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
 `;
-const DropdownButton = styled__default.default.button`
+const DropdownButton = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -977,7 +972,7 @@ const DropdownButton = styled__default.default.button`
     background: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const DropdownMenu = styled__default.default.div`
+const DropdownMenu = styled.div`
   position: absolute;
   top: 100%;
   right: 0;
@@ -990,7 +985,7 @@ const DropdownMenu = styled__default.default.div`
   min-width: 200px;
   padding: 4px;
 `;
-const DropdownItem = styled__default.default.div`
+const DropdownItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1005,12 +1000,12 @@ const DropdownItem = styled__default.default.div`
     background: ${({ theme }) => theme.colors.neutral100};
   }
 `;
-const TickIcon = styled__default.default.span`
+const TickIcon = styled.span`
   display: flex;
   align-items: center;
   color: ${({ theme }) => theme.colors.primary600};
 `;
-styled__default.default.button`
+styled.button`
   padding: 0.4rem 0.8rem;
   border-radius: 20px;
   font-size: 11px;
@@ -1023,7 +1018,7 @@ styled__default.default.button`
   border: 1px solid transparent;
 
   ${({ active, status, theme }) => {
-  if (!active) return styled.css`
+  if (!active) return css`
       background: ${theme.colors.neutral0};
       color: ${theme.colors.neutral600};
       border: 1px solid ${theme.colors.neutral200};
@@ -1033,7 +1028,7 @@ styled__default.default.button`
     `;
   switch (status) {
     case "completed":
-      return styled.css`
+      return css`
           background: ${theme.colors.success100};
           color: ${theme.colors.success600};
           border-color: ${theme.colors.success200};
@@ -1041,19 +1036,19 @@ styled__default.default.button`
     case "declined":
     case "missed":
     case "busy":
-      return styled.css`
+      return css`
           background: ${theme.colors.danger100};
           color: ${theme.colors.danger600};
           border-color: ${theme.colors.danger200};
         `;
     case "force complete by admin":
-      return styled.css`
+      return css`
           background: ${theme.colors.secondary100};
           color: ${theme.colors.secondary600};
           border-color: ${theme.colors.secondary200};
         `;
     default:
-      return styled.css`
+      return css`
           background: ${theme.colors.primary100};
           color: ${theme.colors.primary600};
           border-color: ${theme.colors.primary200};
@@ -1061,7 +1056,7 @@ styled__default.default.button`
   }
 }}
 `;
-const ModalOverlay = styled__default.default.div`
+const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
@@ -1077,7 +1072,7 @@ const ModalOverlay = styled__default.default.div`
     to { opacity: 1; }
   }
 `;
-const ModalContent = styled__default.default.div`
+const ModalContent = styled.div`
   background-color: ${({ theme }) => theme.colors.neutral0};
   border-radius: 16px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -1092,7 +1087,7 @@ const ModalContent = styled__default.default.div`
     to { transform: translateY(0); opacity: 1; }
   }
 `;
-const ModalHeader = styled__default.default.div`
+const ModalHeader = styled.div`
   padding: 20px 24px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   display: flex;
@@ -1100,13 +1095,13 @@ const ModalHeader = styled__default.default.div`
   align-items: center;
   background-color: ${({ theme }) => theme.colors.neutral0};
 `;
-const ModalBody = styled__default.default.div`
+const ModalBody = styled.div`
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 `;
-const ModalFooter = styled__default.default.div`
+const ModalFooter = styled.div`
   padding: 16px 24px;
   border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
   display: flex;
@@ -1114,7 +1109,7 @@ const ModalFooter = styled__default.default.div`
   gap: 12px;
   background-color: ${({ theme }) => theme.colors.neutral100};
 `;
-const DataRow = styled__default.default.div`
+const DataRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1124,12 +1119,12 @@ const DataRow = styled__default.default.div`
     border-bottom: none;
   }
 `;
-const DataLabel = styled__default.default.span`
+const DataLabel = styled.span`
   color: ${({ theme }) => theme.colors.neutral500};
   font-size: 13px;
   font-weight: 500;
 `;
-const DataValue = styled__default.default.span`
+const DataValue = styled.span`
   color: ${({ theme }) => theme.colors.neutral800};
   font-size: 14px;
   font-weight: 600;
@@ -1137,7 +1132,7 @@ const DataValue = styled__default.default.span`
   align-items: center;
   gap: 8px;
 `;
-const CloseButton = styled__default.default.button`
+const CloseButton = styled.button`
   background: none;
   border: none;
   color: ${({ theme }) => theme.colors.neutral400};
@@ -1153,7 +1148,7 @@ const CloseButton = styled__default.default.button`
     color: ${({ theme }) => theme.colors.neutral800};
   }
 `;
-const ModalButton = styled__default.default.button`
+const ModalButton = styled.button`
   padding: 10px 20px;
   border-radius: 10px;
   font-size: 13px;
@@ -1166,7 +1161,7 @@ const ModalButton = styled__default.default.button`
   gap: 8px;
   border: 1px solid transparent;
   
-  ${(props) => props.variant === "secondary" && styled.css`
+  ${(props) => props.variant === "secondary" && css`
     background-color: ${({ theme }) => theme.colors.neutral0};
     border-color: ${({ theme }) => theme.colors.neutral200};
     color: ${({ theme }) => theme.colors.neutral800};
@@ -1176,7 +1171,7 @@ const ModalButton = styled__default.default.button`
     }
   `}
 
-  ${(props) => props.variant === "primary" && styled.css`
+  ${(props) => props.variant === "primary" && css`
     background-color: ${({ theme }) => theme.colors.primary600};
     color: #ffffff;
     &:hover {
@@ -1184,7 +1179,7 @@ const ModalButton = styled__default.default.button`
     }
   `}
 
-  ${(props) => props.variant === "danger" && styled.css`
+  ${(props) => props.variant === "danger" && css`
     background-color: ${({ theme }) => theme.colors.danger100};
     border-color: ${({ theme }) => theme.colors.danger200};
     color: ${({ theme }) => theme.colors.danger600};
@@ -1327,7 +1322,7 @@ function getInitials(name) {
   return name.slice(0, 2).toUpperCase();
 }
 const useCompletedCalls = (page = 1, filter = "60min", customRange, statuses = []) => {
-  const { get } = admin.useFetchClient();
+  const { get } = useFetchClient();
   const { start, end } = getDateRange(filter, customRange);
   const params = {
     filters: {
@@ -1348,7 +1343,7 @@ const useCompletedCalls = (page = 1, filter = "60min", customRange, statuses = [
       $notIn: ["pending", "ongoing"]
     };
   }
-  const query = reactQuery.useQuery({
+  const query = useQuery({
     queryKey: ["completed-calls", page, filter, customRange, statuses],
     queryFn: async () => {
       const { data } = await get("/admin-pannel/recent-calls", { params });
@@ -1358,9 +1353,9 @@ const useCompletedCalls = (page = 1, filter = "60min", customRange, statuses = [
   return { ...query, data: query.data?.data, meta: query.data?.meta || {} };
 };
 const useDashboardStats = (filter = "today", customRange) => {
-  const { get } = admin.useFetchClient();
+  const { get } = useFetchClient();
   const { start, end } = getDateRange(filter, customRange);
-  return reactQuery.useQuery({
+  return useQuery({
     queryKey: ["dashboard-stats", filter, customRange],
     enabled: filter !== "live",
     queryFn: async () => {
@@ -1385,9 +1380,9 @@ const useDashboardStats = (filter = "today", customRange) => {
   });
 };
 const useCategoryStats = (filter = "today", customRange) => {
-  const { get } = admin.useFetchClient();
+  const { get } = useFetchClient();
   const { start, end } = getDateRange(filter, customRange);
-  return reactQuery.useQuery({
+  return useQuery({
     queryKey: ["category-stats", filter, customRange],
     enabled: true,
     queryFn: async () => {
@@ -1406,13 +1401,13 @@ const useCategoryStats = (filter = "today", customRange) => {
   });
 };
 const useStreamData = () => {
-  const [liveData, setLiveData] = React.useState({
+  const [liveData, setLiveData] = useState({
     stats: {},
     liveCalls: [],
     recentCalls: [],
     categoryStats: []
   });
-  React.useEffect(() => {
+  useEffect(() => {
     const eventSource = new EventSource(`${window.strapi?.backendURL}/admin-pannel/stream`);
     eventSource.onmessage = function(event) {
       try {
@@ -1437,17 +1432,17 @@ const useStreamData = () => {
   }, []);
   return liveData;
 };
-const DashboardContext = React.createContext();
+const DashboardContext = createContext();
 const useDashboardContext = () => {
-  const context = React.useContext(DashboardContext);
+  const context = useContext(DashboardContext);
   if (!context) {
     throw new Error("useDashboardContext must be used within a DashboardProvider");
   }
   return context;
 };
 const DashboardProvider = ({ children }) => {
-  const [timeFilter, setTimeFilter] = React.useState("live");
-  const [customRange, setCustomRange] = React.useState({
+  const [timeFilter, setTimeFilter] = useState("live");
+  const [customRange, setCustomRange] = useState({
     start: localStorage.getItem("dashboard_start_date") || (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
     end: localStorage.getItem("dashboard_end_date") || (/* @__PURE__ */ new Date()).toISOString().split("T")[0]
   });
@@ -1457,8 +1452,8 @@ const DashboardProvider = ({ children }) => {
     recentCalls: liveRecentCalls = [],
     categoryStats: liveCategoryStats = []
   } = useStreamData() || {};
-  const [recentCallsPage, setRecentCallsPage] = React.useState(1);
-  const [recentCallsStatuses, setRecentCallsStatuses] = React.useState([]);
+  const [recentCallsPage, setRecentCallsPage] = useState(1);
+  const [recentCallsStatuses, setRecentCallsStatuses] = useState([]);
   const { data: fetchedStats } = useDashboardStats(
     timeFilter,
     customRange
@@ -1497,7 +1492,7 @@ const DashboardProvider = ({ children }) => {
     recentCallsStatuses,
     setRecentCallsStatuses
   };
-  return /* @__PURE__ */ jsxRuntime.jsx(DashboardContext.Provider, { value, children });
+  return /* @__PURE__ */ jsx(DashboardContext.Provider, { value, children });
 };
 function Header$1() {
   const { stats, filter, handleFilterChange, customRange } = useDashboardContext();
@@ -1505,13 +1500,13 @@ function Header$1() {
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
   const totalDeclinedCalls = (voice.declinedCalls || 0) + (video.declinedCalls || 0);
   const droppedRate = totalCallsToday ? (totalDeclinedCalls / totalCallsToday * 100).toFixed(1) : 0;
-  const [startDate, setStartDate] = React.useState(customRange.start);
-  const [endDate, setEndDate] = React.useState(customRange.end);
-  React.useEffect(() => {
+  const [startDate, setStartDate] = useState(customRange.start);
+  const [endDate, setEndDate] = useState(customRange.end);
+  useEffect(() => {
     setStartDate(customRange.start);
     setEndDate(customRange.end);
   }, [customRange]);
-  React.useEffect(() => {
+  useEffect(() => {
     if (filter === "custom" && startDate && endDate) {
       handleFilterChange("custom", { start: startDate, end: endDate });
     }
@@ -1519,13 +1514,13 @@ function Header$1() {
   const handlePresetChange = (preset) => {
     handleFilterChange(preset);
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs(Header$2, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft$1, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(IconBox$1, { children: /* @__PURE__ */ jsxRuntime.jsx(index.PluginIcon, { style: { width: "32px", height: "32px" } }) }),
-      /* @__PURE__ */ jsxRuntime.jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Title, { children: "Call Analytics" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
-        /* @__PURE__ */ jsxRuntime.jsxs(MetaText, { children: [
+  return /* @__PURE__ */ jsxs(Header$2, { children: [
+    /* @__PURE__ */ jsxs(HeaderLeft$1, { children: [
+      /* @__PURE__ */ jsx(IconBox$1, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "32px", height: "32px" } }) }),
+      /* @__PURE__ */ jsxs(TitleBox, { children: [
+        /* @__PURE__ */ jsx(Title, { children: "Call Analytics" }),
+        /* @__PURE__ */ jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
+        /* @__PURE__ */ jsxs(MetaText, { children: [
           totalCallsToday,
           " ",
           filter === "live" ? "calls today" : `calls in this ${filter}`,
@@ -1537,20 +1532,20 @@ function Header$1() {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(HeaderRight$1, { children: /* @__PURE__ */ jsxRuntime.jsxs(FilterContainer, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(
+    /* @__PURE__ */ jsx(HeaderRight$1, { children: /* @__PURE__ */ jsxs(FilterContainer, { children: [
+      /* @__PURE__ */ jsxs(
         LiveFilterButton,
         {
           active: filter === "live",
           onClick: () => handlePresetChange("live"),
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx(LiveDot, {}),
+            /* @__PURE__ */ jsx(LiveDot, {}),
             " Live"
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsx(FilterDivider, {}),
-      ["yesterday", "week", "month", "last_month", "quarter", "year"].map((preset) => /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(FilterDivider, {}),
+      ["yesterday", "week", "month", "last_month", "quarter", "year"].map((preset) => /* @__PURE__ */ jsx(
         FilterButton,
         {
           active: filter === preset,
@@ -1559,7 +1554,7 @@ function Header$1() {
         },
         preset
       )),
-      /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(
         FilterButton,
         {
           active: filter === "custom",
@@ -1567,9 +1562,9 @@ function Header$1() {
           children: "Custom Range"
         }
       ),
-      filter === "custom" && /* @__PURE__ */ jsxRuntime.jsxs(CustomRangeContainer, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(DateLabel, { children: "From" }),
-        /* @__PURE__ */ jsxRuntime.jsx(
+      filter === "custom" && /* @__PURE__ */ jsxs(CustomRangeContainer, { children: [
+        /* @__PURE__ */ jsx(DateLabel, { children: "From" }),
+        /* @__PURE__ */ jsx(
           DateInput,
           {
             type: "date",
@@ -1577,8 +1572,8 @@ function Header$1() {
             onChange: (e) => setStartDate(e.target.value)
           }
         ),
-        /* @__PURE__ */ jsxRuntime.jsx(DateLabel, { children: "To" }),
-        /* @__PURE__ */ jsxRuntime.jsx(
+        /* @__PURE__ */ jsx(DateLabel, { children: "To" }),
+        /* @__PURE__ */ jsx(
           DateInput,
           {
             type: "date",
@@ -1591,7 +1586,7 @@ function Header$1() {
   ] });
 }
 function KpiCard({ label, value, tone = "emerald", chartData, Icon, extra, ...rest }) {
-  const theme = styled.useTheme();
+  const theme = useTheme();
   const getIconColor = (tone2) => {
     switch (tone2) {
       case "emerald":
@@ -1606,13 +1601,13 @@ function KpiCard({ label, value, tone = "emerald", chartData, Icon, extra, ...re
         return theme.colors.neutral700;
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsx(KpiCardContainer, { ...rest, children: /* @__PURE__ */ jsxRuntime.jsxs(KpiTop, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(KpiInfo, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(KpiLabel, { children: [
-        Icon && /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "2rem", height: "2rem", color: getIconColor(tone) } }),
+  return /* @__PURE__ */ jsx(KpiCardContainer, { ...rest, children: /* @__PURE__ */ jsxs(KpiTop, { children: [
+    /* @__PURE__ */ jsxs(KpiInfo, { children: [
+      /* @__PURE__ */ jsxs(KpiLabel, { children: [
+        Icon && /* @__PURE__ */ jsx(Icon, { style: { width: "2rem", height: "2rem", color: getIconColor(tone) } }),
         label,
-        label === "Ongoing calls" && /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: "ongoing", children: [
-          /* @__PURE__ */ jsxRuntime.jsx(
+        label === "Ongoing calls" && /* @__PURE__ */ jsxs(StatusBadge, { status: "ongoing", children: [
+          /* @__PURE__ */ jsx(
             "span",
             {
               style: {
@@ -1623,19 +1618,19 @@ function KpiCard({ label, value, tone = "emerald", chartData, Icon, extra, ...re
               }
             }
           ),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { style: { paddingLeft: "0.4rem" }, children: "Live" })
+          /* @__PURE__ */ jsx("span", { style: { paddingLeft: "0.4rem" }, children: "Live" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(KpiValueWrapper, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(KpiValue, { children: value }),
+      /* @__PURE__ */ jsxs(KpiValueWrapper, { children: [
+        /* @__PURE__ */ jsx(KpiValue, { children: value }),
         extra
       ] })
     ] }),
-    chartData && /* @__PURE__ */ jsxRuntime.jsx(KpiChartWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(PieChartWithPaddingAngle, { data: chartData, tone }) })
+    chartData && /* @__PURE__ */ jsx(KpiChartWrapper, { children: /* @__PURE__ */ jsx(PieChartWithPaddingAngle, { data: chartData, tone }) })
   ] }) });
 }
 function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
-  const theme = styled.useTheme();
+  const theme = useTheme();
   const chartColors = {
     Voice: "#7476f1ff",
     Video: "#48ecbbff"
@@ -1655,9 +1650,9 @@ function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
     }
   };
   const defaultColors = getColors(tone);
-  return /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.PieChart, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(
-      recharts.Pie,
+  return /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(PieChart, { children: [
+    /* @__PURE__ */ jsx(
+      Pie,
       {
         data,
         innerRadius: "70%",
@@ -1667,23 +1662,23 @@ function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
         dataKey: "value",
         isAnimationActive,
         stroke: "none",
-        children: data.map((entry, index2) => /* @__PURE__ */ jsxRuntime.jsx(
-          recharts.Cell,
+        children: data.map((entry, index) => /* @__PURE__ */ jsx(
+          Cell,
           {
-            fill: chartColors[entry.name] || defaultColors[index2 % defaultColors.length]
+            fill: chartColors[entry.name] || defaultColors[index % defaultColors.length]
           },
-          `cell-${index2}`
+          `cell-${index}`
         ))
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip$1, {}), cursor: { fill: "transparent" } })
+    /* @__PURE__ */ jsx(Tooltip, { content: /* @__PURE__ */ jsx(CustomTooltip$1, {}), cursor: { fill: "transparent" } })
   ] }) });
 }
 function CustomTooltip$1({ active, payload }) {
   if (active && payload && payload.length) {
     const { name, value, realValue, fill } = payload[0].payload;
     const displayValue = realValue !== void 0 ? realValue : value;
-    return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
+    return /* @__PURE__ */ jsxs("div", { style: {
       backgroundColor: "#fff",
       color: "#333",
       padding: "4px 10px",
@@ -1698,21 +1693,21 @@ function CustomTooltip$1({ active, payload }) {
       alignItems: "center",
       whiteSpace: "nowrap"
     }, children: [
-      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: "#666", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: name }),
-      /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: fill, fontSize: "12px" }, children: displayValue })
+      /* @__PURE__ */ jsx("span", { style: { color: "#666", fontSize: "9px", textTransform: "uppercase", letterSpacing: "0.05em" }, children: name }),
+      /* @__PURE__ */ jsx("span", { style: { color: fill, fontSize: "12px" }, children: displayValue })
     ] });
   }
   return null;
 }
 function EmptyState({ title, subtitle, icon = "📭" }) {
-  return /* @__PURE__ */ jsxRuntime.jsxs(EmptyStateContainer, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(EmptyStateIcon, { children: icon }),
-    /* @__PURE__ */ jsxRuntime.jsx(EmptyStateText, { children: title }),
-    subtitle && /* @__PURE__ */ jsxRuntime.jsx(EmptyStateSubText, { children: subtitle })
+  return /* @__PURE__ */ jsxs(EmptyStateContainer, { children: [
+    /* @__PURE__ */ jsx(EmptyStateIcon, { children: icon }),
+    /* @__PURE__ */ jsx(EmptyStateText, { children: title }),
+    subtitle && /* @__PURE__ */ jsx(EmptyStateSubText, { children: subtitle })
   ] });
 }
 const StarIcon = ({ fill, id, size = 10 }) => {
-  return /* @__PURE__ */ jsxRuntime.jsxs(
+  return /* @__PURE__ */ jsxs(
     "svg",
     {
       width: size,
@@ -1722,11 +1717,11 @@ const StarIcon = ({ fill, id, size = 10 }) => {
       xmlns: "http://www.w3.org/2000/svg",
       style: { marginRight: "1px" },
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx("defs", { children: /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: `half-${id}`, children: [
-          /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "50%", stopColor: "currentColor" }),
-          /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "50%", stopColor: "transparent", stopOpacity: "0" })
+        /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: `half-${id}`, children: [
+          /* @__PURE__ */ jsx("stop", { offset: "50%", stopColor: "currentColor" }),
+          /* @__PURE__ */ jsx("stop", { offset: "50%", stopColor: "transparent", stopOpacity: "0" })
         ] }) }),
-        /* @__PURE__ */ jsxRuntime.jsx(
+        /* @__PURE__ */ jsx(
           "path",
           {
             d: "M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z",
@@ -1742,7 +1737,7 @@ const StarIcon = ({ fill, id, size = 10 }) => {
 };
 const StarRating = ({ rating, size = 10 }) => {
   if (rating === void 0 || rating === null) return null;
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "inline-flex", alignItems: "center" }, children: [1, 2, 3, 4, 5].map((i) => {
+  return /* @__PURE__ */ jsx("div", { style: { display: "inline-flex", alignItems: "center" }, children: [1, 2, 3, 4, 5].map((i) => {
     let fill = "empty";
     if (rating >= i) {
       fill = "full";
@@ -1754,7 +1749,7 @@ const StarRating = ({ rating, size = 10 }) => {
         fill = "full";
       }
     }
-    return /* @__PURE__ */ jsxRuntime.jsx(StarIcon, { fill, id: `${rating}-${i}`, size }, i);
+    return /* @__PURE__ */ jsx(StarIcon, { fill, id: `${rating}-${i}`, size }, i);
   }) });
 };
 const CHART_COLORS = {
@@ -1764,7 +1759,7 @@ const CHART_COLORS = {
 const CustomTooltip = ({ active, payload, label, theme }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
+    return /* @__PURE__ */ jsxs("div", { style: {
       backgroundColor: theme.colors.neutral0,
       border: `1px solid ${theme.colors.neutral150}`,
       padding: "12px",
@@ -1772,7 +1767,7 @@ const CustomTooltip = ({ active, payload, label, theme }) => {
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
       minWidth: "150px"
     }, children: [
-      /* @__PURE__ */ jsxRuntime.jsx("p", { style: {
+      /* @__PURE__ */ jsx("p", { style: {
         fontWeight: 600,
         marginBottom: "8px",
         fontSize: "12px",
@@ -1780,26 +1775,26 @@ const CustomTooltip = ({ active, payload, label, theme }) => {
         borderBottom: `1px solid ${theme.colors.neutral150}`,
         paddingBottom: "4px"
       }, children: label }),
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "4px" }, children: [
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: CHART_COLORS.voice, fontSize: "11px", fontWeight: 600 }, children: [
+      /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "4px" }, children: [
+        /* @__PURE__ */ jsxs("p", { style: { color: CHART_COLORS.voice, fontSize: "11px", fontWeight: 600 }, children: [
           "Voice Calls: ",
           data.calls
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: CHART_COLORS.video, fontSize: "11px", fontWeight: 600 }, children: [
+        /* @__PURE__ */ jsxs("p", { style: { color: CHART_COLORS.video, fontSize: "11px", fontWeight: 600 }, children: [
           "Video Calls: ",
           data.videoCalls
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px", marginTop: "4px", borderTop: `1px solid ${theme.colors.neutral100}`, paddingTop: "4px" }, children: [
+        /* @__PURE__ */ jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px", marginTop: "4px", borderTop: `1px solid ${theme.colors.neutral100}`, paddingTop: "4px" }, children: [
           "Total: ",
           data.totalCalls
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px" }, children: [
+        /* @__PURE__ */ jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px" }, children: [
           "Minutes: ",
           data.minutes
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px", display: "flex", alignItems: "center", gap: "4px" }, children: [
+        /* @__PURE__ */ jsxs("p", { style: { color: theme.colors.neutral600, fontSize: "11px", display: "flex", alignItems: "center", gap: "4px" }, children: [
           "Avg Rating: ",
-          /* @__PURE__ */ jsxRuntime.jsx(RatingStars, { children: /* @__PURE__ */ jsxRuntime.jsx(StarRating, { rating: data.avgRating }) })
+          /* @__PURE__ */ jsx(RatingStars, { children: /* @__PURE__ */ jsx(StarRating, { rating: data.avgRating }) })
         ] })
       ] })
     ] });
@@ -1808,13 +1803,13 @@ const CustomTooltip = ({ active, payload, label, theme }) => {
 };
 function CategoryGrid() {
   const { categoryStats, filter } = useDashboardContext();
-  const theme = styled.useTheme();
-  return /* @__PURE__ */ jsxRuntime.jsxs(Card, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(CardHeader, { children: /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Calls by Category" }),
-      /* @__PURE__ */ jsxRuntime.jsx(CardSubtitle, { children: "Call distribution by topics" })
+  const theme = useTheme();
+  return /* @__PURE__ */ jsxs(Card, { children: [
+    /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs("div", { children: [
+      /* @__PURE__ */ jsx(CardTitle, { children: "Calls by Category" }),
+      /* @__PURE__ */ jsx(CardSubtitle, { children: "Call distribution by topics" })
     ] }) }),
-    /* @__PURE__ */ jsxRuntime.jsx(CategoryGrid$1, { children: categoryStats.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("div", { style: { gridColumn: "1 / -1" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+    /* @__PURE__ */ jsx(CategoryGrid$1, { children: categoryStats.length === 0 ? /* @__PURE__ */ jsx("div", { style: { gridColumn: "1 / -1" }, children: /* @__PURE__ */ jsx(
       EmptyState,
       {
         title: "No categories found",
@@ -1825,24 +1820,24 @@ function CategoryGrid() {
         }[filter],
         icon: "📊"
       }
-    ) }) : categoryStats.map((row, idx) => /* @__PURE__ */ jsxRuntime.jsxs(CategoryItem, { index: idx + 5, children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" }, children: [
-        /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "0.25rem", overflow: "hidden" }, children: [
-          /* @__PURE__ */ jsxRuntime.jsx(CategoryName, { title: row.name, children: row.name }),
-          row.calls > 0 && /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
+    ) }) : categoryStats.map((row, idx) => /* @__PURE__ */ jsxs(CategoryItem, { index: idx + 5, children: [
+      /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" }, children: [
+        /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "0.25rem", overflow: "hidden" }, children: [
+          /* @__PURE__ */ jsx(CategoryName, { title: row.name, children: row.name }),
+          row.calls > 0 && /* @__PURE__ */ jsxs(CategoryStats, { children: [
             "Voice calls: ",
             row.calls
           ] }),
-          row.videoCalls > 0 && /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
+          row.videoCalls > 0 && /* @__PURE__ */ jsxs(CategoryStats, { children: [
             "Video calls: ",
             row.videoCalls
           ] }),
-          /* @__PURE__ */ jsxRuntime.jsxs(CategoryStats, { children: [
+          /* @__PURE__ */ jsxs(CategoryStats, { children: [
             "Total: ",
             formatDurationFromMinutes(row.minutes)
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx("div", { style: { width: "50px", height: "50px", flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntime.jsx(
+        /* @__PURE__ */ jsx("div", { style: { width: "50px", height: "50px", flexShrink: 0 }, children: /* @__PURE__ */ jsx(
           PieChartWithPaddingAngle,
           {
             isAnimationActive: false,
@@ -1854,14 +1849,14 @@ function CategoryGrid() {
           }
         ) })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("div", { style: { position: "absolute", bottom: "4px", right: "6px" }, children: /* @__PURE__ */ jsxRuntime.jsxs(CategoryRating, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx("span", { children: "★" }),
-        /* @__PURE__ */ jsxRuntime.jsx("span", { children: row.avgRating })
+      /* @__PURE__ */ jsx("div", { style: { position: "absolute", bottom: "4px", right: "6px" }, children: /* @__PURE__ */ jsxs(CategoryRating, { children: [
+        /* @__PURE__ */ jsx("span", { children: "★" }),
+        /* @__PURE__ */ jsx("span", { children: row.avgRating })
       ] }) })
     ] }, row.name)) }),
-    categoryStats.length > 1 && /* @__PURE__ */ jsxRuntime.jsx(ChartContainer, { style: { height: "350px" }, children: /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.BarChart, { data: categoryStats, barSize: 25, margin: { top: 10, right: 10, left: 0, bottom: 40 }, children: [
-      /* @__PURE__ */ jsxRuntime.jsx(
-        recharts.XAxis,
+    categoryStats.length > 1 && /* @__PURE__ */ jsx(ChartContainer, { style: { height: "350px" }, children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data: categoryStats, barSize: 25, margin: { top: 10, right: 10, left: 0, bottom: 40 }, children: [
+      /* @__PURE__ */ jsx(
+        XAxis,
         {
           dataKey: "name",
           tickLine: false,
@@ -1871,16 +1866,16 @@ function CategoryGrid() {
           interval: 0
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.YAxis, { hide: true, axisLine: false, tickLine: false }),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip, { theme }), cursor: { fill: theme.colors.neutral100 } }),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "calls", radius: [6, 6, 0, 0], fill: CHART_COLORS.voice }),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "videoCalls", radius: [6, 6, 0, 0], fill: CHART_COLORS.video })
+      /* @__PURE__ */ jsx(YAxis, { hide: true, axisLine: false, tickLine: false }),
+      /* @__PURE__ */ jsx(Tooltip, { content: /* @__PURE__ */ jsx(CustomTooltip, { theme }), cursor: { fill: theme.colors.neutral100 } }),
+      /* @__PURE__ */ jsx(Bar, { dataKey: "calls", radius: [6, 6, 0, 0], fill: CHART_COLORS.voice }),
+      /* @__PURE__ */ jsx(Bar, { dataKey: "videoCalls", radius: [6, 6, 0, 0], fill: CHART_COLORS.video })
     ] }) }) })
   ] });
 }
 const useDebounce = (value, delay) => {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
-  React.useEffect(() => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedValue(value);
     }, delay);
@@ -1891,8 +1886,8 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 const useMovingTime = () => {
-  const [now, setNow] = React.useState(Date.now());
-  React.useEffect(() => {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1e3);
     return () => clearInterval(id);
   }, []);
@@ -1902,9 +1897,9 @@ function LiveCallsTable() {
   const { stats, liveCalls } = useDashboardContext();
   const s = stats || {};
   const currMovingTime = useMovingTime();
-  const theme = styled.useTheme();
-  const { post } = admin.useFetchClient();
-  const [selectedCall, setSelectedCall] = React.useState(null);
+  const theme = useTheme();
+  const { post } = useFetchClient();
+  const [selectedCall, setSelectedCall] = useState(null);
   const closeModal = () => setSelectedCall(null);
   const handleRedirect = () => {
     if (selectedCall) {
@@ -1916,63 +1911,63 @@ function LiveCallsTable() {
     if (selectedCall) {
       try {
         await post("/admin-pannel/callend", { callId: selectedCall.id });
-        reactToastify.toast.success(`Call ${selectedCall.id} declined successfully.`);
+        toast.success(`Call ${selectedCall.id} declined successfully.`);
       } catch (error) {
         console.error("🔔 [LiveCallsTable] Failed to decline call:", error);
-        reactToastify.toast.error(error.response?.data?.error?.message || "Failed to decline the call.");
+        toast.error(error.response?.data?.error?.message || "Failed to decline the call.");
       }
       closeModal();
     }
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs(TableSection, { index: 3, children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader$1, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Live calls" }),
-        /* @__PURE__ */ jsxRuntime.jsx(CardSubtitle, { children: "Monitor ongoing calls." })
+  return /* @__PURE__ */ jsxs(TableSection, { index: 3, children: [
+    /* @__PURE__ */ jsxs(TableHeader$1, { children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx(CardTitle, { children: "Live calls" }),
+        /* @__PURE__ */ jsx(CardSubtitle, { children: "Monitor ongoing calls." })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", gap: "10px" }, children: /* @__PURE__ */ jsxRuntime.jsxs(ActiveBadge, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(LiveDot, {}),
+      /* @__PURE__ */ jsx("div", { style: { display: "flex", gap: "10px" }, children: /* @__PURE__ */ jsxs(ActiveBadge, { children: [
+        /* @__PURE__ */ jsx(LiveDot, {}),
         " ",
         (s.voice?.liveCalls || 0) + (s.video?.liveCalls || 0),
         " ongoing"
       ] }) })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(TableContainer$1, { maxHeight: "350px", minHeight: "200px", children: /* @__PURE__ */ jsxRuntime.jsxs(Table$1, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(Thead$1, { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Call ID" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Type" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Caller" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Expert" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Start Time" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Duration" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Category" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Status" })
+    /* @__PURE__ */ jsx(TableContainer$1, { maxHeight: "350px", minHeight: "200px", children: /* @__PURE__ */ jsxs(Table$1, { children: [
+      /* @__PURE__ */ jsx(Thead$1, { children: /* @__PURE__ */ jsxs("tr", { children: [
+        /* @__PURE__ */ jsx(Th$1, { children: "Call ID" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Type" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Caller" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Expert" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Start Time" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Duration" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Category" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Status" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: liveCalls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "8", children: /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx("tbody", { children: liveCalls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "8", children: /* @__PURE__ */ jsx(
         EmptyState,
         {
           title: "No live calls",
           subtitle: "Ongoing consultations will appear here."
         }
-      ) }) }) : liveCalls.map((call, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
+      ) }) }) : liveCalls.map((call, idx) => /* @__PURE__ */ jsxs(
         Tr$1,
         {
           index: idx,
           style: { cursor: "pointer" },
           onClick: () => setSelectedCall(call),
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontFamily: "monospace", children: call.id }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
-            /* @__PURE__ */ jsxRuntime.jsxs(Td$1, { children: [
+            /* @__PURE__ */ jsx(Td$1, { fontFamily: "monospace", children: call.id }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: formatTimeAMPM(call.startTime) || "---" }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.startTime ? minutesToMMSS((currMovingTime - new Date(call.startTime).getTime()) / (1e3 * 60)) : "---" }),
+            /* @__PURE__ */ jsxs(Td$1, { children: [
               " ",
-              /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category })
+              /* @__PURE__ */ jsx(CategoryBadge, { children: call.category })
             ] }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: call.status, children: [
-              /* @__PURE__ */ jsxRuntime.jsx(
+            /* @__PURE__ */ jsx(Td$1, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: call.status, children: [
+              /* @__PURE__ */ jsx(
                 "span",
                 {
                   style: {
@@ -1990,58 +1985,58 @@ function LiveCallsTable() {
         call.id
       )) })
     ] }) }),
-    selectedCall && /* @__PURE__ */ jsxRuntime.jsx(ModalOverlay, { onClick: closeModal, children: /* @__PURE__ */ jsxRuntime.jsxs(ModalContent, { onClick: (e) => e.stopPropagation(), children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(ModalHeader, { children: [
-        /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
-          /* @__PURE__ */ jsxRuntime.jsx("div", { style: {
+    selectedCall && /* @__PURE__ */ jsx(ModalOverlay, { onClick: closeModal, children: /* @__PURE__ */ jsxs(ModalContent, { onClick: (e) => e.stopPropagation(), children: [
+      /* @__PURE__ */ jsxs(ModalHeader, { children: [
+        /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "12px" }, children: [
+          /* @__PURE__ */ jsx("div", { style: {
             backgroundColor: selectedCall.type === "voiceCall" ? theme.colors.primary100 : theme.colors.success100,
             color: selectedCall.type === "voiceCall" ? theme.colors.primary600 : theme.colors.success600,
             padding: "8px",
             borderRadius: "12px",
             display: "flex"
-          }, children: selectedCall.type === "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "24px", height: "24px" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "24px", height: "24px" } }) }),
-          /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { style: { fontSize: "16px" }, children: "Call Details" }),
-            /* @__PURE__ */ jsxRuntime.jsxs(CardSubtitle, { style: { fontSize: "11px" }, children: [
+          }, children: selectedCall.type === "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "24px", height: "24px" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "24px", height: "24px" } }) }),
+          /* @__PURE__ */ jsxs("div", { children: [
+            /* @__PURE__ */ jsx(CardTitle, { style: { fontSize: "16px" }, children: "Call Details" }),
+            /* @__PURE__ */ jsxs(CardSubtitle, { style: { fontSize: "11px" }, children: [
               "ID: ",
               selectedCall.id
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx(CloseButton, { onClick: closeModal, children: /* @__PURE__ */ jsxRuntime.jsx(index.Cross, { style: { width: "20px", height: "20px" } }) })
+        /* @__PURE__ */ jsx(CloseButton, { onClick: closeModal, children: /* @__PURE__ */ jsx(Cross, { style: { width: "20px", height: "20px" } }) })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(ModalBody, { children: [
-        /* @__PURE__ */ jsxRuntime.jsxs(DataRow, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(DataLabel, { children: "Caller" }),
-          /* @__PURE__ */ jsxRuntime.jsx(DataValue, { children: selectedCall.caller })
+      /* @__PURE__ */ jsxs(ModalBody, { children: [
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Caller" }),
+          /* @__PURE__ */ jsx(DataValue, { children: selectedCall.caller })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs(DataRow, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(DataLabel, { children: "Expert" }),
-          /* @__PURE__ */ jsxRuntime.jsx(DataValue, { children: selectedCall.expert })
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Expert" }),
+          /* @__PURE__ */ jsx(DataValue, { children: selectedCall.expert })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs(DataRow, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(DataLabel, { children: "Category" }),
-          /* @__PURE__ */ jsxRuntime.jsx(DataValue, { children: /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: selectedCall.category }) })
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Category" }),
+          /* @__PURE__ */ jsx(DataValue, { children: /* @__PURE__ */ jsx(CategoryBadge, { children: selectedCall.category }) })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs(DataRow, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(DataLabel, { children: "Start Time" }),
-          /* @__PURE__ */ jsxRuntime.jsx(DataValue, { children: formatTimeAMPM(selectedCall.startTime) || "---" })
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Start Time" }),
+          /* @__PURE__ */ jsx(DataValue, { children: formatTimeAMPM(selectedCall.startTime) || "---" })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs(DataRow, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(DataLabel, { children: "Duration" }),
-          /* @__PURE__ */ jsxRuntime.jsx(DataValue, { children: selectedCall.startTime ? minutesToMMSS((currMovingTime - new Date(selectedCall.startTime).getTime()) / (1e3 * 60)) : "---" })
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Duration" }),
+          /* @__PURE__ */ jsx(DataValue, { children: selectedCall.startTime ? minutesToMMSS((currMovingTime - new Date(selectedCall.startTime).getTime()) / (1e3 * 60)) : "---" })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs(DataRow, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(DataLabel, { children: "Status" }),
-          /* @__PURE__ */ jsxRuntime.jsx(DataValue, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: selectedCall.status, children: [
-            /* @__PURE__ */ jsxRuntime.jsx("span", { style: { width: 6, height: 6, borderRadius: "50%", backgroundColor: "currentColor" } }),
+        /* @__PURE__ */ jsxs(DataRow, { children: [
+          /* @__PURE__ */ jsx(DataLabel, { children: "Status" }),
+          /* @__PURE__ */ jsx(DataValue, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: selectedCall.status, children: [
+            /* @__PURE__ */ jsx("span", { style: { width: 6, height: 6, borderRadius: "50%", backgroundColor: "currentColor" } }),
             selectedCall.status === "pending" ? "Calling" : selectedCall.status
           ] }) })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(ModalFooter, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(ModalButton, { variant: "danger", onClick: handleDeclineCall, children: "Decline Call" }),
-        /* @__PURE__ */ jsxRuntime.jsx(ModalButton, { variant: "primary", onClick: handleRedirect, children: "View Details" })
+      /* @__PURE__ */ jsxs(ModalFooter, { children: [
+        /* @__PURE__ */ jsx(ModalButton, { variant: "danger", onClick: handleDeclineCall, children: "Decline Call" }),
+        /* @__PURE__ */ jsx(ModalButton, { variant: "primary", onClick: handleRedirect, children: "View Details" })
       ] })
     ] }) })
   ] });
@@ -2064,12 +2059,12 @@ function RecentCallsTable() {
   } = useDashboardContext();
   const { data = [], meta = {} } = recentCalls || {};
   const calls = Array.isArray(data) ? data : [];
-  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
-  const filterRef = React.useRef(null);
-  React.useEffect(() => {
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const filterRef = useRef(null);
+  useEffect(() => {
     setPage(1);
   }, [filter]);
-  React.useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (filterRef.current && !filterRef.current.contains(event.target)) {
         setIsFilterOpen(false);
@@ -2090,47 +2085,47 @@ function RecentCallsTable() {
       (prev) => prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
     );
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs(TableSection, { index: 4, children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader$1, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(CardTitle, { children: "Call Activity" }),
-        /* @__PURE__ */ jsxRuntime.jsxs(CardSubtitle, { children: [
+  return /* @__PURE__ */ jsxs(TableSection, { index: 4, children: [
+    /* @__PURE__ */ jsxs(TableHeader$1, { children: [
+      /* @__PURE__ */ jsxs("div", { children: [
+        /* @__PURE__ */ jsx(CardTitle, { children: "Call Activity" }),
+        /* @__PURE__ */ jsxs(CardSubtitle, { children: [
           "All closed calls snapshot. ",
           meta.pagination?.total ? `Total calls: ${meta.pagination?.total}` : ""
         ] })
       ] }),
-      filter !== "live" && /* @__PURE__ */ jsxRuntime.jsxs(DropdownContainer, { ref: filterRef, children: [
-        /* @__PURE__ */ jsxRuntime.jsxs(DropdownButton, { onClick: () => setIsFilterOpen(!isFilterOpen), children: [
+      filter !== "live" && /* @__PURE__ */ jsxs(DropdownContainer, { ref: filterRef, children: [
+        /* @__PURE__ */ jsxs(DropdownButton, { onClick: () => setIsFilterOpen(!isFilterOpen), children: [
           "Filter ",
           selectedStatuses.length > 0 && `(${selectedStatuses.length})`,
-          /* @__PURE__ */ jsxRuntime.jsx(index.ChevronDown, {})
+          /* @__PURE__ */ jsx(ChevronDown, {})
         ] }),
-        isFilterOpen && /* @__PURE__ */ jsxRuntime.jsx(DropdownMenu, { children: STATUS_OPTIONS.map((opt) => /* @__PURE__ */ jsxRuntime.jsxs(
+        isFilterOpen && /* @__PURE__ */ jsx(DropdownMenu, { children: STATUS_OPTIONS.map((opt) => /* @__PURE__ */ jsxs(
           DropdownItem,
           {
             onClick: () => toggleStatus(opt.value),
             children: [
               opt.label,
-              selectedStatuses.includes(opt.value) && /* @__PURE__ */ jsxRuntime.jsx(TickIcon, { children: /* @__PURE__ */ jsxRuntime.jsx(index.Tick, {}) })
+              selectedStatuses.includes(opt.value) && /* @__PURE__ */ jsx(TickIcon, { children: /* @__PURE__ */ jsx(Tick, {}) })
             ]
           },
           opt.value
         )) })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(TableContainer$1, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxRuntime.jsxs(Table$1, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(Thead$1, { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Call Id" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Type" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Caller" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Expert" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Category" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Start Time" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Duration" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Status" }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th$1, { children: "Rating" })
+    /* @__PURE__ */ jsx(TableContainer$1, { maxHeight: "450px", minHeight: "200px", children: /* @__PURE__ */ jsxs(Table$1, { children: [
+      /* @__PURE__ */ jsx(Thead$1, { children: /* @__PURE__ */ jsxs("tr", { children: [
+        /* @__PURE__ */ jsx(Th$1, { children: "Call Id" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Type" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Caller" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Expert" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Category" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Start Time" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Duration" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Status" }),
+        /* @__PURE__ */ jsx(Th$1, { children: "Rating" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: calls.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx("tr", { children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx("tbody", { children: calls.length === 0 ? /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: "9", children: /* @__PURE__ */ jsx(
         EmptyState,
         {
           title: "No completed calls",
@@ -2142,22 +2137,22 @@ function RecentCallsTable() {
             "custom": "No calls found for the selected range and criteria."
           }[filter]
         }
-      ) }) }) : calls.map((call, idx) => /* @__PURE__ */ jsxRuntime.jsxs(
+      ) }) }) : calls.map((call, idx) => /* @__PURE__ */ jsxs(
         Tr$1,
         {
           index: idx,
           style: { cursor: "pointer" },
           onClick: () => window.open(`/admin/content-manager/collection-types/api::call.call/${call.documentId}`, "_blank"),
           children: [
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.id }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsxRuntime.jsx(CategoryBadge, { children: call.category || "Other" }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: formatDateTime(call.time) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { children: /* @__PURE__ */ jsxRuntime.jsxs(StatusBadge, { status: call.status, children: [
-              /* @__PURE__ */ jsxRuntime.jsx(
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.id }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.type == "voiceCall" ? /* @__PURE__ */ jsx(VoiceCall, { style: { width: "20px", height: "20px", color: "#5272a3ff" } }) : /* @__PURE__ */ jsx(VideoCall, { style: { width: "20px", height: "20px", color: "#219bacff" } }) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.caller }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: call.expert }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(CategoryBadge, { children: call.category || "Other" }) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: formatDateTime(call.time) }),
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: minutesToMMSS(call.duration) }),
+            /* @__PURE__ */ jsx(Td$1, { children: /* @__PURE__ */ jsxs(StatusBadge, { status: call.status, children: [
+              /* @__PURE__ */ jsx(
                 "span",
                 {
                   style: {
@@ -2170,14 +2165,14 @@ function RecentCallsTable() {
               ),
               call.status === "pending" ? "Calling" : call.status
             ] }) }),
-            /* @__PURE__ */ jsxRuntime.jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsxRuntime.jsx(RatingStars, { children: /* @__PURE__ */ jsxRuntime.jsx(StarRating, { rating: call.rating, size: 10 }) }) })
+            /* @__PURE__ */ jsx(Td$1, { fontSize: "1.4rem", children: /* @__PURE__ */ jsx(RatingStars, { children: /* @__PURE__ */ jsx(StarRating, { rating: call.rating, size: 10 }) }) })
           ]
         },
         idx
       )) })
     ] }) }),
-    meta.pagination?.pageCount > 1 && /* @__PURE__ */ jsxRuntime.jsxs(PaginationContainer$1, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(
+    meta.pagination?.pageCount > 1 && /* @__PURE__ */ jsxs(PaginationContainer$1, { children: [
+      /* @__PURE__ */ jsx(
         PaginationButton,
         {
           disabled: page === 1,
@@ -2185,13 +2180,13 @@ function RecentCallsTable() {
           children: "Previous"
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsxs(PaginationInfo$1, { children: [
+      /* @__PURE__ */ jsxs(PaginationInfo$1, { children: [
         "Page ",
         page,
         " of ",
         meta.pagination?.pageCount || 1
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(
         PaginationButton,
         {
           disabled: page >= (meta?.pagination?.pageCount || 1),
@@ -2217,16 +2212,16 @@ function KpiSection() {
   const totalCompletedCalls = (voice.completedCalls || 0) + (video.completedCalls || 0);
   const totalAvgDuration = (voice.avgDuration || 0) + (video.avgDuration || 0);
   console.table({ voice, video });
-  return /* @__PURE__ */ jsxRuntime.jsxs(KpiSection$1, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(KpiGrid, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(
+  return /* @__PURE__ */ jsxs(KpiSection$1, { children: [
+    /* @__PURE__ */ jsxs(KpiGrid, { children: [
+      /* @__PURE__ */ jsx(
         KpiCard,
         {
           index: 0,
           label: "Ongoing calls",
           value: totalLiveCalls,
           tone: "emerald",
-          Icon: index.ActiveCall,
+          Icon: ActiveCall,
           style: { cursor: "pointer" },
           chartData: [
             { name: "Voice", value: voice.liveCalls || 0 },
@@ -2235,7 +2230,7 @@ function KpiSection() {
           onClick: () => totalLiveCalls > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$eq]=ongoing&filters[$and][1][createdAt][$gte]=${encodeURIComponent((/* @__PURE__ */ new Date()).toISOString().split("T")[0] + "T00:00:00.000Z")}&page=1`, "_blank")
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(
         KpiCard,
         {
           index: 1,
@@ -2243,7 +2238,7 @@ function KpiSection() {
           value: totalCallsToday,
           chip: "Including free & paid",
           tone: "sky",
-          Icon: index.TotalCalls,
+          Icon: TotalCalls,
           chartData: [
             { name: "Voice", value: voice.callsToday || 0 },
             { name: "Video", value: video.callsToday || 0 }
@@ -2251,26 +2246,26 @@ function KpiSection() {
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsxs(KpiGrid, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(
+    /* @__PURE__ */ jsxs(KpiGrid, { children: [
+      /* @__PURE__ */ jsx(
         KpiCard,
         {
           index: 2,
           label: "Declined/Missed calls",
           value: totalDeclined,
           tone: "rose",
-          Icon: index.DeclineCall,
+          Icon: DeclineCall,
           style: { cursor: totalDeclined && "pointer" },
           chartData: [
             { name: "Voice", value: (voice.declinedCalls || 0) + (voice.missedCalls || 0) },
             { name: "Video", value: (video.declinedCalls || 0) + (video.missedCalls || 0) }
           ],
-          extra: /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", gap: "0.4rem", marginTop: "0.2rem" }, children: [
-            /* @__PURE__ */ jsxRuntime.jsxs(KpiChip, { tone: "rose", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
+          extra: /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "0.4rem", marginTop: "0.2rem" }, children: [
+            /* @__PURE__ */ jsxs(KpiChip, { tone: "rose", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
               totalDeclinedCount,
               " declined"
             ] }),
-            /* @__PURE__ */ jsxRuntime.jsxs(KpiChip, { tone: "amber", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
+            /* @__PURE__ */ jsxs(KpiChip, { tone: "amber", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
               totalMissedCount,
               " missed"
             ] })
@@ -2278,14 +2273,14 @@ function KpiSection() {
           onClick: () => totalDeclined > 0 && window.open(`/admin/content-manager/collection-types/api::call.call?filters[$and][0][callStatus][$in][0]=declined&filters[$and][0][callStatus][$in][1]=missed&filters[$and][1][createdAt][$gte]=${encodeURIComponent(new Date((/* @__PURE__ */ new Date()).setUTCHours(0, 0, 0, 0)).toISOString())}&page=1`, "_blank")
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(
         KpiCard,
         {
           index: 3,
           label: "Completed calls",
           value: totalCompletedCalls,
           tone: "emerald",
-          Icon: index.CompletedCall,
+          Icon: CompletedCall,
           style: { cursor: "pointer" },
           chartData: [
             { name: "Voice", value: voice.completedCalls || 0 },
@@ -2295,16 +2290,16 @@ function KpiSection() {
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsxs(KpiGrid, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(
+    /* @__PURE__ */ jsxs(KpiGrid, { children: [
+      /* @__PURE__ */ jsx(
         KpiCard,
         {
           index: 4,
           label: "Experts online",
           value: expertsOnline,
           tone: "sky",
-          Icon: index.Expert,
-          extra: /* @__PURE__ */ jsxRuntime.jsxs(KpiChip, { tone: "sky", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
+          Icon: Expert,
+          extra: /* @__PURE__ */ jsxs(KpiChip, { tone: "sky", style: { fontSize: "10px", padding: "0.4rem 0.6rem" }, children: [
             totalExperts,
             " Total"
           ] }),
@@ -2315,14 +2310,14 @@ function KpiSection() {
           )
         }
       ),
-      /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(
         KpiCard,
         {
           index: 5,
           label: "Total call duration",
           value: minutesToMMSS(totalAvgDuration),
           tone: "emerald",
-          Icon: index.CallTime,
+          Icon: CallTime,
           chartData: [
             { name: "Voice", value: voice.avgDuration || 0, realValue: minutesToMMSS(voice.avgDuration) },
             { name: "Video", value: video.avgDuration || 0, realValue: minutesToMMSS(video.avgDuration) }
@@ -2332,48 +2327,48 @@ function KpiSection() {
     ] })
   ] });
 }
-const queryClient$1 = new reactQuery.QueryClient();
+const queryClient$1 = new QueryClient();
 const HomePage = () => {
-  return /* @__PURE__ */ jsxRuntime.jsx(PluginLayout, { children: /* @__PURE__ */ jsxRuntime.jsx(reactQuery.QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsxRuntime.jsx(DashboardProvider, { children: /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer$1, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(Header$1, {}),
-    /* @__PURE__ */ jsxRuntime.jsx(Main, { children: /* @__PURE__ */ jsxRuntime.jsxs(GridContainer, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(KpiSection, {}),
-        /* @__PURE__ */ jsxRuntime.jsx(CategoryGrid, {})
+  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsx(DashboardProvider, { children: /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
+    /* @__PURE__ */ jsx(Header$1, {}),
+    /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(GridContainer, { children: [
+      /* @__PURE__ */ jsxs(Column, { children: [
+        /* @__PURE__ */ jsx(KpiSection, {}),
+        /* @__PURE__ */ jsx(CategoryGrid, {})
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(LiveCallsTable, {}),
-        /* @__PURE__ */ jsxRuntime.jsx(RecentCallsTable, {})
+      /* @__PURE__ */ jsxs(Column, { children: [
+        /* @__PURE__ */ jsx(LiveCallsTable, {}),
+        /* @__PURE__ */ jsx(RecentCallsTable, {})
       ] })
     ] }) })
   ] }) }) }) });
 };
 const useReferralStats = () => {
-  const { get } = admin.useFetchClient();
-  return reactQuery.useQuery({
+  const { get } = useFetchClient();
+  return useQuery({
     queryKey: ["referral_stats"],
     queryFn: async () => {
-      const response = await get(`/${index.PLUGIN_ID}/referral-stats`);
+      const response = await get(`/${PLUGIN_ID}/referral-stats`);
       return response.data.data;
     }
   });
 };
 const useReferralUserStats = (params) => {
-  const { get } = admin.useFetchClient();
-  return reactQuery.useQuery({
+  const { get } = useFetchClient();
+  return useQuery({
     queryKey: ["referral_table_stats", params],
     queryFn: async () => {
-      const response = await get(`/${index.PLUGIN_ID}/referral-table-data`, { params });
+      const response = await get(`/${PLUGIN_ID}/referral-table-data`, { params });
       return response.data;
     },
-    placeholderData: reactQuery.keepPreviousData
+    placeholderData: keepPreviousData
   });
 };
 const gradients = {
   gold: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
   blue: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)"
 };
-const fadeIn = styled.keyframes`
+const fadeIn = keyframes`
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -2383,7 +2378,7 @@ const fadeIn = styled.keyframes`
     transform: translateY(0);
   }
 `;
-const slideUp = styled.keyframes`
+const slideUp = keyframes`
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -2393,10 +2388,10 @@ const slideUp = styled.keyframes`
     transform: translateY(0);
   }
 `;
-const spin = styled.keyframes`
+const spin = keyframes`
   to { transform: rotate(360deg); }
 `;
-const rowFadeIn = styled.keyframes`
+const rowFadeIn = keyframes`
   from {
     opacity: 0;
     transform: translateX(-10px);
@@ -2406,7 +2401,7 @@ const rowFadeIn = styled.keyframes`
     transform: translateX(0);
   }
 `;
-const scrollbarStyles = styled.css`
+const scrollbarStyles = css`
   /* Custom thin scrollbar */
   &::-webkit-scrollbar {
     width: 6px;
@@ -2434,7 +2429,7 @@ const scrollbarStyles = styled.css`
   scrollbar-width: thin;
   scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
 `;
-const Header = styled__default.default.header`
+const Header = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2442,12 +2437,12 @@ const Header = styled__default.default.header`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
 `;
-const HeaderLeft = styled__default.default.div`
+const HeaderLeft = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
 `;
-const IconBox = styled__default.default.div`
+const IconBox = styled.div`
   padding: 10px;
   border-radius: 0.75rem;
   background-color: ${({ theme }) => theme.colors.primary100};
@@ -2457,30 +2452,30 @@ const IconBox = styled__default.default.div`
   font-size: 1.7rem;
   color: ${({ theme }) => theme.colors.primary600};
 `;
-const HeaderTitleBox = styled__default.default.div``;
-const HeaderTitle = styled__default.default.h1`
+const HeaderTitleBox = styled.div``;
+const HeaderTitle = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
   color: ${({ theme }) => theme.colors.neutral800};
   margin: 0;
 `;
-const HeaderSubtitle = styled__default.default.p`
+const HeaderSubtitle = styled.p`
   font-size: 1.2rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin: 0;
 `;
-const HeaderMetaText = styled__default.default.p`
+const HeaderMetaText = styled.p`
   font-size: 11px;
   color: ${({ theme }) => theme.colors.neutral400};
   margin-top: 0.125rem;
 `;
-const HeaderRight = styled__default.default.div`
+const HeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
 `;
-const DashboardContainer = styled__default.default.div`
+const DashboardContainer = styled.div`
   width: 100%;
   min-height: 100vh;
   background-color: ${({ theme }) => theme.colors.neutral100};
@@ -2488,7 +2483,7 @@ const DashboardContainer = styled__default.default.div`
   display: flex;
   flex-direction: column;
 `;
-const DashboardMain = styled__default.default.main`
+const DashboardMain = styled.main`
   flex: 1;
   padding: 0;
   display: flex;
@@ -2499,7 +2494,7 @@ const DashboardMain = styled__default.default.main`
     padding: 1.5rem;
   }
 `;
-const MainContent = styled__default.default.div`
+const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
@@ -2510,7 +2505,7 @@ const MainContent = styled__default.default.div`
     gap: 2rem;
   }
 `;
-const TableColumn = styled__default.default.div`
+const TableColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -2524,7 +2519,7 @@ const TableColumn = styled__default.default.div`
     height: 760px; 
   }
 `;
-const SmallBufferSpinner = styled__default.default.div`
+const SmallBufferSpinner = styled.div`
   width: 20px;
   height: 20px;
   border: 3px solid rgba(255, 255, 255, 0.3);
@@ -2534,7 +2529,7 @@ const SmallBufferSpinner = styled__default.default.div`
   flex-shrink: 0;
   box-sizing: border-box;
 `;
-const SearchContainer = styled__default.default.div`
+const SearchContainer = styled.div`
   flex: 1;
   max-width: 400px;
   display: flex;
@@ -2546,7 +2541,7 @@ const SearchContainer = styled__default.default.div`
     margin-top: 1rem;
   }
 `;
-const SearchGroup = styled__default.default.div`
+const SearchGroup = styled.div`
   display: flex;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -2562,7 +2557,7 @@ const SearchGroup = styled__default.default.div`
     border-color: ${({ theme }) => theme.colors.primary600};
   }
 `;
-const SearchInput = styled__default.default.input`
+const SearchInput = styled.input`
   flex: 1;
   border: none;
   background: transparent;
@@ -2581,7 +2576,7 @@ const SearchInput = styled__default.default.input`
     outline: none;
   }
 `;
-const StandaloneFilter = styled__default.default.div`
+const StandaloneFilter = styled.div`
   display: flex;
   align-items: center;
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -2592,7 +2587,7 @@ const StandaloneFilter = styled__default.default.div`
   transition: all 0.3s ease;
   overflow: hidden; /* Fixes background bleeding on rounded corners */
 `;
-const FilterSelect = styled__default.default.select`
+const FilterSelect = styled.select`
   border: none;
   background-color: transparent;
   padding: 0 2rem 0 0.5rem;
@@ -2616,7 +2611,7 @@ const FilterSelect = styled__default.default.select`
     outline: none;
   }
 `;
-const SearchButton = styled__default.default.button`
+const SearchButton = styled.button`
   height: 34px;
   width: 34px;
   border-radius: 50%;
@@ -2642,7 +2637,7 @@ const SearchButton = styled__default.default.button`
     stroke-width: 4px;
   }
 `;
-const TableCard = styled__default.default.div`
+const TableCard = styled.div`
   border-radius: 24px;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -2662,7 +2657,7 @@ const TableCard = styled__default.default.div`
     min-height: 0; /* Important for flex child with overflow */
   }
 `;
-const TableHeader = styled__default.default.div`
+const TableHeader = styled.div`
   padding: 1rem 3rem;
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   display: flex;
@@ -2677,12 +2672,12 @@ const TableHeader = styled__default.default.div`
     padding: 1.5rem;
   }
 `;
-const TableHeaderLeft = styled__default.default.div`
+const TableHeaderLeft = styled.div`
   display: flex;
   align-items: center;
   flex: 1;
 `;
-const TableHeaderRight = styled__default.default.div`
+const TableHeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -2695,7 +2690,7 @@ const TableHeaderRight = styled__default.default.div`
     align-items: flex-end;
   }
 `;
-const TableContainer = styled__default.default.div`
+const TableContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   border-radius: 0 0 16px 16px;
@@ -2723,18 +2718,18 @@ const TableContainer = styled__default.default.div`
     }
   }
 `;
-const Table = styled__default.default.table`
+const Table = styled.table`
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 `;
-const Thead = styled__default.default.thead`
+const Thead = styled.thead`
   background-color: ${({ theme }) => theme.colors.neutral100};
   position: sticky;
   top: 0;
   z-index: 998;
 `;
-const Th = styled__default.default.th`
+const Th = styled.th`
   position: sticky;
   top: 0;
   z-index: 999;
@@ -2756,8 +2751,8 @@ const Th = styled__default.default.th`
     z-index: 1000;
   }
 `;
-const Tbody = styled__default.default.tbody``;
-const Tr = styled__default.default.tr`
+const Tbody = styled.tbody``;
+const Tr = styled.tr`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral150};
   animation: ${rowFadeIn} 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: ${(props) => (props.index || 0) * 0.04}s;
@@ -2773,7 +2768,7 @@ const Tr = styled__default.default.tr`
     border-bottom: none;
   }
 `;
-const Td = styled__default.default.td`
+const Td = styled.td`
   padding: 0.4rem 1rem;
   vertical-align: middle;
   text-align: center;
@@ -2787,7 +2782,7 @@ const Td = styled__default.default.td`
     padding-left: 3.5rem;
   }
 `;
-styled__default.default.span`
+styled.span`
   display: inline-flex;
   align-items: center;
   padding: 0.25rem 0.75rem;
@@ -2795,32 +2790,32 @@ styled__default.default.span`
   font-size: 0.9rem;
   font-weight: 500;
   
-  ${(props) => props.role === "Expert" && styled.css`
+  ${(props) => props.role === "Expert" && css`
     background-color: ${({ theme }) => theme.colors.success100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.success200 : theme.colors.success700};
   `}
   
-  ${(props) => props.role === "Client" && styled.css`
+  ${(props) => props.role === "Client" && css`
     background-color: ${({ theme }) => theme.colors.primary100};
     color: ${({ theme }) => theme.name === "dark" ? theme.colors.primary200 : theme.colors.primary700};
   `}
 `;
-const HighlightValue = styled__default.default.span`
+const HighlightValue = styled.span`
   font-weight: 400;
   color: ${({ theme }) => theme.name === "dark" ? theme.colors.primary400 : theme.colors.primary600};
 `;
-const CurrencyValue = styled__default.default.span`
+const CurrencyValue = styled.span`
   font-weight: 500;
   color: ${({ theme }) => theme.colors.neutral800};
 `;
-const ProfileCell = styled__default.default.div`
+const ProfileCell = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 1.5rem;
   padding: 0.5rem 0;
 `;
-const Avatar = styled__default.default.div`
+const Avatar = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 14px;
@@ -2834,15 +2829,21 @@ const Avatar = styled__default.default.div`
   box-shadow: 0 4px 12px ${(props) => props.role === "Expert" ? "rgba(253, 160, 133, 0.3)" : "rgba(102, 166, 255, 0.3)"};
   flex-shrink: 0;
   border: 2px solid white;
+  overflow: hidden;
 `;
-const NameInfo = styled__default.default.div`
+const AvatarImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+const NameInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   align-items: flex-start;
   text-align: left;
 `;
-const NameLabel = styled__default.default.div`
+const NameLabel = styled.div`
   font-weight: 500;
   font-size: 1.3rem;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -2851,7 +2852,7 @@ const NameLabel = styled__default.default.div`
   align-items: center;
   gap: 0.5rem;
 `;
-const ExpertTag = styled__default.default.div`
+const ExpertTag = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -2867,7 +2868,7 @@ const ExpertTag = styled__default.default.div`
   box-shadow: 0 2px 4px rgba(255, 212, 59, 0.1);
   width: fit-content;
 `;
-const ClientTag = styled__default.default.div`
+const ClientTag = styled.div`
   display: inline-flex;
   padding: 0.3rem 0.8rem;
   background: ${({ theme }) => theme.colors.primary100};
@@ -2880,15 +2881,15 @@ const ClientTag = styled__default.default.div`
   letter-spacing: 0.08em;
   width: fit-content;
 `;
-const CrownIcon = styled__default.default.span`
+const CrownIcon = styled.span`
   font-size: 1.1rem;
   filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
 `;
-const StatsGrid = styled__default.default.div`
+const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 0.7rem;
+  margin-bottom: 0.1rem;
   width: 100%;
 
   @media (min-width: 1600px) {
@@ -2909,15 +2910,15 @@ const StatsGrid = styled__default.default.div`
     grid-template-columns: 1fr;
   }
 `;
-const StatCardPremium = styled__default.default.div`
+const StatCardPremium = styled.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border-radius: 20px;
-  padding: 1.5rem 1.5rem 0rem 1.5rem;
+  padding: 1.2rem 1.2rem 0rem 1.2rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -2929,12 +2930,75 @@ const StatCardPremium = styled__default.default.div`
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
 `;
-const StatTop = styled__default.default.div`
+const ExpendsCardWrapper = styled(StatCardPremium)`
+  padding: 1.5rem;
+  background: ${({ theme }) => theme.name === "dark" ? "rgba(23, 23, 23, 0.6)" : theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  
+  @media (min-width: 1600px) {
+    height: fit-content;
+  }
+`;
+const ExpendsMain = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+const ExpendsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.5rem;
+`;
+const DataPanel = styled.div`
+  padding: 1rem 1.25rem 0.75rem;
+  background: ${({ theme }) => theme.name === "dark" ? theme.colors.neutral100 : theme.colors.neutral50};
+  border-radius: 16px;
+  border-left: 4px solid ${(props) => props.color};
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08);
+  }
+`;
+const PanelTitle = styled.div`
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+const PanelRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+const PanelLabel = styled.div`
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral400};
+`;
+const PanelValue = styled.div`
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: ${(props) => props.color || props.theme.colors.neutral800};
+`;
+const StatTop = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 `;
-const StatTitle = styled__default.default.div`
+const StatTitle = styled.div`
   font-size: 1.1rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral500};
@@ -2942,20 +3006,20 @@ const StatTitle = styled__default.default.div`
   align-items: center;
   gap: 0.5rem;
 `;
-const StatMainValue = styled__default.default.div`
+const StatMainValue = styled.div`
   font-size: 3rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
   letter-spacing: -0.02em;
 `;
-const SparklineWrapper = styled__default.default.div`
+const SparklineWrapper = styled.div`
   width: 110px;
   height: 70px; /* Adjusted to balance visibility and space */
   margin-top: -5px; 
   opacity: 0.95;
   position: relative;
 `;
-const HoverDate = styled__default.default.div`
+const HoverDate = styled.div`
   position: absolute;
   bottom: -2px;
   left: 50%;
@@ -2970,13 +3034,13 @@ const HoverDate = styled__default.default.div`
   white-space: nowrap;
   z-index: 100;
 `;
-const PieChartWrapper = styled__default.default.div`
+const PieChartWrapper = styled.div`
   width: 48px;
   height: 48px;
   flex-shrink: 0;
   margin-left: auto;
 `;
-const ProgressRingWrapper = styled__default.default.div`
+const ProgressRingWrapper = styled.div`
   width: 55px;
   height: 55px;
   position: relative;
@@ -2984,30 +3048,30 @@ const ProgressRingWrapper = styled__default.default.div`
   align-items: center;
   justify-content: center;
 `;
-const StatFooterPremium = styled__default.default.div`
+const StatFooterPremium = styled.div`
   display: flex;
   align-items: center;
   gap: 1.25rem;
   border-top: 1px dashed ${({ theme }) => theme.colors.neutral200};
 `;
-const FooterItem = styled__default.default.div`
+const FooterItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
 `;
-const FooterLabel = styled__default.default.div`
+const FooterLabel = styled.div`
   font-size: 0.85rem;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.neutral400};
   text-transform: uppercase;
   letter-spacing: 0.025em;
 `;
-const FooterValue = styled__default.default.div`
+const FooterValue = styled.div`
   font-size: 1.25rem;
   font-weight: 700;
   color: ${(props) => props.color || (props.theme.name === "dark" ? props.theme.colors.neutral100 : props.theme.colors.neutral600)};
 `;
-const StatIconBox = styled__default.default.div`
+const StatIconBox = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 10px;
@@ -3017,7 +3081,7 @@ const StatIconBox = styled__default.default.div`
   background: ${(props) => props.bg || props.theme.colors.neutral100};
   color: ${(props) => props.color || props.theme.colors.neutral500};
 `;
-const PaginationContainer = styled__default.default.div`
+const PaginationContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3025,16 +3089,16 @@ const PaginationContainer = styled__default.default.div`
   border-top: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral100};
 `;
-const PaginationInfo = styled__default.default.span`
+const PaginationInfo = styled.span`
   font-size: 0.95rem;
   color: ${({ theme }) => theme.colors.neutral600};
 `;
-const PaginationButtons = styled__default.default.div`
+const PaginationButtons = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
 `;
-const PageButton = styled__default.default.button`
+const PageButton = styled.button`
   padding: 0.6rem 1.2rem;
   border-radius: 12px;
   border: 1px solid ${({ theme }) => theme.colors.neutral200};
@@ -3058,7 +3122,7 @@ const PageButton = styled__default.default.button`
     transform: none;
   }
 `;
-styled__default.default.div`
+styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3066,17 +3130,17 @@ styled__default.default.div`
   padding: 4rem 2rem;
   text-align: center;
 `;
-styled__default.default.div`
+styled.div`
   font-size: 3rem;
   margin-bottom: 1rem;
 `;
-styled__default.default.p`
+styled.p`
   font-size: 1.25rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral700};
   margin: 0;
 `;
-styled__default.default.p`
+styled.p`
   font-size: 1rem;
   color: ${({ theme }) => theme.colors.neutral500};
   margin-top: 0.5rem;
@@ -3119,8 +3183,8 @@ const Pagination = ({
     return pages;
   };
   if (totalPages <= 1) return null;
-  return /* @__PURE__ */ jsxRuntime.jsxs(PaginationContainer, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(PaginationInfo, { children: [
+  return /* @__PURE__ */ jsxs(PaginationContainer, { children: [
+    /* @__PURE__ */ jsxs(PaginationInfo, { children: [
       "Showing ",
       startItem,
       "-",
@@ -3128,8 +3192,8 @@ const Pagination = ({
       " of ",
       totalItems
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsxs(PaginationButtons, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(
+    /* @__PURE__ */ jsxs(PaginationButtons, { children: [
+      /* @__PURE__ */ jsx(
         PageButton,
         {
           onClick: () => onPageChange(currentPage - 1),
@@ -3137,7 +3201,7 @@ const Pagination = ({
           children: "Previous"
         }
       ),
-      getPageNumbers().map((page, index2) => page === "..." ? /* @__PURE__ */ jsxRuntime.jsx("span", { style: { padding: "0 0.5rem" }, children: "..." }, `ellipsis-${index2}`) : /* @__PURE__ */ jsxRuntime.jsx(
+      getPageNumbers().map((page, index) => page === "..." ? /* @__PURE__ */ jsx("span", { style: { padding: "0 0.5rem" }, children: "..." }, `ellipsis-${index}`) : /* @__PURE__ */ jsx(
         PageButton,
         {
           $active: page === currentPage,
@@ -3146,7 +3210,7 @@ const Pagination = ({
         },
         page
       )),
-      /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(
         PageButton,
         {
           onClick: () => onPageChange(currentPage + 1),
@@ -3158,15 +3222,15 @@ const Pagination = ({
   ] });
 };
 const UserReferralTable = () => {
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 300);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [sortBy, setSortBy] = React.useState("total_referrals");
-  const [sortOrder, setSortOrder] = React.useState("desc");
-  const [roleFilter, setRoleFilter] = React.useState("Expert");
-  React.useEffect(() => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("total_referrals");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [roleFilter, setRoleFilter] = useState("all");
+  useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, roleFilter, sortBy]);
+  }, [debouncedSearch, roleFilter, sortBy, sortOrder]);
   const { data, isLoading, isFetching } = useReferralUserStats({
     page: currentPage,
     pageSize: 10,
@@ -3177,54 +3241,40 @@ const UserReferralTable = () => {
   const items = data?.data || [];
   const pagination = data?.meta?.pagination || { pageSize: 10, total: 0, pageCount: 0 };
   const toggleSort = (col) => {
-    setSortBy(col);
-    setSortOrder(col === "name" ? "asc" : "desc");
+    if (sortBy === col) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(col);
+      setSortOrder(col === "name" ? "asc" : "desc");
+    }
   };
-  const handleSortChange = (e) => {
-    const field = e.target.value;
-    setSortBy(field);
-    setSortOrder(field === "name" ? "asc" : "desc");
-  };
-  return /* @__PURE__ */ jsxRuntime.jsxs(TableCard, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(TableHeader, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(TableHeaderLeft, { style: { flexDirection: "column", alignItems: "flex-start" }, children: [
-        /* @__PURE__ */ jsxRuntime.jsx("h2", { style: { fontSize: "2rem", fontWeight: 500, margin: "0 2px", color: "inherit" }, children: "Referral Performance" }),
-        /* @__PURE__ */ jsxRuntime.jsx("p", { style: { fontSize: "1.2rem", color: "inherit", opacity: 0.7, margin: "0 0 2px 4px" }, children: "Detailed metrics for user contributions" }),
-        /* @__PURE__ */ jsxRuntime.jsxs("p", { style: { fontSize: "1.1rem", color: "inherit", opacity: 0.5, margin: "0 0 0 4px" }, children: [
+  return /* @__PURE__ */ jsxs(TableCard, { children: [
+    /* @__PURE__ */ jsxs(TableHeader, { children: [
+      /* @__PURE__ */ jsxs(TableHeaderLeft, { style: { flexDirection: "column", alignItems: "flex-start" }, children: [
+        /* @__PURE__ */ jsx("h2", { style: { fontSize: "2rem", fontWeight: 500, margin: "0 2px", color: "inherit" }, children: "Referral Performance" }),
+        /* @__PURE__ */ jsx("p", { style: { fontSize: "1.2rem", color: "inherit", opacity: 0.7, margin: "0 0 2px 4px" }, children: "Detailed metrics for user contributions" }),
+        /* @__PURE__ */ jsxs("p", { style: { fontSize: "1.1rem", color: "inherit", opacity: 0.5, margin: "0 0 0 4px" }, children: [
           pagination.total,
           " records • ",
           pagination.pageCount,
           " pages"
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(TableHeaderRight, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(StandaloneFilter, { children: /* @__PURE__ */ jsxRuntime.jsxs(
+      /* @__PURE__ */ jsxs(TableHeaderRight, { children: [
+        /* @__PURE__ */ jsx(StandaloneFilter, { children: /* @__PURE__ */ jsxs(
           FilterSelect,
           {
             value: roleFilter,
             onChange: (e) => setRoleFilter(e.target.value),
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "all", children: "All Roles" }),
-              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "Expert", children: "Experts" }),
-              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "Client", children: "Clients" })
+              /* @__PURE__ */ jsx("option", { value: "all", children: "All Roles" }),
+              /* @__PURE__ */ jsx("option", { value: "Expert", children: "Experts" }),
+              /* @__PURE__ */ jsx("option", { value: "Client", children: "Clients" })
             ]
           }
         ) }),
-        /* @__PURE__ */ jsxRuntime.jsx(StandaloneFilter, { children: /* @__PURE__ */ jsxRuntime.jsxs(
-          FilterSelect,
-          {
-            value: sortBy,
-            onChange: handleSortChange,
-            children: [
-              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "total_referrals", children: "By Referrals" }),
-              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "total_earnings_from_referrals", children: "By Earnings" }),
-              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "total_wallet_topup", children: "By Wallet" }),
-              /* @__PURE__ */ jsxRuntime.jsx("option", { value: "name", children: "By Name" })
-            ]
-          }
-        ) }),
-        /* @__PURE__ */ jsxRuntime.jsx(SearchContainer, { children: /* @__PURE__ */ jsxRuntime.jsxs(SearchGroup, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(
+        /* @__PURE__ */ jsx(SearchContainer, { children: /* @__PURE__ */ jsxs(SearchGroup, { children: [
+          /* @__PURE__ */ jsx(
             SearchInput,
             {
               type: "text",
@@ -3233,51 +3283,51 @@ const UserReferralTable = () => {
               onChange: (e) => setSearchQuery(e.target.value)
             }
           ),
-          /* @__PURE__ */ jsxRuntime.jsx(SearchButton, { children: isFetching ? /* @__PURE__ */ jsxRuntime.jsx(SmallBufferSpinner, {}) : /* @__PURE__ */ jsxRuntime.jsx(index.SearchIcon, {}) })
+          /* @__PURE__ */ jsx(SearchButton, { children: isFetching ? /* @__PURE__ */ jsx(SmallBufferSpinner, {}) : /* @__PURE__ */ jsx(SearchIcon, {}) })
         ] }) })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(TableContainer, { children: /* @__PURE__ */ jsxRuntime.jsxs(Table, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(Thead, { children: /* @__PURE__ */ jsxRuntime.jsxs(Tr, { children: [
-        /* @__PURE__ */ jsxRuntime.jsxs(Th, { onClick: () => toggleSort("name"), style: { cursor: "pointer" }, children: [
+    /* @__PURE__ */ jsx(TableContainer, { children: /* @__PURE__ */ jsxs(Table, { children: [
+      /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs(Tr, { children: [
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("name"), style: { cursor: "pointer" }, children: [
           "User Profile ",
-          sortBy === "name" ? "↑" : ""
+          sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx(Th, { children: "Contact Details" }),
-        /* @__PURE__ */ jsxRuntime.jsxs(Th, { onClick: () => toggleSort("total_referrals"), style: { cursor: "pointer" }, children: [
+        /* @__PURE__ */ jsx(Th, { children: "Contact Details" }),
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("total_referrals"), style: { cursor: "pointer" }, children: [
           "Referrals ",
-          sortBy === "total_referrals" ? "↓" : ""
+          sortBy === "total_referrals" && (sortOrder === "asc" ? "↑" : "↓")
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs(Th, { onClick: () => toggleSort("total_earnings_from_referrals"), style: { cursor: "pointer" }, children: [
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("total_earnings_from_referrals"), style: { cursor: "pointer" }, children: [
           "Ref. Earnings ",
-          sortBy === "total_earnings_from_referrals" ? "↓" : ""
+          sortBy === "total_earnings_from_referrals" && (sortOrder === "asc" ? "↑" : "↓")
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsxs(Th, { onClick: () => toggleSort("total_wallet_topup"), style: { cursor: "pointer" }, children: [
+        /* @__PURE__ */ jsxs(Th, { onClick: () => toggleSort("total_wallet_topup"), style: { cursor: "pointer" }, children: [
           "Wallet Topup ",
-          sortBy === "total_wallet_topup" ? "↓" : ""
+          sortBy === "total_wallet_topup" && (sortOrder === "asc" ? "↑" : "↓")
         ] })
       ] }) }),
-      /* @__PURE__ */ jsxRuntime.jsx(Tbody, { children: isLoading ? /* @__PURE__ */ jsxRuntime.jsx(Tr, { children: /* @__PURE__ */ jsxRuntime.jsx(Td, { colSpan: "5", style: { padding: "8rem" }, children: "Gathering referral data..." }) }) : items.length === 0 ? /* @__PURE__ */ jsxRuntime.jsx(Tr, { children: /* @__PURE__ */ jsxRuntime.jsx(Td, { colSpan: "5", style: { padding: "8rem" }, children: "No records discovered." }) }) : items.map((user, idx) => /* @__PURE__ */ jsxRuntime.jsxs(Tr, { index: idx, children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsxs(ProfileCell, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(Avatar, { role: user.role, children: getInitials(user.name) }),
-          /* @__PURE__ */ jsxRuntime.jsxs(NameInfo, { children: [
-            /* @__PURE__ */ jsxRuntime.jsxs(NameLabel, { children: [
+      /* @__PURE__ */ jsx(Tbody, { children: isLoading ? /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { colSpan: "5", style: { padding: "8rem" }, children: "Gathering referral data..." }) }) : items.length === 0 ? /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { colSpan: "5", style: { padding: "8rem" }, children: "No records discovered." }) }) : items.map((user, idx) => /* @__PURE__ */ jsxs(Tr, { index: idx, children: [
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(ProfileCell, { children: [
+          /* @__PURE__ */ jsx(Avatar, { role: user.role, children: user.avatar ? /* @__PURE__ */ jsx(AvatarImage, { src: user.avatar, alt: user.name }) : getInitials(user.name) }),
+          /* @__PURE__ */ jsxs(NameInfo, { children: [
+            /* @__PURE__ */ jsxs(NameLabel, { children: [
               user.name,
-              user.role === "Expert" && /* @__PURE__ */ jsxRuntime.jsx(CrownIcon, { children: "👑" })
+              user.role === "Expert" && /* @__PURE__ */ jsx(CrownIcon, { children: "👑" })
             ] }),
-            user.role === "Expert" ? /* @__PURE__ */ jsxRuntime.jsx(ExpertTag, { children: "Expert" }) : /* @__PURE__ */ jsxRuntime.jsx(ClientTag, { children: "Client" })
+            user.role === "Expert" ? /* @__PURE__ */ jsx(ExpertTag, { children: "Expert" }) : /* @__PURE__ */ jsx(ClientTag, { children: "Client" })
           ] })
         ] }) }),
-        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "center" }, children: [
-          /* @__PURE__ */ jsxRuntime.jsx("div", { style: { fontSize: "1.25rem", color: "inherit" }, children: user.mobile }),
-          /* @__PURE__ */ jsxRuntime.jsx("div", { style: { fontSize: "1.1rem", color: "inherit", opacity: 0.6 }, children: user.email })
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs("div", { style: { display: "flex", flexDirection: "column", gap: "0.5rem", alignItems: "center" }, children: [
+          /* @__PURE__ */ jsx("div", { style: { fontSize: "1.25rem", color: "inherit" }, children: user.mobile }),
+          /* @__PURE__ */ jsx("div", { style: { fontSize: "1.1rem", color: "inherit", opacity: 0.6 }, children: user.email })
         ] }) }),
-        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx(HighlightValue, { style: { fontSize: "1.5rem", display: "block", color: "inherit" }, children: user.total_referrals || 0 }) }),
-        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx(CurrencyValue, { style: { fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_earnings_from_referrals) }) }),
-        /* @__PURE__ */ jsxRuntime.jsx(Td, { children: /* @__PURE__ */ jsxRuntime.jsx("span", { style: { color: "inherit", fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_wallet_topup) }) })
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(HighlightValue, { style: { fontSize: "1.5rem", display: "block", color: "inherit" }, children: user.total_referrals || 0 }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { style: { fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_earnings_from_referrals) }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx("span", { style: { color: "inherit", fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_wallet_topup) }) })
       ] }, user.id)) })
     ] }) }),
-    !isLoading && pagination.pageCount > 1 && /* @__PURE__ */ jsxRuntime.jsx(
+    !isLoading && pagination.pageCount > 1 && /* @__PURE__ */ jsx(
       Pagination,
       {
         currentPage,
@@ -3290,11 +3340,11 @@ const UserReferralTable = () => {
   ] });
 };
 const Sparkline = ({ data, color, theme }) => {
-  const [hoveredName, setHoveredName] = React.useState(null);
+  const [hoveredName, setHoveredName] = useState(null);
   if (!data || data.length < 2) return null;
-  return /* @__PURE__ */ jsxRuntime.jsxs(React__default.default.Fragment, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "85%", children: /* @__PURE__ */ jsxRuntime.jsxs(
-      recharts.AreaChart,
+  return /* @__PURE__ */ jsxs(React.Fragment, { children: [
+    /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "85%", children: /* @__PURE__ */ jsxs(
+      AreaChart,
       {
         data,
         onMouseMove: (e) => {
@@ -3306,16 +3356,16 @@ const Sparkline = ({ data, color, theme }) => {
         },
         onMouseLeave: () => setHoveredName(null),
         children: [
-          /* @__PURE__ */ jsxRuntime.jsx("defs", { children: /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: `gradient-${color}`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
-            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "5%", stopColor: color, stopOpacity: 0.3 }),
-            /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "95%", stopColor: color, stopOpacity: 0 })
+          /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: `gradient-${color}`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ jsx("stop", { offset: "5%", stopColor: color, stopOpacity: 0.3 }),
+            /* @__PURE__ */ jsx("stop", { offset: "95%", stopColor: color, stopOpacity: 0 })
           ] }) }),
-          /* @__PURE__ */ jsxRuntime.jsx(
-            recharts.Tooltip,
+          /* @__PURE__ */ jsx(
+            Tooltip,
             {
               content: ({ active, payload }) => {
                 if (active && payload && payload.length) {
-                  return /* @__PURE__ */ jsxRuntime.jsx("div", { style: {
+                  return /* @__PURE__ */ jsx("div", { style: {
                     backgroundColor: theme.colors.neutral0,
                     padding: "4px 8px",
                     borderRadius: "6px",
@@ -3324,15 +3374,15 @@ const Sparkline = ({ data, color, theme }) => {
                     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                     border: `1px solid ${color}`,
                     color: theme.colors.neutral800
-                  }, children: /* @__PURE__ */ jsxRuntime.jsx("div", { children: payload[0].value }) });
+                  }, children: /* @__PURE__ */ jsx("div", { children: payload[0].value }) });
                 }
                 return null;
               },
               cursor: { stroke: color, strokeWidth: 1, strokeDasharray: "4 4" }
             }
           ),
-          /* @__PURE__ */ jsxRuntime.jsx(
-            recharts.Area,
+          /* @__PURE__ */ jsx(
+            Area,
             {
               type: "monotone",
               dataKey: "value",
@@ -3346,7 +3396,7 @@ const Sparkline = ({ data, color, theme }) => {
         ]
       }
     ) }),
-    hoveredName && /* @__PURE__ */ jsxRuntime.jsx(HoverDate, { color, children: hoveredName })
+    hoveredName && /* @__PURE__ */ jsx(HoverDate, { color, children: hoveredName })
   ] });
 };
 const MiniPieChart = ({ expert, client, theme }) => {
@@ -3361,8 +3411,8 @@ const MiniPieChart = ({ expert, client, theme }) => {
     // Client
   ];
   if (expert === 0 && client === 0) return null;
-  return /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsx(recharts.PieChart, { children: /* @__PURE__ */ jsxRuntime.jsx(
-    recharts.Pie,
+  return /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsx(PieChart, { children: /* @__PURE__ */ jsx(
+    Pie,
     {
       data,
       innerRadius: "60%",
@@ -3370,7 +3420,7 @@ const MiniPieChart = ({ expert, client, theme }) => {
       paddingAngle: 2,
       dataKey: "value",
       stroke: "none",
-      children: data.map((entry, index2) => /* @__PURE__ */ jsxRuntime.jsx(recharts.Cell, { fill: COLORS[index2 % COLORS.length] }, `cell-${index2}`))
+      children: data.map((entry, index) => /* @__PURE__ */ jsx(Cell, { fill: COLORS[index % COLORS.length] }, `cell-${index}`))
     }
   ) }) });
 };
@@ -3378,9 +3428,9 @@ const ProgressRing = ({ percent, color, theme }) => {
   const radius = 22;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - percent / 100 * circumference;
-  return /* @__PURE__ */ jsxRuntime.jsxs("svg", { width: "55", height: "55", viewBox: "0 0 55 55", children: [
-    /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "27.5", cy: "27.5", r: radius, stroke: theme.colors.neutral150, strokeWidth: "4.5", fill: "none" }),
-    /* @__PURE__ */ jsxRuntime.jsx(
+  return /* @__PURE__ */ jsxs("svg", { width: "55", height: "55", viewBox: "0 0 55 55", children: [
+    /* @__PURE__ */ jsx("circle", { cx: "27.5", cy: "27.5", r: radius, stroke: theme.colors.neutral150, strokeWidth: "4.5", fill: "none" }),
+    /* @__PURE__ */ jsx(
       "circle",
       {
         cx: "27.5",
@@ -3395,35 +3445,35 @@ const ProgressRing = ({ percent, color, theme }) => {
         transform: "rotate(-90 27.5 27.5)"
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsxs("text", { x: "50%", y: "54%", textAnchor: "middle", fontSize: "11", fontWeight: "800", fill: theme.colors.neutral600, children: [
+    /* @__PURE__ */ jsxs("text", { x: "50%", y: "54%", textAnchor: "middle", fontSize: "11", fontWeight: "800", fill: theme.colors.neutral600, children: [
       percent,
       "%"
     ] })
   ] });
 };
-const PremiumStatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
-  const theme = styled.useTheme();
+const StatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
+  const theme = useTheme();
   const color = typeof colorProp === "function" ? colorProp({ theme }) : colorProp;
   const bg = typeof bgProp === "function" ? bgProp({ theme }) : bgProp;
-  return /* @__PURE__ */ jsxRuntime.jsxs(StatCardPremium, { delay, children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(StatTop, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(StatTitle, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(StatIconBox, { bg, color, children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
+  return /* @__PURE__ */ jsxs(StatCardPremium, { delay, children: [
+    /* @__PURE__ */ jsxs(StatTop, { children: [
+      /* @__PURE__ */ jsxs(StatTitle, { children: [
+        /* @__PURE__ */ jsx(StatIconBox, { bg, color, children: /* @__PURE__ */ jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
         title
       ] }),
-      variant === "chart" ? /* @__PURE__ */ jsxRuntime.jsx(SparklineWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(Sparkline, { data: sparkData, color, theme }) }) : /* @__PURE__ */ jsxRuntime.jsx(ProgressRingWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(ProgressRing, { percent: chartData?.percentage || 0, color, theme }) })
+      variant === "chart" ? /* @__PURE__ */ jsx(SparklineWrapper, { children: /* @__PURE__ */ jsx(Sparkline, { data: sparkData, color, theme }) }) : /* @__PURE__ */ jsx(ProgressRingWrapper, { children: /* @__PURE__ */ jsx(ProgressRing, { percent: chartData?.percentage || 0, color, theme }) })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(StatMainValue, { children: value }),
-    /* @__PURE__ */ jsxRuntime.jsxs(StatFooterPremium, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(FooterItem, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(FooterLabel, { children: "Expert" }),
-        /* @__PURE__ */ jsxRuntime.jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.warning400 : "#eab308", children: typeof expertVal === "number" ? expertVal : formatCurrency(expertVal, true) })
+    /* @__PURE__ */ jsx(StatMainValue, { children: value }),
+    /* @__PURE__ */ jsxs(StatFooterPremium, { children: [
+      /* @__PURE__ */ jsxs(FooterItem, { children: [
+        /* @__PURE__ */ jsx(FooterLabel, { children: "Expert" }),
+        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.warning400 : "#eab308", children: typeof expertVal === "number" ? expertVal : formatCurrency(expertVal, true) })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs(FooterItem, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(FooterLabel, { children: "Client" }),
-        /* @__PURE__ */ jsxRuntime.jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.primary400 : "#3b82f6", children: typeof clientVal === "number" ? clientVal : formatCurrency(clientVal, true) })
+      /* @__PURE__ */ jsxs(FooterItem, { children: [
+        /* @__PURE__ */ jsx(FooterLabel, { children: "Client" }),
+        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.primary400 : "#3b82f6", children: typeof clientVal === "number" ? clientVal : formatCurrency(clientVal, true) })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx(PieChartWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(
+      /* @__PURE__ */ jsx(PieChartWrapper, { children: /* @__PURE__ */ jsx(
         MiniPieChart,
         {
           expert: typeof expertVal === "number" ? expertVal : expertVal,
@@ -3431,6 +3481,47 @@ const PremiumStatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay
           theme
         }
       ) })
+    ] })
+  ] });
+};
+const PlatformExpendsCard = ({ data, delay, formattedSparkData }) => {
+  const theme = useTheme();
+  const expertColor = theme.name === "dark" ? theme.colors.warning400 : "#eab308";
+  const clientColor = theme.name === "dark" ? theme.colors.primary400 : "#3b82f6";
+  return /* @__PURE__ */ jsxs(ExpendsCardWrapper, { delay, children: [
+    /* @__PURE__ */ jsxs(StatTop, { children: [
+      /* @__PURE__ */ jsxs(ExpendsMain, { children: [
+        /* @__PURE__ */ jsxs(StatTitle, { children: [
+          /* @__PURE__ */ jsx(StatIconBox, { bg: theme.colors.success100, color: theme.colors.success600, children: /* @__PURE__ */ jsx(WalletIcon, { style: { width: "18px", height: "18px" } }) }),
+          "Platform Expends"
+        ] }),
+        /* @__PURE__ */ jsx(StatMainValue, { style: { fontSize: "2.5rem", marginTop: "0.5rem" }, children: formatCurrency(data.total, true) })
+      ] }),
+      /* @__PURE__ */ jsx(SparklineWrapper, { children: /* @__PURE__ */ jsx(Sparkline, { data: formattedSparkData, color: theme.colors.success600, theme }) })
+    ] }),
+    /* @__PURE__ */ jsxs(ExpendsGrid, { children: [
+      /* @__PURE__ */ jsxs(DataPanel, { color: theme.colors.primary500, children: [
+        /* @__PURE__ */ jsx(PanelTitle, { children: "Referrer" }),
+        /* @__PURE__ */ jsxs(PanelRow, { children: [
+          /* @__PURE__ */ jsx(PanelLabel, { children: "Expert" }),
+          /* @__PURE__ */ jsx(PanelValue, { color: expertColor, children: formatCurrency(data.referrer.expert, true) })
+        ] }),
+        /* @__PURE__ */ jsxs(PanelRow, { children: [
+          /* @__PURE__ */ jsx(PanelLabel, { children: "Client" }),
+          /* @__PURE__ */ jsx(PanelValue, { color: clientColor, children: formatCurrency(data.referrer.client, true) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(DataPanel, { color: theme.colors.secondary500, children: [
+        /* @__PURE__ */ jsx(PanelTitle, { children: "Receiver" }),
+        /* @__PURE__ */ jsxs(PanelRow, { children: [
+          /* @__PURE__ */ jsx(PanelLabel, { children: "Expert" }),
+          /* @__PURE__ */ jsx(PanelValue, { color: expertColor, children: formatCurrency(data.reciever.expert, true) })
+        ] }),
+        /* @__PURE__ */ jsxs(PanelRow, { children: [
+          /* @__PURE__ */ jsx(PanelLabel, { children: "Client" }),
+          /* @__PURE__ */ jsx(PanelValue, { color: clientColor, children: formatCurrency(data.reciever.client, true) })
+        ] })
+      ] })
     ] })
   ] });
 };
@@ -3445,15 +3536,15 @@ const StatsSection = () => {
     name: d.meta?.months?.[i] || "",
     value: v
   }));
-  return /* @__PURE__ */ jsxRuntime.jsxs(StatsGrid, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(
-      PremiumStatCard,
+  return /* @__PURE__ */ jsxs(StatsGrid, { children: [
+    /* @__PURE__ */ jsx(
+      StatCard,
       {
         title: "Total Referrals",
         value: refs.total,
         expertVal: refs.expert,
         clientVal: refs.client,
-        icon: index.ReferralIcon,
+        icon: ReferralIcon,
         color: ({ theme }) => theme.colors.primary600,
         bg: ({ theme }) => theme.colors.primary100,
         variant: "chart",
@@ -3461,29 +3552,14 @@ const StatsSection = () => {
         delay: "0s"
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsx(
-      PremiumStatCard,
-      {
-        title: "Platform Expends",
-        value: formatCurrency(expends.total, true),
-        expertVal: expends.referrer.expert + expends.reciever.expert,
-        clientVal: expends.referrer.client + expends.reciever.client,
-        icon: index.WalletIcon,
-        color: ({ theme }) => theme.colors.success600,
-        bg: ({ theme }) => theme.colors.success100,
-        variant: "chart",
-        sparkData: formatSparkData(expends.graph),
-        delay: "0.1s"
-      }
-    ),
-    /* @__PURE__ */ jsxRuntime.jsx(
-      PremiumStatCard,
+    /* @__PURE__ */ jsx(
+      StatCard,
       {
         title: "Referral Conversion",
         value: conv.total,
         expertVal: conv.expert,
         clientVal: conv.client,
-        icon: index.ConversionIcon,
+        icon: ConversionIcon,
         color: ({ theme }) => theme.colors.secondary600,
         bg: ({ theme }) => theme.colors.secondary100,
         variant: "ring",
@@ -3491,19 +3567,27 @@ const StatsSection = () => {
         delay: "0.2s"
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsx(
-      PremiumStatCard,
+    /* @__PURE__ */ jsx(
+      StatCard,
       {
         title: "Direct Conversion",
         value: direct.total,
         expertVal: direct.expert,
         clientVal: direct.client,
-        icon: index.UniqueIcon,
+        icon: UniqueIcon,
         color: ({ theme }) => theme.colors.warning600,
         bg: ({ theme }) => theme.colors.warning100,
         variant: "ring",
         chartData: { percentage: direct.percentage },
         delay: "0.3s"
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      PlatformExpendsCard,
+      {
+        data: expends,
+        delay: "0.1s",
+        formattedSparkData: formatSparkData(expends.graph)
       }
     )
   ] });
@@ -3514,13 +3598,13 @@ const DashboardHeader = () => {
   const totalRefs = d.referrals?.total || 0;
   const conversions = d.referral_conversion?.total || 0;
   const convRate = d.referral_conversion?.percentage || 0;
-  return /* @__PURE__ */ jsxRuntime.jsxs(Header, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(IconBox, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ReferralLogo, { style: { width: "38px", height: "38px" } }) }),
-      /* @__PURE__ */ jsxRuntime.jsxs(HeaderTitleBox, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(HeaderTitle, { children: "Referral Analytics" }),
-        /* @__PURE__ */ jsxRuntime.jsx(HeaderSubtitle, { children: "Monitor and analyze referral performance across the network" }),
-        /* @__PURE__ */ jsxRuntime.jsxs(HeaderMetaText, { children: [
+  return /* @__PURE__ */ jsxs(Header, { children: [
+    /* @__PURE__ */ jsxs(HeaderLeft, { children: [
+      /* @__PURE__ */ jsx(IconBox, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "38px", height: "38px" } }) }),
+      /* @__PURE__ */ jsxs(HeaderTitleBox, { children: [
+        /* @__PURE__ */ jsx(HeaderTitle, { children: "Referral Analytics" }),
+        /* @__PURE__ */ jsx(HeaderSubtitle, { children: "Monitor and analyze referral performance across the network" }),
+        /* @__PURE__ */ jsxs(HeaderMetaText, { children: [
           totalRefs,
           " total referrals • ",
           conversions,
@@ -3530,27 +3614,29 @@ const DashboardHeader = () => {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(HeaderRight, {})
+    /* @__PURE__ */ jsx(HeaderRight, {})
   ] });
 };
 const ReferralAnalyticsPage = () => {
-  return /* @__PURE__ */ jsxRuntime.jsx(PluginLayout, { children: /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(DashboardHeader, {}),
-    /* @__PURE__ */ jsxRuntime.jsx(DashboardMain, { children: /* @__PURE__ */ jsxRuntime.jsxs(MainContent, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(StatsSection, {}),
-      /* @__PURE__ */ jsxRuntime.jsx(TableColumn, { children: /* @__PURE__ */ jsxRuntime.jsx(UserReferralTable, {}) })
+  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsxs(DashboardContainer, { children: [
+    /* @__PURE__ */ jsx(DashboardHeader, {}),
+    /* @__PURE__ */ jsx(DashboardMain, { children: /* @__PURE__ */ jsxs(MainContent, { children: [
+      /* @__PURE__ */ jsx(StatsSection, {}),
+      /* @__PURE__ */ jsx(TableColumn, { children: /* @__PURE__ */ jsx(UserReferralTable, {}) })
     ] }) })
   ] }) });
 };
-const queryClient = new reactQuery.QueryClient();
+const queryClient = new QueryClient();
 const App = () => {
-  return /* @__PURE__ */ jsxRuntime.jsxs(reactQuery.QueryClientProvider, { client: queryClient, children: [
-    /* @__PURE__ */ jsxRuntime.jsx(reactToastify.ToastContainer, { position: "top-right", autoClose: 4e3, hideProgressBar: false, style: { width: "450px", fontSize: "16px" } }),
-    /* @__PURE__ */ jsxRuntime.jsxs(reactRouterDom.Routes, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { index: true, element: /* @__PURE__ */ jsxRuntime.jsx(HomePage, {}) }),
-      /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { path: "referral-analytics", element: /* @__PURE__ */ jsxRuntime.jsx(ReferralAnalyticsPage, {}) }),
-      /* @__PURE__ */ jsxRuntime.jsx(reactRouterDom.Route, { path: "*", element: /* @__PURE__ */ jsxRuntime.jsx(admin.Page.Error, {}) })
+  return /* @__PURE__ */ jsxs(QueryClientProvider, { client: queryClient, children: [
+    /* @__PURE__ */ jsx(ToastContainer, { position: "top-right", autoClose: 4e3, hideProgressBar: false, style: { width: "450px", fontSize: "16px" } }),
+    /* @__PURE__ */ jsxs(Routes, { children: [
+      /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(HomePage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "referral-analytics", element: /* @__PURE__ */ jsx(ReferralAnalyticsPage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "*", element: /* @__PURE__ */ jsx(Page.Error, {}) })
     ] })
   ] });
 };
-exports.default = App;
+export {
+  App as default
+};

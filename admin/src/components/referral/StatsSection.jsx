@@ -124,7 +124,7 @@ const ProgressRing = ({ percent, color, theme }) => {
     );
 };
 
-const PremiumStatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
+const StatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
     const theme = useTheme();
     const color = typeof colorProp === 'function' ? colorProp({ theme }) : colorProp;
     const bg = typeof bgProp === 'function' ? bgProp({ theme }) : bgProp;
@@ -176,6 +176,63 @@ const PremiumStatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay
     );
 };
 
+const PlatformExpendsCard = ({ data, delay, formattedSparkData }) => {
+    const theme = useTheme();
+    const expertColor = theme.name === 'dark' ? theme.colors.warning400 : '#eab308';
+    const clientColor = theme.name === 'dark' ? theme.colors.primary400 : '#3b82f6';
+
+    return (
+        <Style.ExpendsCardWrapper delay={delay}>
+            <Style.StatTop>
+                <Style.ExpendsMain>
+                    <Style.StatTitle>
+                        <Style.StatIconBox bg={theme.colors.success100} color={theme.colors.success600}>
+                            <WalletIcon style={{ width: '18px', height: '18px' }} />
+                        </Style.StatIconBox>
+                        Platform Expends
+                    </Style.StatTitle>
+                    <Style.StatMainValue style={{ fontSize: '2.5rem', marginTop: '0.5rem' }}>
+                        {formatCurrency(data.total, true)}
+                    </Style.StatMainValue>
+                </Style.ExpendsMain>
+                <Style.SparklineWrapper>
+                    <Sparkline data={formattedSparkData} color={theme.colors.success600} theme={theme} />
+                </Style.SparklineWrapper>
+            </Style.StatTop>
+
+            <Style.ExpendsGrid>
+                <Style.DataPanel color={theme.colors.primary500}>
+                    <Style.PanelTitle>
+                        Referrer
+                    </Style.PanelTitle>
+                    <Style.PanelRow>
+                        <Style.PanelLabel>Expert</Style.PanelLabel>
+                        <Style.PanelValue color={expertColor}>{formatCurrency(data.referrer.expert, true)}</Style.PanelValue>
+                    </Style.PanelRow>
+                    <Style.PanelRow>
+                        <Style.PanelLabel>Client</Style.PanelLabel>
+                        <Style.PanelValue color={clientColor}>{formatCurrency(data.referrer.client, true)}</Style.PanelValue>
+                    </Style.PanelRow>
+                </Style.DataPanel>
+
+                <Style.DataPanel color={theme.colors.secondary500}>
+                    <Style.PanelTitle>
+                        Receiver
+                    </Style.PanelTitle>
+                    <Style.PanelRow>
+                        <Style.PanelLabel>Expert</Style.PanelLabel>
+                        <Style.PanelValue color={expertColor}>{formatCurrency(data.reciever.expert, true)}</Style.PanelValue>
+                    </Style.PanelRow>
+                    <Style.PanelRow>
+                        <Style.PanelLabel>Client</Style.PanelLabel>
+                        <Style.PanelValue color={clientColor}>{formatCurrency(data.reciever.client, true)}</Style.PanelValue>
+                    </Style.PanelRow>
+                </Style.DataPanel>
+            </Style.ExpendsGrid>
+        </Style.ExpendsCardWrapper>
+    );
+};
+
 const StatsSection = () => {
     const { data: stats } = useReferralStats();
     const d = stats || {};
@@ -194,7 +251,7 @@ const StatsSection = () => {
 
     return (
         <Style.StatsGrid>
-            <PremiumStatCard
+            <StatCard
                 title="Total Referrals"
                 value={refs.total}
                 expertVal={refs.expert}
@@ -206,19 +263,7 @@ const StatsSection = () => {
                 sparkData={formatSparkData(refs.graph)}
                 delay="0s"
             />
-            <PremiumStatCard
-                title="Platform Expends"
-                value={formatCurrency(expends.total, true)}
-                expertVal={expends.referrer.expert + expends.reciever.expert}
-                clientVal={expends.referrer.client + expends.reciever.client}
-                icon={WalletIcon}
-                color={({ theme }) => theme.colors.success600}
-                bg={({ theme }) => theme.colors.success100}
-                variant="chart"
-                sparkData={formatSparkData(expends.graph)}
-                delay="0.1s"
-            />
-            <PremiumStatCard
+            <StatCard
                 title="Referral Conversion"
                 value={conv.total}
                 expertVal={conv.expert}
@@ -230,7 +275,7 @@ const StatsSection = () => {
                 chartData={{ percentage: conv.percentage }}
                 delay="0.2s"
             />
-            <PremiumStatCard
+            <StatCard
                 title="Direct Conversion"
                 value={direct.total}
                 expertVal={direct.expert}
@@ -241,6 +286,11 @@ const StatsSection = () => {
                 variant="ring"
                 chartData={{ percentage: direct.percentage }}
                 delay="0.3s"
+            />
+            <PlatformExpendsCard
+                data={expends}
+                delay="0.1s"
+                formattedSparkData={formatSparkData(expends.graph)}
             />
         </Style.StatsGrid>
     );

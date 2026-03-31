@@ -765,107 +765,264 @@ const referral = ({ strapi: strapi2 }) => ({
       const knex = strapi2.db.connection;
       const result = await knex.raw(`
         WITH months_range AS (
-          SELECT generate_series(
-            date_trunc('month', CURRENT_DATE) - interval '4 months',
-            date_trunc('month', CURRENT_DATE),
-            interval '1 month'
-          )::date as month_start
-        ),
-        user_metrics AS (
-          SELECT 
-            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL)::int as total_referrals,
-            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Client')::int as ref_client,
-            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Expert')::int as ref_expert,
-            
-            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Client' AND us.total_wallet_topup > 0)::int as ref_conv_client,
-            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND u.role = 'Expert' AND ep.is_approved = true)::int as ref_conv_expert,
-            COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND ((u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true)))::int as total_ref_conv,
-            
-            COUNT(*) FILTER (WHERE u.referrer_code IS NULL AND u.role = 'Client' AND us.total_wallet_topup > 0)::int as direct_conv_client,
-            COUNT(*) FILTER (WHERE u.referrer_code IS NULL AND u.role = 'Expert' AND ep.is_approved = true)::int as direct_conv_expert,
-            
-            CASE 
-              WHEN COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL) > 0 
-              THEN ROUND((COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL AND ((u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true)))::float / NULLIF(COUNT(*) FILTER (WHERE u.referrer_code IS NOT NULL), 0)) * 100)
-              ELSE 0 
-            END::int as ref_conv_percent,
-            
-            CASE 
-              WHEN COUNT(*) > 0 
-              THEN ROUND((COUNT(*) FILTER (WHERE u.referrer_code IS NULL AND ((u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true)))::float / NULLIF(COUNT(*), 0)) * 100)
-              ELSE 0 
-            END::int as direct_conv_percent,
-            
-            COUNT(*) FILTER (WHERE (u.role = 'Client' AND us.total_wallet_topup > 0) OR (u.role = 'Expert' AND ep.is_approved = true))::int as total_any_conv,
-            COUNT(*)::int as total_users
-          FROM public_users u
-          LEFT JOIN user_statistics us ON us.public_profile_id = u.id
-          LEFT JOIN expert_profiles ep ON ep.user_id = u.id
-        ),
-        expend_metrics AS (
-          SELECT
-            COALESCE(SUM(t.amount), 0)::float as total_expends,
-            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Client' AND t.transaction_id LIKE '%_referrer'), 0)::float as exp_ref_client,
-            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Expert' AND t.transaction_id LIKE '%_referrer'), 0)::float as exp_ref_expert,
-            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Client' AND t.transaction_id LIKE '%_reciever'), 0)::float as exp_rec_client,
-            COALESCE(SUM(t.amount) FILTER (WHERE u.role = 'Expert' AND t.transaction_id LIKE '%_reciever'), 0)::float as exp_rec_expert
-          FROM transactions t
-          JOIN wallets w ON t.to_wallet_id = w.id
-          JOIN public_users u ON w.user_id = u.id
-          WHERE t.method = 'Referral' AND t.payment_status = 'success'
-        ),
-        referral_graph AS (
-          SELECT ARRAY_AGG(count ORDER BY month_start) as ref_graph
-          FROM (
-            SELECT m.month_start, COUNT(u.id)::int as count
-            FROM months_range m
-            LEFT JOIN public_users u ON date_trunc('month', u.created_at) = m.month_start AND u.referrer_code IS NOT NULL
-            GROUP BY m.month_start
-          ) s
-        ),
-        expense_graph AS (
-          SELECT ARRAY_AGG(amount ORDER BY month_start) as exp_graph
-          FROM (
-            SELECT m.month_start, COALESCE(SUM(t.amount), 0)::float as amount
-            FROM months_range m
-            LEFT JOIN transactions t ON date_trunc('month', t.created_at) = m.month_start AND t.method = 'Referral' AND t.payment_status = 'success'
-            GROUP BY m.month_start
-          ) s
-        ),
-        meta_metrics AS (
-          SELECT ARRAY_AGG(to_char(month_start, 'Mon') ORDER BY month_start) as months
-          FROM months_range
-        )
-        SELECT json_build_object(
-          'data', json_build_object(
-            'referrals', json_build_object(
-              'total', total_referrals,
-              'client', ref_client,
-              'expert', ref_expert,
-              'graph', ref_graph
-            ),
-            'platform_expends', json_build_object(
-              'total', total_expends,
-              'referrer', json_build_object('client', exp_ref_client, 'expert', exp_ref_expert),
-              'reciever', json_build_object('client', exp_rec_client, 'expert', exp_rec_expert),
-              'graph', exp_graph
-            ),
-            'referral_conversion', json_build_object(
-              'total', total_ref_conv,
-              'client', ref_conv_client,
-              'expert', ref_conv_expert,
-              'percentage', ref_conv_percent
-            ),
-            'direct_conversion', json_build_object(
-              'total', direct_conv_client + direct_conv_expert,
-              'client', direct_conv_client,
-              'expert', direct_conv_expert,
-              'percentage', direct_conv_percent
-            ),
-            'meta', json_build_object('months', months)
-          )
-        ) as result FROM user_metrics, expend_metrics, referral_graph, expense_graph, meta_metrics;
-      `);
+  SELECT generate_series(
+    date_trunc('month', CURRENT_DATE) - interval '4 months',
+    date_trunc('month', CURRENT_DATE),
+    interval '1 month'
+  )::date AS month_start
+),
+
+user_stats_map AS (
+  SELECT
+    lnk.public_user_id,
+    MAX(COALESCE(us.total_wallet_topup, 0)) AS total_wallet_topup
+  FROM user_statistics_public_profile_lnk lnk
+  JOIN user_statistics us
+    ON us.id = lnk.user_statistic_id
+  GROUP BY lnk.public_user_id
+),
+
+expert_map AS (
+  SELECT
+    lnk.public_user_id,
+    BOOL_OR(COALESCE(ep.is_approved, false)) AS is_approved
+  FROM expert_profiles_user_lnk lnk
+  JOIN expert_profiles ep
+    ON ep.id = lnk.expert_profile_id
+  GROUP BY lnk.public_user_id
+),
+
+wallet_user_map AS (
+  SELECT DISTINCT
+    lnk.wallet_id,
+    lnk.public_user_id
+  FROM wallets_user_lnk lnk
+),
+
+base_users AS (
+  SELECT
+    u.id,
+    u.role,
+    u.created_at,
+    NULLIF(BTRIM(u.referrer_code), '') AS normalized_referrer_code,
+    COALESCE(usm.total_wallet_topup, 0) AS total_wallet_topup,
+    COALESCE(emap.is_approved, false) AS is_approved,
+
+    CASE
+      WHEN NULLIF(BTRIM(u.referrer_code), '') IS NOT NULL THEN true
+      ELSE false
+    END AS is_referred,
+
+    CASE
+      WHEN u.role = 'Client' AND COALESCE(usm.total_wallet_topup, 0) > 0 THEN true
+      WHEN u.role = 'Expert' AND COALESCE(emap.is_approved, false) = true THEN true
+      ELSE false
+    END AS is_converted
+
+  FROM public_users u
+  LEFT JOIN user_stats_map usm
+    ON usm.public_user_id = u.id
+  LEFT JOIN expert_map emap
+    ON emap.public_user_id = u.id
+),
+
+user_metrics AS (
+  SELECT
+    COUNT(*) FILTER (
+      WHERE is_referred = true
+        AND role = 'Client'
+    )::int AS ref_client,
+
+    COUNT(*) FILTER (
+      WHERE is_referred = true
+        AND role = 'Expert'
+    )::int AS ref_expert,
+
+    COUNT(*) FILTER (
+      WHERE is_referred = true
+        AND role = 'Client'
+        AND is_converted = true
+    )::int AS ref_conv_client,
+
+    COUNT(*) FILTER (
+      WHERE is_referred = true
+        AND role = 'Expert'
+        AND is_converted = true
+    )::int AS ref_conv_expert,
+
+    COUNT(*) FILTER (
+      WHERE is_referred = false
+        AND role = 'Client'
+        AND is_converted = true
+    )::int AS direct_conv_client,
+
+    COUNT(*) FILTER (
+      WHERE is_referred = false
+        AND role = 'Expert'
+        AND is_converted = true
+    )::int AS direct_conv_expert,
+
+    CASE
+      WHEN COUNT(*) FILTER (WHERE is_referred = true) > 0
+      THEN ROUND(
+        (
+          COUNT(*) FILTER (
+            WHERE is_referred = true
+              AND is_converted = true
+          )::numeric
+          /
+          NULLIF(COUNT(*) FILTER (WHERE is_referred = true), 0)
+        ) * 100
+      )
+      ELSE 0
+    END::int AS ref_conv_percent,
+
+    CASE
+      WHEN COUNT(*) FILTER (WHERE is_referred = false) > 0
+      THEN ROUND(
+        (
+          COUNT(*) FILTER (
+            WHERE is_referred = false
+              AND is_converted = true
+          )::numeric
+          /
+          NULLIF(COUNT(*) FILTER (WHERE is_referred = false), 0)
+        ) * 100
+      )
+      ELSE 0
+    END::int AS direct_conv_percent
+
+  FROM base_users
+),
+
+referral_transactions AS (
+  SELECT
+    t.id,
+    t.amount,
+    t.created_at,
+    t.method,
+    t.payment_status,
+    regexp_replace(t.transaction_id, '^.*_', '') AS txn_suffix,
+    u.role
+  FROM transactions t
+  JOIN (
+    SELECT DISTINCT
+      transaction_id,
+      wallet_id
+    FROM transactions_to_wallet_lnk
+  ) ttw
+    ON ttw.transaction_id = t.id
+  JOIN wallet_user_map wum
+    ON wum.wallet_id = ttw.wallet_id
+  JOIN public_users u
+    ON u.id = wum.public_user_id
+  WHERE t.method = 'Referral'
+    AND t.payment_status = 'success'
+),
+
+expend_metrics AS (
+  SELECT
+    COALESCE(SUM(amount) FILTER (
+      WHERE role = 'Client'
+        AND txn_suffix = 'referrer'
+    ), 0)::float AS exp_ref_client,
+
+    COALESCE(SUM(amount) FILTER (
+      WHERE role = 'Expert'
+        AND txn_suffix = 'referrer'
+    ), 0)::float AS exp_ref_expert,
+
+    COALESCE(SUM(amount) FILTER (
+      WHERE role = 'Client'
+        AND txn_suffix IN ('reciever', 'receiver')
+    ), 0)::float AS exp_rec_client,
+
+    COALESCE(SUM(amount) FILTER (
+      WHERE role = 'Expert'
+        AND txn_suffix IN ('reciever', 'receiver')
+    ), 0)::float AS exp_rec_expert
+
+  FROM referral_transactions
+),
+
+referral_graph AS (
+  SELECT ARRAY_AGG(cnt ORDER BY month_start) AS ref_graph
+  FROM (
+    SELECT
+      m.month_start,
+      COUNT(bu.id)::int AS cnt
+    FROM months_range m
+    LEFT JOIN base_users bu
+      ON date_trunc('month', bu.created_at)::date = m.month_start
+     AND bu.is_referred = true
+    GROUP BY m.month_start
+  ) s
+),
+
+expense_graph AS (
+  SELECT ARRAY_AGG(amount ORDER BY month_start) AS exp_graph
+  FROM (
+    SELECT
+      m.month_start,
+      COALESCE(SUM(rt.amount), 0)::float AS amount
+    FROM months_range m
+    LEFT JOIN referral_transactions rt
+      ON date_trunc('month', rt.created_at)::date = m.month_start
+    GROUP BY m.month_start
+  ) s
+),
+
+meta_metrics AS (
+  SELECT ARRAY_AGG(to_char(month_start, 'Mon') ORDER BY month_start) AS months
+  FROM months_range
+)
+
+SELECT json_build_object(
+  'data', json_build_object(
+    'referrals', json_build_object(
+      'total', um.ref_client + um.ref_expert,
+      'client', um.ref_client,
+      'expert', um.ref_expert,
+      'graph', rg.ref_graph
+    ),
+    'platform_expends', json_build_object(
+      'total',
+        em.exp_ref_client
+        + em.exp_ref_expert
+        + em.exp_rec_client
+        + em.exp_rec_expert,
+      'referrer', json_build_object(
+        'client', em.exp_ref_client,
+        'expert', em.exp_ref_expert
+      ),
+      'reciever', json_build_object(
+        'client', em.exp_rec_client,
+        'expert', em.exp_rec_expert
+      ),
+      'graph', eg.exp_graph
+    ),
+    'referral_conversion', json_build_object(
+      'total', um.ref_conv_client + um.ref_conv_expert,
+      'client', um.ref_conv_client,
+      'expert', um.ref_conv_expert,
+      'percentage', um.ref_conv_percent
+    ),
+    'direct_conversion', json_build_object(
+      'total', um.direct_conv_client + um.direct_conv_expert,
+      'client', um.direct_conv_client,
+      'expert', um.direct_conv_expert,
+      'percentage', um.direct_conv_percent
+    ),
+    'meta', json_build_object(
+      'months', mm.months
+    )
+  )
+) AS result
+FROM user_metrics um
+CROSS JOIN expend_metrics em
+CROSS JOIN referral_graph rg
+CROSS JOIN expense_graph eg
+CROSS JOIN meta_metrics mm;`);
       ctx.body = result.rows[0].result;
     } catch (err) {
       strapi2.log.error("Referral Stats SQL JSON Engine Error:", err.message);
@@ -875,9 +1032,13 @@ const referral = ({ strapi: strapi2 }) => ({
   async table_data(ctx) {
     try {
       const { page = 1, pageSize = 10, role = "all", search = "", sort = "id:desc" } = ctx.query;
-      strapi2.log.info(`Referral Stats Request - Role: ${role}, Search: "${search}", Sort: ${sort}`);
+      const start = (Number(page) - 1) * Number(pageSize);
+      const limit = Number(pageSize);
+      strapi2.log.info(`Referral Table Request (EntityService) - Role: ${role}, Search: "${search}", Sort: ${sort}`);
       const filters = {};
-      if (role !== "all") filters.role = role;
+      if (role !== "all") {
+        filters.role = { $eqi: role };
+      }
       if (search) {
         filters.$or = [
           { name: { $containsi: search } },
@@ -885,39 +1046,47 @@ const referral = ({ strapi: strapi2 }) => ({
           { mobile: { $containsi: search } }
         ];
       }
-      let sortObj = sort;
-      if (sort.startsWith("total_")) {
+      let sortProp = sort;
+      if (typeof sort === "string" && sort.includes(":")) {
         const [field, order] = sort.split(":");
-        sortObj = { user_statistic: { [field]: order || "desc" } };
+        const normalizedOrder = (order || "desc").toLowerCase();
+        if (field.startsWith("total_")) {
+          sortProp = `user_statistic.${field}:${normalizedOrder}`;
+        } else {
+          sortProp = `${field}:${normalizedOrder}`;
+        }
       }
-      const data = await strapi2.entityService.findMany("api::public-user.public-user", {
+      const rows = await strapi2.entityService.findMany("api::public-user.public-user", {
         filters,
-        populate: { user_statistic: true },
-        start: (Number(page) - 1) * Number(pageSize),
-        limit: Number(pageSize),
-        sort: sortObj
+        populate: { user_statistic: true, profilePic: true },
+        start,
+        limit,
+        sort: sortProp
       });
       const total = await strapi2.entityService.count("api::public-user.public-user", { filters });
-      const overallTotal = await strapi2.entityService.count("api::public-user.public-user");
-      strapi2.log.info(`Referral Stats Result - Found ${data.length} users. Filtered Total: ${total}. Overall Total: ${overallTotal}`);
       ctx.body = {
-        data: data.map((u) => ({
+        data: rows.map((u) => ({
           id: u.id,
           name: u.name || "Unknown",
           email: u.email || "N/A",
           mobile: u.mobile || "N/A",
+          avatar: u.profilePic?.url || null,
           role: u.role || "Client",
           total_referrals: u.user_statistic?.total_referrals || 0,
           total_earnings_from_referrals: u.user_statistic?.total_earnings_from_referrals || 0,
           total_wallet_topup: u.user_statistic?.total_wallet_topup || 0
         })),
         meta: {
-          pagination: { page: Number(page), pageSize: Number(pageSize), total, pageCount: Math.ceil(total / Number(pageSize)) },
-          debug: { overallTotal }
+          pagination: {
+            page: Number(page),
+            pageSize: limit,
+            total,
+            pageCount: Math.ceil(total / limit)
+          }
         }
       };
     } catch (err) {
-      strapi2.log.error("userStats error:", err.message);
+      strapi2.log.error("table_data entityService error:", err.message);
       ctx.throw(500, err.message);
     }
   }

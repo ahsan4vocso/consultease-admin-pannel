@@ -12,10 +12,10 @@ const UserReferralTable = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortBy, setSortBy] = useState('total_referrals');
     const [sortOrder, setSortOrder] = useState('desc');
-    const [roleFilter, setRoleFilter] = useState('Expert');
+    const [roleFilter, setRoleFilter] = useState('all');
 
 
-    useEffect(() => { setCurrentPage(1) }, [debouncedSearch, roleFilter, sortBy]);
+    useEffect(() => { setCurrentPage(1) }, [debouncedSearch, roleFilter, sortBy, sortOrder]);
 
     const { data, isLoading, isFetching } = useReferralUserStats({
         page: currentPage,
@@ -29,15 +29,15 @@ const UserReferralTable = () => {
     const pagination = data?.meta?.pagination || { page: 1, pageSize: 10, total: 0, pageCount: 0 };
 
     const toggleSort = (col) => {
-        setSortBy(col);
-        setSortOrder(col === 'name' ? 'asc' : 'desc');
+        if (sortBy === col) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(col);
+            setSortOrder(col === 'name' ? 'asc' : 'desc');
+        }
     };
 
-    const handleSortChange = (e) => {
-        const field = e.target.value;
-        setSortBy(field);
-        setSortOrder(field === 'name' ? 'asc' : 'desc');
-    };
+
 
     return (
         <Style.TableCard>
@@ -62,17 +62,7 @@ const UserReferralTable = () => {
                         </Style.FilterSelect>
                     </Style.StandaloneFilter>
 
-                    <Style.StandaloneFilter>
-                        <Style.FilterSelect
-                            value={sortBy}
-                            onChange={handleSortChange}
-                        >
-                            <option value="total_referrals">By Referrals</option>
-                            <option value="total_earnings_from_referrals">By Earnings</option>
-                            <option value="total_wallet_topup">By Wallet</option>
-                            <option value="name">By Name</option>
-                        </Style.FilterSelect>
-                    </Style.StandaloneFilter>
+
 
                     <Style.SearchContainer>
                         <Style.SearchGroup>
@@ -100,17 +90,17 @@ const UserReferralTable = () => {
                     <Style.Thead>
                         <Style.Tr>
                             <Style.Th onClick={() => toggleSort('name')} style={{ cursor: 'pointer' }}>
-                                User Profile {sortBy === 'name' ? '↑' : ''}
+                                User Profile {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </Style.Th>
                             <Style.Th>Contact Details</Style.Th>
                             <Style.Th onClick={() => toggleSort('total_referrals')} style={{ cursor: 'pointer' }}>
-                                Referrals {sortBy === 'total_referrals' ? '↓' : ''}
+                                Referrals {sortBy === 'total_referrals' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </Style.Th>
                             <Style.Th onClick={() => toggleSort('total_earnings_from_referrals')} style={{ cursor: 'pointer' }}>
-                                Ref. Earnings {sortBy === 'total_earnings_from_referrals' ? '↓' : ''}
+                                Ref. Earnings {sortBy === 'total_earnings_from_referrals' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </Style.Th>
                             <Style.Th onClick={() => toggleSort('total_wallet_topup')} style={{ cursor: 'pointer' }}>
-                                Wallet Topup {sortBy === 'total_wallet_topup' ? '↓' : ''}
+                                Wallet Topup {sortBy === 'total_wallet_topup' && (sortOrder === 'asc' ? '↑' : '↓')}
                             </Style.Th>
                         </Style.Tr>
                     </Style.Thead>
@@ -125,7 +115,11 @@ const UserReferralTable = () => {
                                     <Style.Td>
                                         <Style.ProfileCell>
                                             <Style.Avatar role={user.role}>
-                                                {getInitials(user.name)}
+                                                {user.avatar ? (
+                                                    <Style.AvatarImage src={user.avatar} alt={user.name} />
+                                                ) : (
+                                                    getInitials(user.name)
+                                                )}
                                             </Style.Avatar>
                                             <Style.NameInfo>
                                                 <Style.NameLabel>

@@ -535,6 +535,13 @@ export const Avatar = styled.div`
   box-shadow: 0 4px 12px ${props => props.role === 'Expert' ? 'rgba(253, 160, 133, 0.3)' : 'rgba(102, 166, 255, 0.3)'};
   flex-shrink: 0;
   border: 2px solid white;
+  overflow: hidden;
+`;
+
+export const AvatarImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 export const NameInfo = styled.div`
@@ -598,8 +605,8 @@ export const CrownIcon = styled.span`
 export const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 0.7rem;
+  margin-bottom: 0.1rem;
   width: 100%;
 
   @media (min-width: 1600px) {
@@ -624,12 +631,12 @@ export const StatsGrid = styled.div`
 export const StatCardPremium = styled.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border-radius: 20px;
-  padding: 1.5rem 1.5rem 0rem 1.5rem;
+  padding: 1.2rem 1.2rem 0rem 1.2rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
@@ -640,6 +647,77 @@ export const StatCardPremium = styled.div`
     transform: translateY(-5px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   }
+`;
+
+export const ExpendsCardWrapper = styled(StatCardPremium)`
+  padding: 1.5rem;
+  background: ${({ theme }) => theme.name === 'dark' ? 'rgba(23, 23, 23, 0.6)' : theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  
+  @media (min-width: 1600px) {
+    height: fit-content;
+  }
+`;
+
+export const ExpendsMain = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+`;
+
+export const ExpendsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.5rem;
+`;
+
+export const DataPanel = styled.div`
+  padding: 1rem 1.25rem 0.75rem;
+  background: ${({ theme }) => theme.name === 'dark' ? theme.colors.neutral100 : theme.colors.neutral50};
+  border-radius: 16px;
+  border-left: 4px solid ${props => props.color};
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08);
+  }
+`;
+
+export const PanelTitle = styled.div`
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+export const PanelRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const PanelLabel = styled.div`
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral400};
+`;
+
+export const PanelValue = styled.div`
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: ${props => props.color || props.theme.colors.neutral800};
 `;
 
 export const StatTop = styled.div`
