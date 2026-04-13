@@ -5,8 +5,8 @@ import { useQuery, QueryClientProvider, QueryClient, keepPreviousData } from "@t
 import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import styled, { css, keyframes, useTheme } from "styled-components";
 import { Flex, Box, Typography, Divider, SubNav } from "@strapi/design-system";
-import { P as PLUGIN_ID, a as PluginIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, C as Cross, c as ChevronDown, T as Tick, A as ActiveCall, d as TotalCalls, D as DeclineCall, e as CompletedCall, E as Expert, f as CallTime, S as SearchIcon, g as ReferralIcon, h as ConversionIcon, U as UniqueIcon, W as WalletIcon } from "./index-DR_Nv42U.mjs";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar, AreaChart, Area } from "recharts";
+import { P as PLUGIN_ID, a as PluginIcon, C as ChartIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, c as Cross, d as ChevronDown, T as Tick, A as ActiveCall, e as TotalCalls, D as DeclineCall, f as CompletedCall, E as Expert, g as CallTime, S as SearchIcon, h as ReferralIcon, i as ConversionIcon, U as UniqueIcon, W as WalletIcon, j as ActivityIcon, k as TrendingUpIcon, l as UsersIcon, B as BriefcaseIcon, m as UserCheckIcon, n as ExperimentIcon } from "./index-whg2BXkd.mjs";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar, AreaChart, Area, CartesianGrid } from "recharts";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const StyledSubNav = styled(SubNav)`
@@ -60,7 +60,7 @@ const NavButton = styled(NavLink)`
     transition: color 0.2s;
   }
 `;
-const IconWrapper = styled.div`
+const IconWrapper$4 = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,8 +82,18 @@ const PluginLayout = ({ children }) => {
             to: `/plugins/${PLUGIN_ID}`,
             end: true,
             children: [
-              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(IconWrapper$4, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "2rem", height: "2rem" } }) }),
               /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Call Analytics" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxs(
+          NavButton,
+          {
+            to: `/plugins/${PLUGIN_ID}/statistics`,
+            children: [
+              /* @__PURE__ */ jsx(IconWrapper$4, { children: /* @__PURE__ */ jsx(ChartIcon, { style: { width: "1.8rem", height: "1.8rem" } }) }),
+              /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Statistics" })
             ]
           }
         ),
@@ -92,7 +102,7 @@ const PluginLayout = ({ children }) => {
           {
             to: `/plugins/${PLUGIN_ID}/referral-analytics`,
             children: [
-              /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(IconWrapper$4, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
               /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Referral Analytics" })
             ]
           }
@@ -126,7 +136,7 @@ const rowFadeIn$1 = keyframes`
     transform: translateX(0);
   }
 `;
-const fadeIn$1 = keyframes`
+const fadeIn$2 = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
 `;
@@ -165,10 +175,10 @@ const DashboardContainer$1 = styled.div`
   color: ${({ theme }) => theme.colors.neutral800};
   display: flex;
   flex-direction: column;
-  animation: ${fadeIn$1} 0.5s ease-out both;
+  animation: ${fadeIn$2} 0.5s ease-out both;
   ${scrollbarStyles$1}
 `;
-const Header$2 = styled.header`
+const Header$4 = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -181,7 +191,7 @@ const HeaderLeft$1 = styled.div`
   align-items: center;
   gap: 0.75rem;
 `;
-const IconBox$1 = styled.div`
+const IconBox$3 = styled.div`
   padding: 10px;
   border-radius: 0.75rem;
   background-color: ${({ theme }) => theme.colors.primary100};
@@ -192,7 +202,7 @@ const IconBox$1 = styled.div`
   color: ${({ theme }) => theme.colors.primary600};
 `;
 const TitleBox = styled.div``;
-const Title = styled.h1`
+const Title$5 = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
@@ -298,7 +308,7 @@ const KpiGrid = styled.div`
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
-const Card = styled.section`
+const Card$1 = styled.section`
   border-radius: 1rem;
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   background-color: ${({ theme }) => theme.colors.neutral0};
@@ -382,7 +392,7 @@ const CategoryRating = styled.p`
   gap: 0.25rem;
   margin: 0;
 `;
-const ChartContainer = styled.div`
+const ChartContainer$1 = styled.div`
   height: 16rem;
 `;
 styled.div`
@@ -1307,7 +1317,7 @@ const getDateRange = (filter, customRange) => {
   start.setHours(0, 0, 0, 0);
   return { start: start.toISOString(), end: now.toISOString() };
 };
-function formatCurrency(value, useShortener = false) {
+function formatCurrency$1(value, useShortener = false) {
   if (value == null || isNaN(value)) return "₹0";
   const num = Number(value);
   if (useShortener && num >= 1e3) {
@@ -1494,7 +1504,7 @@ const DashboardProvider = ({ children }) => {
   };
   return /* @__PURE__ */ jsx(DashboardContext.Provider, { value, children });
 };
-function Header$1() {
+function Header$3() {
   const { stats, filter, handleFilterChange, customRange } = useDashboardContext();
   const { voice = {}, video = {} } = stats || {};
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
@@ -1514,11 +1524,11 @@ function Header$1() {
   const handlePresetChange = (preset) => {
     handleFilterChange(preset);
   };
-  return /* @__PURE__ */ jsxs(Header$2, { children: [
+  return /* @__PURE__ */ jsxs(Header$4, { children: [
     /* @__PURE__ */ jsxs(HeaderLeft$1, { children: [
-      /* @__PURE__ */ jsx(IconBox$1, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "32px", height: "32px" } }) }),
+      /* @__PURE__ */ jsx(IconBox$3, { children: /* @__PURE__ */ jsx(PluginIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsx(Title, { children: "Call Analytics" }),
+        /* @__PURE__ */ jsx(Title$5, { children: "Call Analytics" }),
         /* @__PURE__ */ jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
         /* @__PURE__ */ jsxs(MetaText, { children: [
           totalCallsToday,
@@ -1804,7 +1814,7 @@ const CustomTooltip = ({ active, payload, label, theme }) => {
 function CategoryGrid() {
   const { categoryStats, filter } = useDashboardContext();
   const theme = useTheme();
-  return /* @__PURE__ */ jsxs(Card, { children: [
+  return /* @__PURE__ */ jsxs(Card$1, { children: [
     /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsxs("div", { children: [
       /* @__PURE__ */ jsx(CardTitle, { children: "Calls by Category" }),
       /* @__PURE__ */ jsx(CardSubtitle, { children: "Call distribution by topics" })
@@ -1854,7 +1864,7 @@ function CategoryGrid() {
         /* @__PURE__ */ jsx("span", { children: row.avgRating })
       ] }) })
     ] }, row.name)) }),
-    categoryStats.length > 1 && /* @__PURE__ */ jsx(ChartContainer, { style: { height: "350px" }, children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data: categoryStats, barSize: 25, margin: { top: 10, right: 10, left: 0, bottom: 40 }, children: [
+    categoryStats.length > 1 && /* @__PURE__ */ jsx(ChartContainer$1, { style: { height: "350px" }, children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data: categoryStats, barSize: 25, margin: { top: 10, right: 10, left: 0, bottom: 40 }, children: [
       /* @__PURE__ */ jsx(
         XAxis,
         {
@@ -2330,7 +2340,7 @@ function KpiSection() {
 const queryClient$1 = new QueryClient();
 const HomePage = () => {
   return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsx(DashboardProvider, { children: /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
-    /* @__PURE__ */ jsx(Header$1, {}),
+    /* @__PURE__ */ jsx(Header$3, {}),
     /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxs(Column, { children: [
         /* @__PURE__ */ jsx(KpiSection, {}),
@@ -2368,7 +2378,7 @@ const gradients = {
   gold: "linear-gradient(135deg, #fceabb 0%, #f8b500 100%)",
   blue: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)"
 };
-const fadeIn = keyframes`
+const fadeIn$1 = keyframes`
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -2429,7 +2439,7 @@ const scrollbarStyles = css`
   scrollbar-width: thin;
   scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
 `;
-const Header = styled.header`
+const Header$2 = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2442,7 +2452,7 @@ const HeaderLeft = styled.div`
   align-items: center;
   gap: 0.75rem;
 `;
-const IconBox = styled.div`
+const IconBox$2 = styled.div`
   padding: 10px;
   border-radius: 0.75rem;
   background-color: ${({ theme }) => theme.colors.primary100};
@@ -3030,7 +3040,7 @@ const HoverDate = styled.div`
   text-transform: uppercase;
   letter-spacing: 0.04em;
   pointer-events: none;
-  animation: ${fadeIn} 0.2s ease-out;
+  animation: ${fadeIn$1} 0.2s ease-out;
   white-space: nowrap;
   z-index: 100;
 `;
@@ -3323,8 +3333,8 @@ const UserReferralTable = () => {
           /* @__PURE__ */ jsx("div", { style: { fontSize: "1.1rem", color: "inherit", opacity: 0.6 }, children: user.email })
         ] }) }),
         /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(HighlightValue, { style: { fontSize: "1.5rem", display: "block", color: "inherit" }, children: user.total_referrals || 0 }) }),
-        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { style: { fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_earnings_from_referrals) }) }),
-        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx("span", { style: { color: "inherit", fontSize: "1.4rem", display: "block" }, children: formatCurrency(user.total_wallet_topup) }) })
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(CurrencyValue, { style: { fontSize: "1.4rem", display: "block" }, children: formatCurrency$1(user.total_earnings_from_referrals) }) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx("span", { style: { color: "inherit", fontSize: "1.4rem", display: "block" }, children: formatCurrency$1(user.total_wallet_topup) }) })
       ] }, user.id)) })
     ] }) }),
     !isLoading && pagination.pageCount > 1 && /* @__PURE__ */ jsx(
@@ -3451,7 +3461,7 @@ const ProgressRing = ({ percent, color, theme }) => {
     ] })
   ] });
 };
-const StatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
+const StatCard$1 = ({ title, value, expertVal, clientVal, icon: Icon, delay, color: colorProp, bg: bgProp, variant, chartData, sparkData }) => {
   const theme = useTheme();
   const color = typeof colorProp === "function" ? colorProp({ theme }) : colorProp;
   const bg = typeof bgProp === "function" ? bgProp({ theme }) : bgProp;
@@ -3467,11 +3477,11 @@ const StatCard = ({ title, value, expertVal, clientVal, icon: Icon, delay, color
     /* @__PURE__ */ jsxs(StatFooterPremium, { children: [
       /* @__PURE__ */ jsxs(FooterItem, { children: [
         /* @__PURE__ */ jsx(FooterLabel, { children: "Expert" }),
-        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.warning400 : "#eab308", children: typeof expertVal === "number" ? expertVal : formatCurrency(expertVal, true) })
+        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.warning400 : "#eab308", children: typeof expertVal === "number" ? expertVal : formatCurrency$1(expertVal, true) })
       ] }),
       /* @__PURE__ */ jsxs(FooterItem, { children: [
         /* @__PURE__ */ jsx(FooterLabel, { children: "Client" }),
-        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.primary400 : "#3b82f6", children: typeof clientVal === "number" ? clientVal : formatCurrency(clientVal, true) })
+        /* @__PURE__ */ jsx(FooterValue, { color: theme.name === "dark" ? theme.colors.primary400 : "#3b82f6", children: typeof clientVal === "number" ? clientVal : formatCurrency$1(clientVal, true) })
       ] }),
       /* @__PURE__ */ jsx(PieChartWrapper, { children: /* @__PURE__ */ jsx(
         MiniPieChart,
@@ -3495,7 +3505,7 @@ const PlatformExpendsCard = ({ data, delay, formattedSparkData }) => {
           /* @__PURE__ */ jsx(StatIconBox, { bg: theme.colors.success100, color: theme.colors.success600, children: /* @__PURE__ */ jsx(WalletIcon, { style: { width: "18px", height: "18px" } }) }),
           "Platform Expends"
         ] }),
-        /* @__PURE__ */ jsx(StatMainValue, { style: { fontSize: "2.5rem", marginTop: "0.5rem" }, children: formatCurrency(data.total, true) })
+        /* @__PURE__ */ jsx(StatMainValue, { style: { fontSize: "2.5rem", marginTop: "0.5rem" }, children: formatCurrency$1(data.total, true) })
       ] }),
       /* @__PURE__ */ jsx(SparklineWrapper, { children: /* @__PURE__ */ jsx(Sparkline, { data: formattedSparkData, color: theme.colors.success600, theme }) })
     ] }),
@@ -3504,22 +3514,22 @@ const PlatformExpendsCard = ({ data, delay, formattedSparkData }) => {
         /* @__PURE__ */ jsx(PanelTitle, { children: "Referrer" }),
         /* @__PURE__ */ jsxs(PanelRow, { children: [
           /* @__PURE__ */ jsx(PanelLabel, { children: "Expert" }),
-          /* @__PURE__ */ jsx(PanelValue, { color: expertColor, children: formatCurrency(data.referrer.expert, true) })
+          /* @__PURE__ */ jsx(PanelValue, { color: expertColor, children: formatCurrency$1(data.referrer.expert, true) })
         ] }),
         /* @__PURE__ */ jsxs(PanelRow, { children: [
           /* @__PURE__ */ jsx(PanelLabel, { children: "Client" }),
-          /* @__PURE__ */ jsx(PanelValue, { color: clientColor, children: formatCurrency(data.referrer.client, true) })
+          /* @__PURE__ */ jsx(PanelValue, { color: clientColor, children: formatCurrency$1(data.referrer.client, true) })
         ] })
       ] }),
       /* @__PURE__ */ jsxs(DataPanel, { color: theme.colors.secondary500, children: [
         /* @__PURE__ */ jsx(PanelTitle, { children: "Receiver" }),
         /* @__PURE__ */ jsxs(PanelRow, { children: [
           /* @__PURE__ */ jsx(PanelLabel, { children: "Expert" }),
-          /* @__PURE__ */ jsx(PanelValue, { color: expertColor, children: formatCurrency(data.reciever.expert, true) })
+          /* @__PURE__ */ jsx(PanelValue, { color: expertColor, children: formatCurrency$1(data.reciever.expert, true) })
         ] }),
         /* @__PURE__ */ jsxs(PanelRow, { children: [
           /* @__PURE__ */ jsx(PanelLabel, { children: "Client" }),
-          /* @__PURE__ */ jsx(PanelValue, { color: clientColor, children: formatCurrency(data.reciever.client, true) })
+          /* @__PURE__ */ jsx(PanelValue, { color: clientColor, children: formatCurrency$1(data.reciever.client, true) })
         ] })
       ] })
     ] })
@@ -3538,7 +3548,7 @@ const StatsSection = () => {
   }));
   return /* @__PURE__ */ jsxs(StatsGrid, { children: [
     /* @__PURE__ */ jsx(
-      StatCard,
+      StatCard$1,
       {
         title: "Total Referrals",
         value: refs.total,
@@ -3553,7 +3563,7 @@ const StatsSection = () => {
       }
     ),
     /* @__PURE__ */ jsx(
-      StatCard,
+      StatCard$1,
       {
         title: "Referral Conversion",
         value: conv.total,
@@ -3568,7 +3578,7 @@ const StatsSection = () => {
       }
     ),
     /* @__PURE__ */ jsx(
-      StatCard,
+      StatCard$1,
       {
         title: "Direct Conversion",
         value: direct.total,
@@ -3598,9 +3608,9 @@ const DashboardHeader = () => {
   const totalRefs = d.referrals?.total || 0;
   const conversions = d.referral_conversion?.total || 0;
   const convRate = d.referral_conversion?.percentage || 0;
-  return /* @__PURE__ */ jsxs(Header, { children: [
+  return /* @__PURE__ */ jsxs(Header$2, { children: [
     /* @__PURE__ */ jsxs(HeaderLeft, { children: [
-      /* @__PURE__ */ jsx(IconBox, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "38px", height: "38px" } }) }),
+      /* @__PURE__ */ jsx(IconBox$2, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "38px", height: "38px" } }) }),
       /* @__PURE__ */ jsxs(HeaderTitleBox, { children: [
         /* @__PURE__ */ jsx(HeaderTitle, { children: "Referral Analytics" }),
         /* @__PURE__ */ jsx(HeaderSubtitle, { children: "Monitor and analyze referral performance across the network" }),
@@ -3626,6 +3636,1138 @@ const ReferralAnalyticsPage = () => {
     ] }) })
   ] }) });
 };
+const dummyStats = {
+  userSummary: {
+    total: 15420,
+    test: 640,
+    experts: 4280,
+    clients: 10500,
+    expertsByStatus: [
+      { name: "Approved", value: 4242, color: "#10b981" },
+      { name: "Pending", value: 38, color: "#f59e0b" },
+      { name: "Blocked", value: 320, color: "#ef4444" },
+      { name: "Deleted", value: 160, color: "#6b7280" }
+    ],
+    clientsByStatus: [
+      { name: "Active", value: 9800, color: "#10b981" },
+      { name: "Blocked", value: 450, color: "#ef4444" },
+      { name: "Deleted", value: 250, color: "#6b7280" }
+    ],
+    availability: [
+      { name: "Online", value: 145, color: "#10b981" },
+      { name: "Offline", value: 3600, color: "#6b7280" },
+      { name: "Busy", value: 535, color: "#f59e0b" }
+    ],
+    badges: [
+      { name: "Badge 1", count: 1850 },
+      { name: "Badge 2", count: 1240 },
+      { name: "Badge 3", count: 860 },
+      { name: "Badge 4", count: 330 }
+    ]
+  },
+  growth: [
+    { date: "Apr 01", experts: 120, clients: 450 },
+    { date: "Apr 02", experts: 135, clients: 480 },
+    { date: "Apr 03", experts: 150, clients: 510 },
+    { date: "Apr 04", experts: 140, clients: 490 },
+    { date: "Apr 05", experts: 165, clients: 540 },
+    { date: "Apr 06", experts: 180, clients: 590 },
+    { date: "Apr 07", experts: 175, clients: 570 }
+  ],
+  wallet: {
+    totalTopups: 850750,
+    referralDistributed: 42500,
+    platformEarnings: 125400,
+    trend: [
+      { date: "Apr 01", amount: 12e3 },
+      { date: "Apr 02", amount: 15400 },
+      { date: "Apr 03", amount: 14200 },
+      { date: "Apr 04", amount: 18900 },
+      { date: "Apr 05", amount: 22100 },
+      { date: "Apr 06", amount: 21e3 },
+      { date: "Apr 07", amount: 25400 }
+    ],
+    economy: {
+      audio: { clientSpent: 32e4, expertEarned: 288e3, commission: 32e3 },
+      video: { clientSpent: 530750, expertEarned: 477675, commission: 53075 }
+    }
+  },
+  sparklines: {
+    users: [
+      { name: "Jan", value: 100 },
+      { name: "Feb", value: 120 },
+      { name: "Mar", value: 115 },
+      { name: "Apr", value: 134 },
+      { name: "May", value: 145 },
+      { name: "Jun", value: 132 },
+      { name: "Jul", value: 160 }
+    ],
+    experts: [
+      { name: "Jan", value: 40 },
+      { name: "Feb", value: 50 },
+      { name: "Mar", value: 48 },
+      { name: "Apr", value: 62 },
+      { name: "May", value: 58 },
+      { name: "Jun", value: 65 },
+      { name: "Jul", value: 72 }
+    ],
+    topups: [
+      { name: "Jan", value: 3e3 },
+      { name: "Feb", value: 4500 },
+      { name: "Mar", value: 4200 },
+      { name: "Apr", value: 5600 },
+      { name: "May", value: 5100 },
+      { name: "Jun", value: 6200 },
+      { name: "Jul", value: 6800 }
+    ],
+    referrals: [
+      { name: "Jan", value: 200 },
+      { name: "Feb", value: 450 },
+      { name: "Mar", value: 300 },
+      { name: "Apr", value: 600 },
+      { name: "May", value: 400 },
+      { name: "Jun", value: 550 },
+      { name: "Jul", value: 700 }
+    ]
+  }
+};
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+const Card = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 16px;
+  padding: 18px 16px 8px 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  position: relative;
+  min-height: 140px;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: ${(props) => props.color};
+    opacity: 0.8;
+  }
+`;
+const TopRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+const LabelSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+const IconWrapper$3 = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: ${(props) => `${props.color}10`};
+  color: ${(props) => props.color};
+  flex-shrink: 0;
+`;
+const Title$4 = styled.p`
+  font-size: 11px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+`;
+const TrendContainer = styled.div`
+  font-size: 12px;
+  font-weight: 700;
+  color: ${(props) => props.positive ? "#10b981" : "#ef4444"};
+  display: flex;
+  align-items: center;
+  gap: 2px;
+`;
+const ValueRow = styled.div`
+  margin-bottom: 8px;
+`;
+const Value = styled.h4`
+  font-size: 32px;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1;
+`;
+const ChartWrapper = styled.div`
+  height: 60px;
+  width: 100%;
+  margin-left: -16px;
+  margin-right: -16px;
+  width: calc(100% + 32px);
+  margin-top: auto;
+  opacity: 0.9;
+  position: relative;
+`;
+const HoverLabel = styled.div`
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 800;
+  color: ${(props) => props.color};
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  animation: ${fadeIn} 0.2s ease-out;
+  z-index: 100;
+  background: ${({ theme }) => theme.colors.neutral0};
+  padding: 2px 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+`;
+const StatCard = ({ title, value, trend, chartData, color = "#3b82f6", Icon }) => {
+  const theme = useTheme();
+  const [hoveredLabel, setHoveredLabel] = useState(null);
+  const isPositive = !trend?.startsWith("-");
+  const gradientId = `color-premium-${title.replace(/\s+/g, "-").toLowerCase()}`;
+  return /* @__PURE__ */ jsxs(Card, { color, children: [
+    /* @__PURE__ */ jsxs(TopRow, { children: [
+      /* @__PURE__ */ jsxs(LabelSection, { children: [
+        Icon && /* @__PURE__ */ jsx(IconWrapper$3, { color, children: /* @__PURE__ */ jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
+        /* @__PURE__ */ jsx(Title$4, { children: title })
+      ] }),
+      trend && /* @__PURE__ */ jsxs(TrendContainer, { positive: isPositive, children: [
+        isPositive ? "↑" : "↓",
+        " ",
+        trend.replace(/[+-]/, "")
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(ValueRow, { children: /* @__PURE__ */ jsx(Value, { children: value }) }),
+    /* @__PURE__ */ jsxs(ChartWrapper, { children: [
+      /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(
+        AreaChart,
+        {
+          data: chartData,
+          onMouseMove: (e) => {
+            if (e && e.activePayload && e.activePayload.length > 0) {
+              setHoveredLabel(e.activePayload[0].payload.name);
+            } else if (e && e.activeTooltipIndex !== void 0 && chartData[e.activeTooltipIndex]) {
+              setHoveredLabel(chartData[e.activeTooltipIndex].name);
+            }
+          },
+          onMouseLeave: () => setHoveredLabel(null),
+          children: [
+            /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: gradientId, x1: "0", y1: "0", x2: "0", y2: "1", children: [
+              /* @__PURE__ */ jsx("stop", { offset: "0%", stopColor: color, stopOpacity: 0.4 }),
+              /* @__PURE__ */ jsx("stop", { offset: "100%", stopColor: color, stopOpacity: 0 })
+            ] }) }),
+            /* @__PURE__ */ jsx(
+              Tooltip,
+              {
+                content: ({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return /* @__PURE__ */ jsx("div", { style: {
+                      backgroundColor: theme.colors.neutral0,
+                      padding: "4px 10px",
+                      borderRadius: "8px",
+                      fontSize: "11px",
+                      fontWeight: "800",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      border: `1px solid ${color}`,
+                      color: theme.colors.neutral800
+                    }, children: payload[0].value.toLocaleString() });
+                  }
+                  return null;
+                },
+                cursor: { stroke: color, strokeWidth: 1, strokeDasharray: "4 4" }
+              }
+            ),
+            /* @__PURE__ */ jsx(
+              Area,
+              {
+                type: "monotone",
+                dataKey: "value",
+                stroke: color,
+                strokeWidth: 3,
+                fill: `url(#${gradientId})`,
+                isAnimationActive: true,
+                dot: false,
+                activeDot: { r: 4, strokeWidth: 0, fill: color }
+              }
+            )
+          ]
+        }
+      ) }),
+      hoveredLabel && /* @__PURE__ */ jsx(HoverLabel, { color, children: hoveredLabel })
+    ] })
+  ] });
+};
+const Container$3 = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  position: relative;
+`;
+const Title$3 = styled.h3`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+const IconWrapper$2 = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const ContentWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+`;
+const ChartContainer = styled.div`
+  height: 100px;
+  width: 100px;
+  flex-shrink: 0;
+  position: relative;
+`;
+const CenterLabel = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+`;
+const CenterValue = styled.div`
+  font-size: 16px;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral800};
+  line-height: 1;
+`;
+const CenterText = styled.div`
+  font-size: 9px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  margin-top: 2px;
+`;
+const Legend$1 = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+`;
+const LegendItem$1 = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  padding: 4px 0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral100};
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+const Badge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+const Dot$1 = styled.div`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: ${(props) => props.color};
+  box-shadow: 0 0 8px ${(props) => `${props.color}66`};
+`;
+const Label = styled.span`
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.neutral600};
+  white-space: nowrap;
+`;
+const Count = styled.span`
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const AvailabilityDonut = ({ data, title, Icon }) => {
+  const theme = useTheme();
+  const total = data.reduce((acc, curr) => acc + curr.value, 0);
+  return /* @__PURE__ */ jsxs(Container$3, { children: [
+    /* @__PURE__ */ jsx("div", { style: { marginBottom: "16px", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxs(Title$3, { children: [
+      Icon && /* @__PURE__ */ jsx(IconWrapper$2, { children: /* @__PURE__ */ jsx(Icon, { style: { width: 18, height: 18 } }) }),
+      title
+    ] }) }),
+    /* @__PURE__ */ jsxs(ContentWrapper, { children: [
+      /* @__PURE__ */ jsxs(ChartContainer, { children: [
+        /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(PieChart, { children: [
+          /* @__PURE__ */ jsx(
+            Pie,
+            {
+              data,
+              innerRadius: 32,
+              outerRadius: 46,
+              paddingAngle: 4,
+              dataKey: "value",
+              stroke: "none",
+              cornerRadius: 4,
+              children: data.map((entry, index) => /* @__PURE__ */ jsx(Cell, { fill: entry.color }, `cell-${index}`))
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Tooltip,
+            {
+              wrapperStyle: { zIndex: 1e3 },
+              contentStyle: {
+                borderRadius: "12px",
+                border: "none",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                fontSize: "11px",
+                background: theme.colors.neutral0,
+                color: theme.colors.neutral800
+              },
+              itemStyle: { color: theme.colors.neutral800 }
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ jsxs(CenterLabel, { children: [
+          /* @__PURE__ */ jsx(CenterValue, { children: total }),
+          /* @__PURE__ */ jsx(CenterText, { children: "Total" })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsx(Legend$1, { children: data.map((item, index) => /* @__PURE__ */ jsxs(LegendItem$1, { children: [
+        /* @__PURE__ */ jsxs(Badge, { children: [
+          /* @__PURE__ */ jsx(Dot$1, { color: item.color }),
+          /* @__PURE__ */ jsx(Label, { children: item.name })
+        ] }),
+        /* @__PURE__ */ jsx(Count, { children: item.value.toLocaleString() })
+      ] }, index)) })
+    ] })
+  ] });
+};
+const Container$2 = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  height: 100%;
+`;
+const Header$1 = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+const Title$2 = styled.h3`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+const IconWrapper$1 = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const Legend = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+const LegendItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neutral600};
+`;
+const Dot = styled.div`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${(props) => props.color};
+`;
+const GrowthBarChart = ({ data, title, Icon }) => {
+  const theme = useTheme();
+  return /* @__PURE__ */ jsxs(Container$2, { children: [
+    /* @__PURE__ */ jsxs(Header$1, { children: [
+      /* @__PURE__ */ jsxs(Title$2, { children: [
+        Icon && /* @__PURE__ */ jsx(IconWrapper$1, { children: /* @__PURE__ */ jsx(Icon, { style: { width: 18, height: 18 } }) }),
+        title
+      ] }),
+      /* @__PURE__ */ jsxs(Legend, { children: [
+        /* @__PURE__ */ jsxs(LegendItem, { children: [
+          /* @__PURE__ */ jsx(Dot, { color: "#3b82f6" }),
+          " Experts"
+        ] }),
+        /* @__PURE__ */ jsxs(LegendItem, { children: [
+          /* @__PURE__ */ jsx(Dot, { color: "#10b981" }),
+          " Clients"
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx("div", { style: { height: "240px", width: "100%" }, children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data, margin: { top: 10, right: 10, left: -20, bottom: 0 }, barGap: 6, children: [
+      /* @__PURE__ */ jsx(
+        CartesianGrid,
+        {
+          strokeDasharray: "3 3",
+          vertical: false,
+          stroke: theme.colors.neutral200
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        XAxis,
+        {
+          dataKey: "date",
+          axisLine: false,
+          tickLine: false,
+          tick: { fontSize: 11, fill: theme.colors.neutral500 },
+          dy: 10
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        YAxis,
+        {
+          axisLine: false,
+          tickLine: false,
+          tick: { fontSize: 11, fill: theme.colors.neutral500 }
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Tooltip,
+        {
+          cursor: { fill: theme.colors.neutral100, radius: 4 },
+          contentStyle: {
+            borderRadius: "12px",
+            border: "none",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+            padding: "12px",
+            background: theme.colors.neutral0,
+            color: theme.colors.neutral800
+          },
+          itemStyle: { fontSize: "12px", fontWeight: 600 }
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Bar,
+        {
+          dataKey: "experts",
+          name: "Experts",
+          fill: "#3b82f6",
+          radius: [4, 4, 0, 0],
+          barSize: 12
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        Bar,
+        {
+          dataKey: "clients",
+          name: "Clients",
+          fill: "#10b981",
+          radius: [4, 4, 0, 0],
+          barSize: 12
+        }
+      )
+    ] }) }) })
+  ] });
+};
+const Container$1 = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+`;
+const Header = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+`;
+const IconBox$1 = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: ${({ theme }) => theme.colors.primary100};
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const Title$1 = styled.h3`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+`;
+const StatItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+const ItemHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+const ItemLabel = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+`;
+const ItemValue = styled.span`
+  font-size: 12px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const ProgressTrack = styled.div`
+  height: 7px;
+  background: ${({ theme }) => theme.colors.neutral100};
+  border-radius: 10px;
+  overflow: hidden;
+`;
+const ProgressBar = styled.div`
+  height: 100%;
+  background: ${(props) => props.color};
+  width: ${(props) => props.width}%;
+  border-radius: 10px;
+  box-shadow: 0 0 6px ${(props) => `${props.color}33`};
+`;
+const StatusProgress = ({ title, items, total }) => {
+  return /* @__PURE__ */ jsxs(Container$1, { children: [
+    /* @__PURE__ */ jsxs(Header, { children: [
+      /* @__PURE__ */ jsx(IconBox$1, { children: /* @__PURE__ */ jsx(ActivityIcon, { style: { width: "14px", height: "14px" } }) }),
+      /* @__PURE__ */ jsx(Title$1, { children: title })
+    ] }),
+    items.map((item, index) => {
+      const percentage = total > 0 ? item.value / total * 100 : 0;
+      return /* @__PURE__ */ jsxs(StatItem, { children: [
+        /* @__PURE__ */ jsxs(ItemHeader, { children: [
+          /* @__PURE__ */ jsx(ItemLabel, { children: item.name }),
+          /* @__PURE__ */ jsxs(ItemValue, { children: [
+            item.value.toLocaleString(),
+            " (",
+            Math.round(percentage),
+            "%)"
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx(ProgressTrack, { children: /* @__PURE__ */ jsx(ProgressBar, { width: percentage, color: item.color }) })
+      ] }, index);
+    })
+  ] });
+};
+const Container = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+const Title = styled.h2`
+  font-size: 15px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+const IconWrapper = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.colors.neutral100};
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const BreakdownTable = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+`;
+const TableRow = styled.div`
+  display: grid;
+  grid-template-columns: 40px 1fr 1fr 90px;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral100};
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+`;
+const TypeInfo = styled.div`
+  display: flex;
+  align-items: center;
+`;
+const IconBox = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => `${props.color}15`};
+  color: ${(props) => props.color};
+`;
+const MetricCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: ${(props) => props.align || "flex-start"};
+`;
+const MetricSubLabel = styled.span`
+  font-size: 9px;
+  color: ${({ theme }) => theme.colors.neutral500};
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  letter-spacing: 0.02em;
+`;
+const MetricMainVal = styled.span`
+  font-size: 13px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const PayIndicator = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+`;
+const RatioLabel = styled.div`
+  font-size: 10px;
+  font-weight: 800;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+const MiniTrack = styled.div`
+  width: 100%;
+  height: 4px;
+  background: ${({ theme }) => theme.colors.neutral100};
+  border-radius: 2px;
+  overflow: hidden;
+`;
+const MiniBar = styled.div`
+  height: 100%;
+  width: ${(props) => props.percentage}%;
+  background: #10b981;
+  border-radius: 2px;
+`;
+const FooterSummary = styled.div`
+  margin-top: auto;
+  padding-top: 20px;
+`;
+const SummaryGrid = styled.div`
+  background: ${({ theme }) => theme.colors.neutral100};
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #10b981);
+  }
+`;
+const SummaryItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  text-align: center;
+`;
+const SummaryLabel = styled.div`
+  font-size: 8px;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+`;
+const SummaryVal = styled.div`
+  font-size: 13px;
+  font-weight: 800;
+  color: ${(props) => props.accent || props.theme.colors.neutral800};
+`;
+const formatCurrency = (val) => {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0
+  }).format(val);
+};
+const EconomyBalanceCard = ({ economy }) => {
+  const theme = useTheme();
+  const totals = {
+    spent: economy.audio.clientSpent + economy.video.clientSpent,
+    earned: economy.audio.expertEarned + economy.video.expertEarned,
+    commission: economy.audio.commission + economy.video.commission
+  };
+  const renderRow = (data, icon, color) => {
+    const ratio = data.expertEarned / data.clientSpent * 100;
+    return /* @__PURE__ */ jsxs(TableRow, { children: [
+      /* @__PURE__ */ jsx(TypeInfo, { children: /* @__PURE__ */ jsx(IconBox, { color, children: icon }) }),
+      /* @__PURE__ */ jsxs(MetricCell, { children: [
+        /* @__PURE__ */ jsx(MetricSubLabel, { children: "Client Spent" }),
+        /* @__PURE__ */ jsx(MetricMainVal, { children: formatCurrency(data.clientSpent) })
+      ] }),
+      /* @__PURE__ */ jsxs(MetricCell, { children: [
+        /* @__PURE__ */ jsx(MetricSubLabel, { children: "Expert Receive" }),
+        /* @__PURE__ */ jsx(MetricMainVal, { children: formatCurrency(data.expertEarned) })
+      ] }),
+      /* @__PURE__ */ jsx(MetricCell, { align: "flex-end", children: /* @__PURE__ */ jsxs(PayIndicator, { children: [
+        /* @__PURE__ */ jsxs(RatioLabel, { children: [
+          /* @__PURE__ */ jsx(ActivityIcon, { style: { width: 10 } }),
+          ratio.toFixed(0),
+          "% Pay"
+        ] }),
+        /* @__PURE__ */ jsx(MiniTrack, { children: /* @__PURE__ */ jsx(MiniBar, { percentage: ratio }) })
+      ] }) })
+    ] });
+  };
+  return /* @__PURE__ */ jsxs(Container, { children: [
+    /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+      /* @__PURE__ */ jsxs(Title, { children: [
+        /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(ActivityIcon, { style: { width: 18, height: 18 } }) }),
+        "Revenue & Settlement"
+      ] }),
+      /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
+        /* @__PURE__ */ jsx("span", { style: { fontSize: "10px", fontWeight: 700, color: theme.colors.neutral500 }, children: "MARGIN" }),
+        /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", fontWeight: 800, color: "#3b82f6" }, children: [
+          "~",
+          (totals.commission / totals.spent * 100).toFixed(1),
+          "%"
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxs(BreakdownTable, { children: [
+      renderRow(
+        economy.audio,
+        /* @__PURE__ */ jsx(VoiceCall, { style: { width: 14 } }),
+        "#3b82f6"
+      ),
+      renderRow(
+        economy.video,
+        /* @__PURE__ */ jsx(VideoCall, { style: { width: 14 } }),
+        "#10b981"
+      )
+    ] }),
+    /* @__PURE__ */ jsx(FooterSummary, { children: /* @__PURE__ */ jsxs(SummaryGrid, { children: [
+      /* @__PURE__ */ jsxs(SummaryItem, { children: [
+        /* @__PURE__ */ jsxs(SummaryLabel, { children: [
+          /* @__PURE__ */ jsx(WalletIcon, { style: { width: 10 } }),
+          "Total Client Spent"
+        ] }),
+        /* @__PURE__ */ jsx(SummaryVal, { children: formatCurrency(totals.spent) })
+      ] }),
+      /* @__PURE__ */ jsxs(SummaryItem, { children: [
+        /* @__PURE__ */ jsxs(SummaryLabel, { children: [
+          /* @__PURE__ */ jsx(TrendingUpIcon, { style: { width: 10 } }),
+          "Total Expert Receive"
+        ] }),
+        /* @__PURE__ */ jsx(SummaryVal, { accent: "#10b981", children: formatCurrency(totals.earned) })
+      ] }),
+      /* @__PURE__ */ jsxs(SummaryItem, { children: [
+        /* @__PURE__ */ jsxs(SummaryLabel, { children: [
+          /* @__PURE__ */ jsx("div", { style: { width: 6, height: 6, borderRadius: "50%", background: "#3b82f6" } }),
+          "Platform Revenue"
+        ] }),
+        /* @__PURE__ */ jsx(SummaryVal, { accent: "#3b82f6", children: formatCurrency(totals.commission) })
+      ] })
+    ] }) })
+  ] });
+};
+const StatsHeader = () => {
+  const { userSummary } = dummyStats;
+  const totalUsers = userSummary.total.toLocaleString();
+  const activeNow = userSummary.availability.find((a) => a.name === "Available")?.value || 0;
+  return /* @__PURE__ */ jsxs(Header$4, { children: [
+    /* @__PURE__ */ jsxs(HeaderLeft$1, { children: [
+      /* @__PURE__ */ jsx(IconBox$3, { children: /* @__PURE__ */ jsx(ChartIcon, { style: { width: "32px", height: "32px" } }) }),
+      /* @__PURE__ */ jsxs(TitleBox, { children: [
+        /* @__PURE__ */ jsx(Title$5, { children: "Platform Statistics" }),
+        /* @__PURE__ */ jsx(Subtitle, { children: "Comprehensive overview of users, growth, and financial metrics." }),
+        /* @__PURE__ */ jsxs(MetaText, { children: [
+          totalUsers,
+          " total users registered • ",
+          activeNow,
+          " experts currently available"
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsx(HeaderRight$1, {})
+  ] });
+};
+const CustomGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(${(props) => props.col || 12}, 1fr);
+  gap: 20px;
+  width: 100%;
+`;
+const CustomGridItem = styled.div`
+  grid-column: span ${(props) => props.col || 12};
+`;
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 32px 0 20px 0;
+  
+  &:first-of-type {
+    margin-top: 0;
+  }
+
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: ${({ theme }) => theme.colors.neutral200};
+  }
+`;
+const SectionTitle = styled.h2`
+  font-size: 14px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+const StatsDashboardPage = () => {
+  const { userSummary, growth, wallet, sparklines } = dummyStats;
+  return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
+    /* @__PURE__ */ jsx(StatsHeader, {}),
+    /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(Flex, { direction: "column", alignItems: "stretch", gap: 6, children: [
+      /* @__PURE__ */ jsxs("section", { children: [
+        /* @__PURE__ */ jsx(SectionHeader, { children: /* @__PURE__ */ jsxs(SectionTitle, { children: [
+          /* @__PURE__ */ jsx(UsersIcon, { style: { width: "16px", height: "16px" } }),
+          "User Intelligence"
+        ] }) }),
+        /* @__PURE__ */ jsxs(CustomGrid, { col: 12, children: [
+          /* @__PURE__ */ jsx(CustomGridItem, { col: 3, children: /* @__PURE__ */ jsx(
+            StatCard,
+            {
+              title: "Total Users",
+              value: (userSummary.total - userSummary.test).toLocaleString(),
+              trend: "12.5%",
+              chartData: sparklines.users,
+              color: "#3b82f6",
+              Icon: UsersIcon
+            }
+          ) }),
+          /* @__PURE__ */ jsx(CustomGridItem, { col: 3, children: /* @__PURE__ */ jsx(
+            StatCard,
+            {
+              title: "Experts",
+              value: userSummary.experts.toLocaleString(),
+              trend: "8.2%",
+              chartData: sparklines.experts,
+              color: "#8b5cf6",
+              Icon: BriefcaseIcon
+            }
+          ) }),
+          /* @__PURE__ */ jsx(CustomGridItem, { col: 3, children: /* @__PURE__ */ jsx(
+            StatCard,
+            {
+              title: "Clients",
+              value: userSummary.clients.toLocaleString(),
+              trend: "15.1%",
+              chartData: sparklines.users.map((d) => ({ ...d, value: d.value * 0.7 })),
+              color: "#10b981",
+              Icon: UserCheckIcon
+            }
+          ) }),
+          /* @__PURE__ */ jsx(CustomGridItem, { col: 3, children: /* @__PURE__ */ jsx(
+            StatCard,
+            {
+              title: "Test Users",
+              value: userSummary.test.toLocaleString(),
+              trend: "-2.4%",
+              chartData: sparklines.users.map((d, i) => ({ name: d.name, value: [80, 75, 78, 70, 72, 68, 64][i] })),
+              color: "#f59e0b",
+              Icon: ExperimentIcon
+            }
+          ) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(CustomGrid, { col: 12, children: [
+        /* @__PURE__ */ jsx(CustomGridItem, { col: 4, children: /* @__PURE__ */ jsx(
+          AvailabilityDonut,
+          {
+            title: "Expert Availability",
+            data: userSummary.availability,
+            Icon: BriefcaseIcon
+          }
+        ) }),
+        /* @__PURE__ */ jsx(CustomGridItem, { col: 4, children: /* @__PURE__ */ jsx(
+          StatusProgress,
+          {
+            title: "Expert Status",
+            total: userSummary.experts,
+            items: userSummary.expertsByStatus
+          }
+        ) }),
+        /* @__PURE__ */ jsx(CustomGridItem, { col: 4, children: /* @__PURE__ */ jsx(
+          StatusProgress,
+          {
+            title: "Client Status",
+            total: userSummary.clients,
+            items: userSummary.clientsByStatus
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ jsxs(CustomGrid, { col: 12, children: [
+        /* @__PURE__ */ jsx(CustomGridItem, { col: 8, children: /* @__PURE__ */ jsx(
+          GrowthBarChart,
+          {
+            title: "Registration Growth",
+            data: growth,
+            Icon: TrendingUpIcon
+          }
+        ) }),
+        /* @__PURE__ */ jsx(CustomGridItem, { col: 4, children: /* @__PURE__ */ jsx(
+          StatusProgress,
+          {
+            title: "Expert Badge Distribution",
+            total: userSummary.experts,
+            items: userSummary.badges.map((b) => ({
+              name: b.name,
+              value: b.count,
+              color: "#8b5cf6"
+            }))
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ jsxs("section", { children: [
+        /* @__PURE__ */ jsx(SectionHeader, { children: /* @__PURE__ */ jsxs(SectionTitle, { children: [
+          /* @__PURE__ */ jsx(WalletIcon, { style: { width: "16px", height: "16px" } }),
+          "Financial Performance"
+        ] }) }),
+        /* @__PURE__ */ jsxs(CustomGrid, { col: 12, children: [
+          /* @__PURE__ */ jsx(CustomGridItem, { col: 4, children: /* @__PURE__ */ jsx(
+            StatCard,
+            {
+              title: "Total Wallet Topups",
+              value: `₹${wallet.totalTopups.toLocaleString()}`,
+              trend: "22.4%",
+              chartData: sparklines.topups,
+              color: "#10b981",
+              Icon: WalletIcon
+            }
+          ) }),
+          /* @__PURE__ */ jsx(CustomGridItem, { col: 4, children: /* @__PURE__ */ jsx(
+            StatCard,
+            {
+              title: "Referral Expenses",
+              value: `₹${wallet.referralDistributed.toLocaleString()}`,
+              trend: "5.8%",
+              chartData: sparklines.referrals,
+              color: "#f59e0b",
+              Icon: ReferralIcon
+            }
+          ) }),
+          /* @__PURE__ */ jsx(CustomGridItem, { col: 4, children: /* @__PURE__ */ jsx(
+            StatCard,
+            {
+              title: "Platform Earnings",
+              value: `₹${wallet.platformEarnings.toLocaleString()}`,
+              trend: "18.2%",
+              chartData: sparklines.topups.map((d) => ({ ...d, value: d.value * 0.15 })),
+              color: "#3b82f6",
+              Icon: TrendingUpIcon
+            }
+          ) })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxs(CustomGrid, { col: 12, children: [
+        /* @__PURE__ */ jsx(CustomGridItem, { col: 6, children: /* @__PURE__ */ jsx(
+          EconomyBalanceCard,
+          {
+            economy: wallet.economy
+          }
+        ) }),
+        /* @__PURE__ */ jsx(CustomGridItem, { col: 6, children: /* @__PURE__ */ jsx(
+          GrowthBarChart,
+          {
+            title: "Wallet Transaction Trends",
+            data: wallet.trend.map((t) => ({
+              date: t.date,
+              experts: t.amount,
+              clients: t.amount * 0.8
+            })),
+            Icon: WalletIcon
+          }
+        ) })
+      ] })
+    ] }) })
+  ] }) });
+};
 const queryClient = new QueryClient();
 const App = () => {
   return /* @__PURE__ */ jsxs(QueryClientProvider, { client: queryClient, children: [
@@ -3633,6 +4775,7 @@ const App = () => {
     /* @__PURE__ */ jsxs(Routes, { children: [
       /* @__PURE__ */ jsx(Route, { index: true, element: /* @__PURE__ */ jsx(HomePage, {}) }),
       /* @__PURE__ */ jsx(Route, { path: "referral-analytics", element: /* @__PURE__ */ jsx(ReferralAnalyticsPage, {}) }),
+      /* @__PURE__ */ jsx(Route, { path: "statistics", element: /* @__PURE__ */ jsx(StatsDashboardPage, {}) }),
       /* @__PURE__ */ jsx(Route, { path: "*", element: /* @__PURE__ */ jsx(Page.Error, {}) })
     ] })
   ] });

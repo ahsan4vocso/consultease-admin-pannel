@@ -93,6 +93,35 @@ const SearchIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style
   /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "11", cy: "11", r: "8" }),
   /* @__PURE__ */ jsxRuntime.jsx("path", { d: "m21 21-4.3-4.3" })
 ] });
+const ChartIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "18", y1: "20", x2: "18", y2: "10" }),
+  /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "12", y1: "20", x2: "12", y2: "4" }),
+  /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "6", y1: "20", x2: "6", y2: "14" })
+] });
+const UsersIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "9", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M23 21v-2a4 4 0 0 0-3-3.87" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 3.13a4 4 0 0 1 0 7.75" })
+] });
+const BriefcaseIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("rect", { x: "2", y: "7", width: "20", height: "14", rx: "2", ry: "2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" })
+] });
+const UserCheckIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "9", cy: "7", r: "4" }),
+  /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "17 11 19 13 23 9" })
+] });
+const TrendingUpIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "23 6 13.5 15.5 8.5 10.5 1 18" }),
+  /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "17 6 23 6 23 12" })
+] });
+const ActivityIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsx("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: /* @__PURE__ */ jsxRuntime.jsx("polyline", { points: "22 12 18 12 15 21 9 3 6 12 2 12" }) });
+const ExperimentIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M12 2L2 22H22L12 2Z", fill: "none", stroke: "currentColor", strokeWidth: "2" }),
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "12", cy: "14", r: "3", stroke: "currentColor", strokeWidth: "2" })
+] });
 const index = {
   register(app) {
     app.addMenuLink({
@@ -102,7 +131,7 @@ const index = {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: "Dashboards"
       },
-      Component: () => Promise.resolve().then(() => require("./App-D8QTwyGD.js"))
+      Component: () => Promise.resolve().then(() => require("./App-BD_4oKT7.js"))
     });
     app.registerPlugin({
       id: PLUGIN_ID,
@@ -125,12 +154,16 @@ const index = {
   }
 };
 exports.ActiveCall = ActiveCall;
+exports.ActivityIcon = ActivityIcon;
+exports.BriefcaseIcon = BriefcaseIcon;
 exports.CallTime = CallTime;
+exports.ChartIcon = ChartIcon;
 exports.ChevronDown = ChevronDown;
 exports.CompletedCall = CompletedCall;
 exports.ConversionIcon = ConversionIcon;
 exports.Cross = Cross;
 exports.DeclineCall = DeclineCall;
+exports.ExperimentIcon = ExperimentIcon;
 exports.Expert = Expert;
 exports.PLUGIN_ID = PLUGIN_ID;
 exports.PluginIcon = PluginIcon;
@@ -139,7 +172,10 @@ exports.ReferralLogo = ReferralLogo;
 exports.SearchIcon = SearchIcon;
 exports.Tick = Tick;
 exports.TotalCalls = TotalCalls;
+exports.TrendingUpIcon = TrendingUpIcon;
 exports.UniqueIcon = UniqueIcon;
+exports.UserCheckIcon = UserCheckIcon;
+exports.UsersIcon = UsersIcon;
 exports.VideoCall = VideoCall;
 exports.VoiceCall = VoiceCall;
 exports.WalletIcon = WalletIcon;

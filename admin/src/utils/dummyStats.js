@@ -1,0 +1,98 @@
+export const dummyStats = {
+  userSummary: {
+    total: 15420,
+    test: 640,
+    experts: 4280,
+    clients: 10500,
+    expertsByStatus: [
+      { name: 'Approved', value: 4242, color: '#10b981' },
+      { name: 'Pending', value: 38, color: '#f59e0b' },
+      { name: 'Blocked', value: 320, color: '#ef4444' },
+      { name: 'Deleted', value: 160, color: '#6b7280' },
+    ],
+    clientsByStatus: [
+      { name: 'Active', value: 9800, color: '#10b981' },
+      { name: 'Blocked', value: 450, color: '#ef4444' },
+      { name: 'Deleted', value: 250, color: '#6b7280' },
+    ],
+    availability: [
+      { name: 'Online', value: 145, color: '#10b981' },
+      { name: 'Offline', value: 3600, color: '#6b7280' },
+      { name: 'Busy', value: 535, color: '#f59e0b' },
+    ],
+    workflow: { pending: 38, approved: 4242 },
+    badges: [
+      { name: 'Badge 1', count: 1850 },
+      { name: 'Badge 2', count: 1240 },
+      { name: 'Badge 3', count: 860 },
+      { name: 'Badge 4', count: 330 },
+    ],
+  },
+  growth: [
+    { date: 'Apr 01', experts: 120, clients: 450 },
+    { date: 'Apr 02', experts: 135, clients: 480 },
+    { date: 'Apr 03', experts: 150, clients: 510 },
+    { date: 'Apr 04', experts: 140, clients: 490 },
+    { date: 'Apr 05', experts: 165, clients: 540 },
+    { date: 'Apr 06', experts: 180, clients: 590 },
+    { date: 'Apr 07', experts: 175, clients: 570 },
+  ],
+  wallet: {
+    totalTopups: 850750,
+    referralDistributed: 42500,
+    platformEarnings: 125400,
+    expertEarnings: 680300,
+    clientSpending: 742000,
+    trend: [
+      { date: 'Apr 01', amount: 12000 },
+      { date: 'Apr 02', amount: 15400 },
+      { date: 'Apr 03', amount: 14200 },
+      { date: 'Apr 04', amount: 18900 },
+      { date: 'Apr 05', amount: 22100 },
+      { date: 'Apr 06', amount: 21000 },
+      { date: 'Apr 07', amount: 25400 },
+    ],
+    economy: {
+      audio: { clientSpent: 320000, expertEarned: 288000, commission: 32000 },
+      video: { clientSpent: 530750, expertEarned: 477675, commission: 53075 },
+    }
+  },
+  sparklines: {
+    users: [
+      { name: 'Jan', value: 100 },
+      { name: 'Feb', value: 120 },
+      { name: 'Mar', value: 115 },
+      { name: 'Apr', value: 134 },
+      { name: 'May', value: 145 },
+      { name: 'Jun', value: 132 },
+      { name: 'Jul', value: 160 },
+    ],
+    experts: [
+      { name: 'Jan', value: 40 },
+      { name: 'Feb', value: 50 },
+      { name: 'Mar', value: 48 },
+      { name: 'Apr', value: 62 },
+      { name: 'May', value: 58 },
+      { name: 'Jun', value: 65 },
+      { name: 'Jul', value: 72 },
+    ],
+    topups: [
+      { name: 'Jan', value: 3000 },
+      { name: 'Feb', value: 4500 },
+      { name: 'Mar', value: 4200 },
+      { name: 'Apr', value: 5600 },
+      { name: 'May', value: 5100 },
+      { name: 'Jun', value: 6200 },
+      { name: 'Jul', value: 6800 },
+    ],
+    referrals: [
+      { name: 'Jan', value: 200 },
+      { name: 'Feb', value: 450 },
+      { name: 'Mar', value: 300 },
+      { name: 'Apr', value: 600 },
+      { name: 'May', value: 400 },
+      { name: 'Jun', value: 550 },
+      { name: 'Jul', value: 700 },
+    ],
+  }
+};

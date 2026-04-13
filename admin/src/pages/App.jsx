@@ -11,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const queryClient = new QueryClient();
 
+import StatsDashboardPage from './StatsDashboardPage';
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -18,6 +20,7 @@ const App = () => {
       <Routes>
         <Route index element={<HomePage />} />
         <Route path="referral-analytics" element={<ReferralAnalyticsPage />} />
+        <Route path="statistics" element={<StatsDashboardPage />} />
         <Route path="*" element={<Page.Error />} />
       </Routes>
     </QueryClientProvider>
