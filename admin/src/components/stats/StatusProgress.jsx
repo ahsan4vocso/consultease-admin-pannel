@@ -80,7 +80,10 @@ const ProgressBar = styled.div`
   box-shadow: 0 0 6px ${props => `${props.color}33`};
 `;
 
-const StatusProgress = ({ title, items, total }) => {
+const StatusProgress = ({ title, items = {}, total }) => {
+  // Convert object to array for mapping
+  const dataEntries = Object.entries(items).map(([name, value]) => ({ name, value }));
+
   return (
     <Container>
       <Header>
@@ -89,16 +92,29 @@ const StatusProgress = ({ title, items, total }) => {
         </IconBox>
         <Title>{title}</Title>
       </Header>
-      {items.map((item, index) => {
+      {dataEntries.map((item, index) => {
         const percentage = total > 0 ? (item.value / total) * 100 : 0;
+
+        // Inline color mapping
+        const barColor = {
+          'Approved': '#10b981',
+          'Active': '#10b981',
+          'Online': '#10b981',
+          'Pending': '#f59e0b',
+          'Busy': '#f59e0b',
+          'Blocked': '#ef4444',
+          'Deleted': '#6b7280',
+          'Offline': '#6b7280'
+        }[item.name] || '#8b5cf6';
+
         return (
           <StatItem key={index}>
             <ItemHeader>
               <ItemLabel>{item.name}</ItemLabel>
-              <ItemValue>{item.value.toLocaleString()} ({Math.round(percentage)}%)</ItemValue>
+              <ItemValue>{(item.value || 0).toLocaleString()} ({Math.round(percentage)}%)</ItemValue>
             </ItemHeader>
             <ProgressTrack>
-              <ProgressBar width={percentage} color={item.color} />
+              <ProgressBar width={percentage} color={barColor} />
             </ProgressTrack>
           </StatItem>
         );

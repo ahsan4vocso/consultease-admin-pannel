@@ -192,7 +192,7 @@ const EconomyBalanceCard = ({ economy }) => {
   };
 
   const renderRow = (data, icon, color) => {
-    const ratio = (data.expertEarned / data.clientSpent) * 100;
+    const ratio = data.clientSpent > 0 ? (data.expertEarned / data.clientSpent) * 100 : 0;
     
     return (
       <TableRow>
@@ -239,7 +239,7 @@ const EconomyBalanceCard = ({ economy }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '10px', fontWeight: 700, color: theme.colors.neutral500 }}>MARGIN</span>
           <span style={{ fontSize: '12px', fontWeight: 800, color: '#3b82f6' }}>
-            ~{(totals.commission / totals.spent * 100).toFixed(1)}%
+            ~{(totals.spent > 0 ? (totals.commission / totals.spent * 100) : 0).toFixed(1)}%
           </span>
         </div>
       </div>

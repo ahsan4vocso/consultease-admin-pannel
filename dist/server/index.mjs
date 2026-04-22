@@ -1090,9 +1090,39 @@ CROSS JOIN meta_metrics mm;`);
     }
   }
 });
+const statsController = ({ strapi: strapi2 }) => ({
+  /**
+   * GET /admin-stats/summary
+   * Returns top-level summary metrics.
+   */
+  async getSummary(ctx) {
+    try {
+      const data = await strapi2.plugin("admin-pannel").service("stats").getSummaryStats();
+      ctx.send(data);
+    } catch (error) {
+      strapi2.log.error("Stats Controller (Summary) Error:", error);
+      ctx.internalServerError("Failed to fetch summary stats");
+    }
+  },
+  /**
+   * GET /admin-stats/graph
+   * Returns time-series data based on the interval filter.
+   */
+  async getGraph(ctx) {
+    try {
+      const { filter = "day wise" } = ctx.query;
+      const data = await strapi2.plugin("admin-pannel").service("stats").getGraphStats(filter);
+      ctx.send(data);
+    } catch (error) {
+      strapi2.log.error("Stats Controller (Graph) Error:", error);
+      ctx.internalServerError("Failed to fetch graph stats");
+    }
+  }
+});
 const controllers = {
   calling,
-  referral
+  referral,
+  stats: statsController
 };
 const middlewares = {};
 const policies = {};
@@ -1127,6 +1157,18 @@ const callingRoutes = {
       method: "POST",
       path: "/callend",
       handler: "calling.Callend",
+      config: { policies: [] }
+    },
+    {
+      method: "GET",
+      path: "/stats/summary",
+      handler: "stats.getSummary",
+      config: { policies: [] }
+    },
+    {
+      method: "GET",
+      path: "/stats/graph",
+      handler: "stats.getGraph",
       config: { policies: [] }
     }
   ]
@@ -1376,10 +1418,281 @@ const dashboardService = ({ strapi: strapi2 }) => ({
     }
   }
 });
+const statsService = ({ strapi: strapi2 }) => ({
+  /**
+   * Fetches summary metrics for the dashboard.
+   * Optimized using raw SQL to minimize overhead from multiple counts.
+   */
+  async getSummaryStats() {
+    try {
+      const appConfig = await strapi2.db.query("api::app-config.app-config").findOne({
+        populate: ["test_accounts"]
+      });
+      const testIds = appConfig?.test_accounts?.map((u) => u.documentId).filter(Boolean) || [];
+      const totalUsers = await strapi2.documents("api::public-user.public-user").count({
+        filters: {
+          documentId: { $notIn: testIds },
+          accountStatus: "active"
+        }
+      });
+      const [activeClients, blockedClients, deletedClients] = await Promise.all([
+        strapi2.documents("api::public-user.public-user").count({
+          filters: { role: "Client", documentId: { $notIn: testIds }, accountStatus: "active" }
+        }),
+        strapi2.documents("api::public-user.public-user").count({
+          filters: { role: "Client", documentId: { $notIn: testIds }, accountStatus: "blocked" }
+        }),
+        strapi2.documents("api::public-user.public-user").count({
+          filters: { role: "Client", documentId: { $notIn: testIds }, accountStatus: "deleted" }
+        })
+      ]);
+      const clients = activeClients;
+      const clientsByStatus = {
+        Active: activeClients,
+        Blocked: blockedClients,
+        Deleted: deletedClients
+      };
+      const allExperts = await strapi2.documents("api::public-user.public-user").findMany({
+        filters: {
+          role: "Expert",
+          documentId: { $notIn: testIds }
+        },
+        populate: { expert: { fields: ["user_status", "isApproved"] } },
+        pagination: { limit: -1 }
+      });
+      const availability = { Online: 0, Offline: 0, Busy: 0 };
+      const expertsByStatus = { Approved: 0, Pending: 0, Blocked: 0, Deleted: 0 };
+      allExperts.forEach((user) => {
+        const accStatus = user.accountStatus;
+        if (accStatus === "active") {
+          const status = user.expert?.user_status || "offline";
+          const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1);
+          if (availability.hasOwnProperty(formattedStatus)) {
+            availability[formattedStatus]++;
+          }
+          if (user.expert?.isApproved) {
+            expertsByStatus.Approved++;
+          } else {
+            expertsByStatus.Pending++;
+          }
+        } else if (accStatus === "blocked") {
+          expertsByStatus.Blocked++;
+        } else if (accStatus === "deleted") {
+          expertsByStatus.Deleted++;
+        }
+      });
+      const experts = expertsByStatus.Approved + expertsByStatus.Pending;
+      const verifications = await strapi2.documents("api::expert-verification.expert-verification").findMany({
+        filters: {
+          Payment_Received: true,
+          Verified_Badge: true,
+          expert_profile: {
+            user: {
+              documentId: { $notIn: testIds }
+            }
+          }
+        },
+        pagination: { limit: -1 }
+      });
+      const badges = {
+        "Identity Badge": 0,
+        "Address Badge": 0,
+        "Education Badge": 0,
+        "LinkedIn Badge": 0,
+        "GST Badge": 0,
+        "Bank Badge": 0
+      };
+      verifications.forEach((v) => {
+        if (v.Identity_Verified) badges["Identity Badge"]++;
+        if (v.Address_Verified) badges["Address Badge"]++;
+        if (v.Education_Verified) badges["Education Badge"]++;
+        if (v.LinkedIn_Verified) badges["LinkedIn Badge"]++;
+        if (v.GST_Verified) badges["GST Badge"]++;
+        if (v.Bank_Verified) badges["Bank Badge"]++;
+      });
+      const allTopups = await strapi2.documents("api::transaction.transaction").findMany({
+        filters: {
+          transactionType: "topup",
+          paymentStatus: "success"
+        },
+        fields: ["amount", "metadata"],
+        pagination: { limit: -1 }
+      });
+      const totalTopups = allTopups.reduce((sum, t) => {
+        if (t.metadata?.appliedPayUConfig?.mode === "production") {
+          return sum + (Number(t.amount) || 0);
+        }
+        return sum;
+      }, 0);
+      const referralTransactions = await strapi2.documents("api::transaction.transaction").findMany({
+        filters: {
+          method: "Referral",
+          paymentStatus: "success"
+        },
+        fields: ["amount"],
+        pagination: { limit: -1 }
+      });
+      const referralExpenses = referralTransactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+      const wallet = {
+        totalTopups,
+        referralDistributed: referralExpenses,
+        economy: {
+          audio: { clientSpent: 0, expertEarned: 0, commission: 0 },
+          video: { clientSpent: 0, expertEarned: 0, commission: 0 }
+        }
+      };
+      return {
+        total: totalUsers,
+        test: testIds?.length || 0,
+        clients,
+        clientsByStatus,
+        experts,
+        expertsByStatus,
+        availability,
+        badges,
+        wallet
+      };
+    } catch (error) {
+      strapi2.log.error("Stats Service Error (Summary):", error);
+      throw error;
+    }
+  },
+  /**
+   * Fetches time-series data for graphs based on interval.
+   */
+  async getGraphStats(interval = "day wise") {
+    try {
+      const appConfig = await strapi2.db.query("api::app-config.app-config").findOne({
+        populate: ["test_accounts"]
+      });
+      const testIds = appConfig?.test_accounts?.map((u) => u.documentId).filter(Boolean) || [];
+      const startDate = /* @__PURE__ */ new Date();
+      if (interval === "day wise") startDate.setDate(startDate.getDate() - 30);
+      else if (interval === "monthly") startDate.setMonth(startDate.getMonth() - 12);
+      else startDate.setFullYear(startDate.getFullYear() - 1);
+      const [totalUsers, clients, experts, testUsersRaw, transactions] = await Promise.all([
+        // Total Users (Real, All)
+        strapi2.documents("api::public-user.public-user").findMany({
+          filters: {
+            documentId: { $notIn: testIds },
+            createdAt: { $gte: startDate.toISOString() }
+          },
+          fields: ["createdAt", "accountStatus"],
+          pagination: { limit: -1 }
+        }),
+        // Clients (Real, All)
+        strapi2.documents("api::public-user.public-user").findMany({
+          filters: {
+            documentId: { $notIn: testIds },
+            role: "Client",
+            createdAt: { $gte: startDate.toISOString() }
+          },
+          fields: ["createdAt", "accountStatus"],
+          pagination: { limit: -1 }
+        }),
+        // Experts (Real, All)
+        strapi2.documents("api::public-user.public-user").findMany({
+          filters: {
+            documentId: { $notIn: testIds },
+            role: "Expert",
+            createdAt: { $gte: startDate.toISOString() }
+          },
+          fields: ["createdAt", "accountStatus"],
+          pagination: { limit: -1 }
+        }),
+        // Test Users
+        strapi2.documents("api::public-user.public-user").findMany({
+          filters: {
+            documentId: { $in: testIds },
+            createdAt: { $gte: startDate.toISOString() }
+          },
+          fields: ["createdAt"],
+          pagination: { limit: -1 }
+        }),
+        // Successful Transactions
+        strapi2.documents("api::transaction.transaction").findMany({
+          filters: {
+            paymentStatus: "success",
+            createdAt: { $gte: startDate.toISOString() }
+          },
+          fields: ["amount", "method", "metadata", "createdAt", "transactionType"],
+          pagination: { limit: -1 }
+        })
+      ]);
+      const getBucket = (dateStr) => {
+        const d = new Date(dateStr);
+        if (interval === "day wise") return d.toISOString().split("T")[0];
+        if (interval === "monthly") return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return `${d.getFullYear()}`;
+      };
+      const aggregate = (list, filterFn = null, amountField = null) => {
+        const buckets = {};
+        list.forEach((item) => {
+          if (filterFn && !filterFn(item)) return;
+          const key = getBucket(item.createdAt);
+          const val = amountField ? Number(item[amountField]) || 0 : 1;
+          buckets[key] = (buckets[key] || 0) + val;
+        });
+        return buckets;
+      };
+      const clientsBucketsAll = aggregate(clients);
+      const expertsBucketsAll = aggregate(experts);
+      const totalBucketsActive = aggregate(totalUsers, (u) => u.accountStatus === "active");
+      const clientsBucketsActive = aggregate(clients, (u) => u.accountStatus === "active");
+      const expertsBucketsActive = aggregate(experts, (u) => u.accountStatus === "active");
+      const testBuckets = aggregate(testUsersRaw);
+      const topupsBuckets = aggregate(
+        transactions,
+        (t) => t.metadata?.transactionType === "topup" && t.metadata?.appliedPayUConfig?.mode === "production",
+        "amount"
+      );
+      const referralsBuckets = aggregate(transactions, (t) => t.method === "Referral", "amount");
+      const periods = [];
+      const now = /* @__PURE__ */ new Date();
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now);
+        if (interval === "day wise") d.setDate(d.getDate() - i);
+        else if (interval === "monthly") d.setMonth(d.getMonth() - i);
+        else d.setFullYear(d.getFullYear() - i);
+        const key = getBucket(d.toISOString());
+        periods.push(key);
+      }
+      const mapToValues = (buckets) => periods.map((p) => buckets[p] || 0);
+      const labels = periods.map((p) => {
+        const d = /* @__PURE__ */ new Date(p + (interval === "monthly" ? "-01" : ""));
+        if (interval === "day wise") return `${d.getDate()} ${d.toLocaleString("default", { month: "short" })}`;
+        if (interval === "monthly") return `${d.toLocaleString("default", { month: "short" })} ${d.getFullYear()}`;
+        return d.getFullYear().toString();
+      });
+      return {
+        meta: { labels },
+        growth: {
+          experts: mapToValues(expertsBucketsAll),
+          clients: mapToValues(clientsBucketsAll)
+        },
+        wallet: {
+          trend: mapToValues(topupsBuckets)
+        },
+        sparklines: {
+          total: mapToValues(totalBucketsActive),
+          users: mapToValues(clientsBucketsActive),
+          experts: mapToValues(expertsBucketsActive),
+          test: mapToValues(testBuckets),
+          topups: mapToValues(topupsBuckets),
+          referrals: mapToValues(referralsBuckets)
+        }
+      };
+    } catch (error) {
+      strapi2.log.error("Stats Service Error (Graph):", error);
+      throw error;
+    }
+  }
+});
 const services = {
   liveCallsService,
   sse: sseService,
-  dashboard: dashboardService
+  dashboard: dashboardService,
+  stats: statsService
 };
 const index = {
   bootstrap,

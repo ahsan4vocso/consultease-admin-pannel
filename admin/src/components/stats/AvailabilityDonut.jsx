@@ -118,9 +118,15 @@ const Count = styled.span`
   color: ${({ theme }) => theme.colors.neutral800};
 `;
 
-const AvailabilityDonut = ({ data, title, Icon }) => {
+const AvailabilityDonut = ({ data = {}, title, Icon }) => {
   const theme = useTheme();
-  const total = data.reduce((acc, curr) => acc + curr.value, 0);
+  
+  // Robustly handle data as either a flat object or an array of {name, value}
+  const dataEntries = Array.isArray(data) 
+    ? data 
+    : Object.entries(data || {}).map(([name, value]) => ({ name, value }));
+    
+  const total = dataEntries.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
 
   return (
     <Container>
@@ -139,7 +145,7 @@ const AvailabilityDonut = ({ data, title, Icon }) => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={data}
+                data={dataEntries}
                 innerRadius={32}
                 outerRadius={46}
                 paddingAngle={4}
@@ -147,9 +153,15 @@ const AvailabilityDonut = ({ data, title, Icon }) => {
                 stroke="none"
                 cornerRadius={4}
               >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
+                {dataEntries.map((entry, index) => {
+                  const fillColor = {
+                    'Approved': '#10b981', 'Active': '#10b981', 'Online': '#10b981',
+                    'Pending': '#f59e0b', 'Busy': '#f59e0b',
+                    'Blocked': '#ef4444',
+                    'Deleted': '#6b7280', 'Offline': '#6b7280'
+                  }[entry.name] || '#8b5cf6';
+                  return <Cell key={`cell-${index}`} fill={fillColor} />;
+                })}
               </Pie>
               <Tooltip 
                 wrapperStyle={{ zIndex: 1000 }}
@@ -171,14 +183,19 @@ const AvailabilityDonut = ({ data, title, Icon }) => {
           </CenterLabel>
         </ChartContainer>
         <Legend>
-          {data.map((item, index) => (
-            <LegendItem key={index}>
-              <Badge>
-                <Dot color={item.color} />
-                <Label>{item.name}</Label>
-              </Badge>
-              <Count>{item.value.toLocaleString()}</Count>
-            </LegendItem>
+          {dataEntries.map((item, index) => (
+    <LegendItem key={index}>
+      <Badge>
+        <Dot color={{
+          'Approved': '#10b981', 'Active': '#10b981', 'Online': '#10b981',
+          'Pending': '#f59e0b', 'Busy': '#f59e0b',
+          'Blocked': '#ef4444',
+          'Deleted': '#6b7280', 'Offline': '#6b7280'
+        }[item.name] || '#8b5cf6'} />
+        <Label>{item.name}</Label>
+      </Badge>
+      <Count>{(item.value || 0).toLocaleString()}</Count>
+    </LegendItem>
           ))}
         </Legend>
       </ContentWrapper>

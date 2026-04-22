@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useFetchClient } from "@strapi/strapi/admin";
 import { useEffect, useState } from "react";
 import { getDateRange } from "../utils/helper";
@@ -93,6 +93,38 @@ export const useCategoryStats = (filter = 'today', customRange) => {
             });
             return data;
         }
+    });
+};
+
+
+
+
+export const useAdminSummary = () => {
+    const { get } = useFetchClient();
+
+    return useQuery({
+        queryKey: ["admin-stats-summary"],
+        queryFn: async () => {
+            const { data } = await get("/admin-pannel/stats/summary");
+            return data;
+        }
+    });
+};
+
+
+
+export const useAdminGraph = (filter = 'day wise') => {
+    const { get } = useFetchClient();
+
+    return useQuery({
+        queryKey: ["admin-stats-graph", filter],
+        queryFn: async () => {
+            const { data } = await get("/admin-pannel/stats/graph", {
+                params: { filter }
+            });
+            return data;
+        },
+        placeholderData: keepPreviousData,
     });
 };
 

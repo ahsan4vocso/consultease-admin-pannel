@@ -60,8 +60,17 @@ const Dot = styled.div`
   background: ${props => props.color};
 `;
 
-const GrowthBarChart = ({ data, title, Icon }) => {
+const GrowthBarChart = ({ data = {}, labels = [], title, Icon }) => {
   const theme = useTheme();
+
+  // Reconstruct data if experts/clients are numeric arrays
+  const formattedData = Array.isArray(data.experts) && Array.isArray(data.clients)
+    ? labels.map((label, i) => ({
+        date: label,
+        experts: data.experts[i] || 0,
+        clients: data.clients[i] || 0
+      }))
+    : data;
 
   return (
     <Container>
@@ -86,7 +95,7 @@ const GrowthBarChart = ({ data, title, Icon }) => {
 
       <div style={{ height: '240px', width: '100%' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barGap={6}>
+          <BarChart data={formattedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barGap={6}>
             <CartesianGrid 
               strokeDasharray="3 3" 
               vertical={false} 

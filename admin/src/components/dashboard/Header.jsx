@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PluginIcon } from "../Icons";
+import { CallAnalyticsIcon } from "../Icons";
 import * as Style from "./styles";
 import { useDashboardContext } from "../../context/DashboardContext";
 
@@ -34,7 +34,7 @@ export default function Header() {
     return (
         <Style.Header>
             <Style.HeaderLeft>
-                <Style.IconBox><PluginIcon style={{ width: "32px", height: "32px" }} /></Style.IconBox>
+                <Style.IconBox><CallAnalyticsIcon style={{ width: "32px", height: "32px" }} /></Style.IconBox>
                 <Style.TitleBox>
                     <Style.Title>Call Analytics</Style.Title>
                     <Style.Subtitle>Realtime view of ConsultEase calls, categories & expert load.</Style.Subtitle>

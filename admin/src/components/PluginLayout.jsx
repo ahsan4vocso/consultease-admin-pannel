@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import {
   Box,
   Flex,
@@ -8,7 +8,7 @@ import {
   Typography,
   Divider
 } from '@strapi/design-system';
-import { PluginIcon, ReferralLogo, ChartIcon } from './Icons';
+import { CallAnalyticsIcon, ReferralLogo, ChartIcon, AnalyticalDashboardIcon } from './Icons';
 import { PLUGIN_ID } from '../pluginId';
 
 const StyledSubNav = styled(SubNav)`
@@ -76,14 +76,20 @@ const IconWrapper = styled.div`
 `;
 
 const PluginLayout = ({ children }) => {
+  const theme = useTheme();
 
   return (
     <Flex alignItems="stretch">
       <StyledSubNav aria-label="Analytics navigation">
         <Box paddingLeft={4} paddingTop={3} paddingBottom={3}>
-          <Typography variant="beta" fontWeight="bold" textColor="neutral800">
-            Dashboards
-          </Typography>
+          <Flex gap={2} alignItems="center">
+            <Box background="primary100" padding={1} borderRadius="8px" display="flex" alignItems="center" justifyContent="center">
+              <AnalyticalDashboardIcon style={{ width: '1.8rem', height: '1.8rem', color: theme.colors.primary600 }} />
+            </Box>
+            <Typography variant="beta" fontWeight="bold" textColor="neutral800">
+              Dashboards
+            </Typography>
+          </Flex>
         </Box>
         <Divider />
         <Box paddingTop={2}>
@@ -93,7 +99,7 @@ const PluginLayout = ({ children }) => {
             end
           >
             <IconWrapper>
-              <PluginIcon style={{ width: '2rem', height: '2rem' }} />
+              <CallAnalyticsIcon style={{ width: '2rem', height: '2rem' }} />
             </IconWrapper>
             <Typography variant="beta">Call Analytics</Typography>
           </NavButton>

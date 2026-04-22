@@ -1,12 +1,9 @@
 import React from 'react';
+import { Flex, SingleSelect, SingleSelectOption, Box } from '@strapi/design-system';
 import * as Style from '../dashboard/styles';
 import { ChartIcon } from '../Icons';
-import { dummyStats } from '../../utils/dummyStats';
 
-const StatsHeader = () => {
-  const { userSummary } = dummyStats;
-  const totalUsers = userSummary.total.toLocaleString();
-  const activeNow = userSummary.availability.find(a => a.name === 'Available')?.value || 0;
+const StatsHeader = ({ total = 0, online = 0, filter, onFilterChange }) => {
 
   return (
     <Style.Header>
@@ -20,12 +17,22 @@ const StatsHeader = () => {
             Comprehensive overview of users, growth, and financial metrics.
           </Style.Subtitle>
           <Style.MetaText>
-            {totalUsers} total users registered • {activeNow} experts currently available
+            {(total || 0).toLocaleString()} total users registered • {online || 0} experts currently available
           </Style.MetaText>
         </Style.TitleBox>
       </Style.HeaderLeft>
       <Style.HeaderRight>
-        {/* Reservation for future platform-wide filters */}
+        <Style.FilterContainer>
+          {['day wise', 'monthly', 'quarterly', 'yearly'].map((period) => (
+            <Style.FilterButton
+              key={period}
+              active={filter === period}
+              onClick={() => onFilterChange(period)}
+            >
+              {period === 'day wise' ? 'Day Wise' : period.charAt(0).toUpperCase() + period.slice(1)}
+            </Style.FilterButton>
+          ))}
+        </Style.FilterContainer>
       </Style.HeaderRight>
     </Style.Header>
   );

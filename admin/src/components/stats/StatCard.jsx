@@ -123,10 +123,15 @@ const HoverLabel = styled.div`
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 `;
 
-const StatCard = ({ title, value, trend, chartData, color = '#3b82f6', Icon }) => {
+const StatCard = ({ title, value, trend, chartData = [], labels = [], color = '#3b82f6', Icon }) => {
   const theme = useTheme();
   const [hoveredLabel, setHoveredLabel] = useState(null);
-  
+
+  // Reconstruct data for Recharts if it's a numeric array
+  const formattedData = Array.isArray(chartData) && typeof chartData[0] === 'number'
+    ? chartData.map((v, i) => ({ name: labels[i] || '', value: v }))
+    : chartData;
+
   const isPositive = !trend?.startsWith('-');
   const gradientId = `color-premium-${title.replace(/\s+/g, '-').toLowerCase()}`;
 
@@ -147,28 +152,28 @@ const StatCard = ({ title, value, trend, chartData, color = '#3b82f6', Icon }) =
           </TrendContainer>
         )}
       </TopRow>
-      
+
       <ValueRow>
         <Value>{value}</Value>
       </ValueRow>
-      
+
       <ChartWrapper>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart 
-            data={chartData}
+          <AreaChart
+            data={formattedData}
             onMouseMove={(e) => {
               if (e && e.activePayload && e.activePayload.length > 0) {
                 setHoveredLabel(e.activePayload[0].payload.name);
-              } else if (e && e.activeTooltipIndex !== undefined && chartData[e.activeTooltipIndex]) {
-                setHoveredLabel(chartData[e.activeTooltipIndex].name);
+              } else if (e && e.activeTooltipIndex !== undefined && formattedData[e.activeTooltipIndex]) {
+                setHoveredLabel(formattedData[e.activeTooltipIndex].name);
               }
             }}
             onMouseLeave={() => setHoveredLabel(null)}
           >
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={color} stopOpacity={0.4}/>
-                <stop offset="100%" stopColor={color} stopOpacity={0}/>
+                <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+                <stop offset="100%" stopColor={color} stopOpacity={0} />
               </linearGradient>
             </defs>
             <ReTooltip
@@ -185,7 +190,7 @@ const StatCard = ({ title, value, trend, chartData, color = '#3b82f6', Icon }) =
                       border: `1px solid ${color}`,
                       color: theme.colors.neutral800
                     }}>
-                      {payload[0].value.toLocaleString()}
+                      {(payload[0].value || 0).toLocaleString()}
                     </div>
                   );
                 }

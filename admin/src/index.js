@@ -2,7 +2,7 @@
 import { getTranslation } from './utils/getTranslation';
 import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
-import { PluginIcon } from './components/Icons';
+import { AnalyticalDashboardIcon } from './components/Icons';
 
 
 
@@ -10,7 +10,7 @@ export default {
   register(app) {
     app.addMenuLink({
       to: `plugins/${PLUGIN_ID}`,
-      icon: PluginIcon,
+      icon: AnalyticalDashboardIcon,
       intlLabel: {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: 'Dashboards',

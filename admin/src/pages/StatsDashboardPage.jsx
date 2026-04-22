@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from 'styled-components';
-import { Box, Flex } from '@strapi/design-system';
+import React, { useState } from 'react';
+import styled, { keyframes } from 'styled-components';
+import { Box, Flex, SingleSelect, SingleSelectOption, Loader } from '@strapi/design-system';
 import PluginLayout from '../components/PluginLayout';
-import { dummyStats } from '../utils/dummyStats';
+import { useAdminSummary, useAdminGraph } from '../hooks/dashboard';
 import StatCard from '../components/stats/StatCard';
 import AvailabilityDonut from '../components/stats/AvailabilityDonut';
 import GrowthAreaChart from '../components/stats/GrowthAreaChart';
@@ -27,8 +27,21 @@ const CustomGrid = styled.div`
   width: 100%;
 `;
 
+const slideUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 const CustomGridItem = styled.div`
   grid-column: span ${props => props.col || 12};
+  animation: ${slideUp} 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: ${props => (props.delayIndex || 0) * 0.1}s;
 `;
 
 const SectionHeader = styled.div`
@@ -61,12 +74,40 @@ const SectionTitle = styled.h2`
 `;
 
 const StatsDashboardPage = () => {
-  const { userSummary, growth, wallet, callActivity, sparklines } = dummyStats;
+  const [filter, setFilter] = useState('monthly');
+
+  const { data: summary, isLoading: isSummaryLoading } = useAdminSummary();
+  const { data: graph, isLoading: isGraphLoading } = useAdminGraph(filter);
+
+
+  const {
+    total = 0,
+    test = 0,
+    experts = 0,
+    clients = 0,
+    expertsByStatus = {},
+    clientsByStatus = {},
+    availability = {},
+    badges = {},
+    wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { audio: 0, video: 0 } }
+  } = summary || {};
+
+  const {
+    meta = { labels: [] },
+    growth = { experts: [], clients: [] },
+    wallet: walletGraph = { trend: [] },
+    sparklines = { users: [], experts: [], topups: [], referrals: [] }
+  } = graph || {};
 
   return (
     <PluginLayout>
       <Style.DashboardContainer>
-        <StatsHeader />
+        <StatsHeader
+          total={total}
+          online={availability.Online || 0}
+          filter={filter}
+          onFilterChange={setFilter}
+        />
 
         <Style.Main>
           <Flex direction="column" alignItems="stretch" gap={6}>
@@ -79,42 +120,46 @@ const StatsDashboardPage = () => {
                 </SectionTitle>
               </SectionHeader>
               <CustomGrid col={12}>
-                <CustomGridItem col={3}>
+                <CustomGridItem col={3} delayIndex={1}>
                   <StatCard
                     title="Total Users"
-                    value={(userSummary.total - userSummary.test).toLocaleString()}
+                    value={(total || 0).toLocaleString()}
                     trend="12.5%"
-                    chartData={sparklines.users}
+                    chartData={sparklines.total}
+                    labels={meta.labels}
                     color="#3b82f6"
                     Icon={UsersIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={3}>
+                <CustomGridItem col={3} delayIndex={2}>
                   <StatCard
                     title="Experts"
-                    value={userSummary.experts.toLocaleString()}
+                    value={(experts || 0).toLocaleString()}
                     trend="8.2%"
                     chartData={sparklines.experts}
+                    labels={meta.labels}
                     color="#8b5cf6"
                     Icon={BriefcaseIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={3}>
+                <CustomGridItem col={3} delayIndex={3}>
                   <StatCard
                     title="Clients"
-                    value={userSummary.clients.toLocaleString()}
+                    value={(clients || 0).toLocaleString()}
                     trend="15.1%"
-                    chartData={sparklines.users.map(d => ({ ...d, value: d.value * 0.7 }))}
+                    chartData={sparklines.users}
+                    labels={meta.labels}
                     color="#10b981"
                     Icon={UserCheckIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={3}>
+                <CustomGridItem col={3} delayIndex={4}>
                   <StatCard
                     title="Test Users"
-                    value={userSummary.test.toLocaleString()}
+                    value={(test || 0).toLocaleString()}
                     trend="-2.4%"
-                    chartData={sparklines.users.map((d, i) => ({ name: d.name, value: [80, 75, 78, 70, 72, 68, 64][i] }))}
+                    chartData={sparklines.test}
+                    labels={meta.labels}
                     color="#f59e0b"
                     Icon={ExperimentIcon}
                   />
@@ -124,47 +169,44 @@ const StatsDashboardPage = () => {
 
             {/* Workflow & Status Row */}
             <CustomGrid col={12}>
-              <CustomGridItem col={4}>
+              <CustomGridItem col={4} delayIndex={5}>
                 <AvailabilityDonut
                   title="Expert Availability"
-                  data={userSummary.availability}
+                  data={availability}
                   Icon={BriefcaseIcon}
                 />
               </CustomGridItem>
-              <CustomGridItem col={4}>
+              <CustomGridItem col={4} delayIndex={6}>
                 <StatusProgress
                   title="Expert Status"
-                  total={userSummary.experts}
-                  items={userSummary.expertsByStatus}
+                  total={experts}
+                  items={expertsByStatus}
                 />
               </CustomGridItem>
-              <CustomGridItem col={4}>
+              <CustomGridItem col={4} delayIndex={7}>
                 <StatusProgress
                   title="Client Status"
-                  total={userSummary.clients}
-                  items={userSummary.clientsByStatus}
+                  total={clients}
+                  items={clientsByStatus}
                 />
               </CustomGridItem>
             </CustomGrid>
 
             {/* Growth & Verification section */}
             <CustomGrid col={12}>
-              <CustomGridItem col={8}>
+              <CustomGridItem col={8} delayIndex={8}>
                 <GrowthAreaChart
                   title="Registration Growth"
                   data={growth}
+                  labels={meta.labels}
                   Icon={TrendingUpIcon}
                 />
               </CustomGridItem>
-              <CustomGridItem col={4}>
+              <CustomGridItem col={4} delayIndex={9}>
                 <StatusProgress
                   title="Expert Badge Distribution"
-                  total={userSummary.experts}
-                  items={userSummary.badges.map(b => ({
-                    name: b.name,
-                    value: b.count,
-                    color: '#8b5cf6'
-                  }))}
+                  total={experts}
+                  items={badges}
                 />
               </CustomGridItem>
             </CustomGrid>
@@ -178,32 +220,35 @@ const StatsDashboardPage = () => {
                 </SectionTitle>
               </SectionHeader>
               <CustomGrid col={12}>
-                <CustomGridItem col={4}>
+                <CustomGridItem col={4} delayIndex={10}>
                   <StatCard
                     title="Total Wallet Topups"
-                    value={`₹${wallet.totalTopups.toLocaleString()}`}
+                    value={`₹${(wallet.totalTopups || 0).toLocaleString()}`}
                     trend="22.4%"
                     chartData={sparklines.topups}
+                    labels={meta.labels}
                     color="#10b981"
                     Icon={WalletIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={4}>
+                <CustomGridItem col={4} delayIndex={11}>
                   <StatCard
                     title="Referral Expenses"
-                    value={`₹${wallet.referralDistributed.toLocaleString()}`}
+                    value={`₹${(wallet.referralDistributed || 0).toLocaleString()}`}
                     trend="5.8%"
                     chartData={sparklines.referrals}
+                    labels={meta.labels}
                     color="#f59e0b"
                     Icon={ReferralIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={4}>
+                <CustomGridItem col={4} delayIndex={12}>
                   <StatCard
                     title="Platform Earnings"
-                    value={`₹${wallet.platformEarnings.toLocaleString()}`}
+                    value={`₹${(wallet.platformEarnings || 0).toLocaleString()}`}
                     trend="18.2%"
-                    chartData={sparklines.topups.map(d => ({ ...d, value: d.value * 0.15 }))}
+                    chartData={sparklines.topups.map(v => v * 0.15)}
+                    labels={meta.labels}
                     color="#3b82f6"
                     Icon={TrendingUpIcon}
                   />
@@ -213,19 +258,19 @@ const StatsDashboardPage = () => {
 
             {/* Activity & Trends */}
             <CustomGrid col={12}>
-              <CustomGridItem col={6}>
+              <CustomGridItem col={6} delayIndex={13}>
                 <EconomyBalanceCard
                   economy={wallet.economy}
                 />
               </CustomGridItem>
-              <CustomGridItem col={6}>
+              <CustomGridItem col={6} delayIndex={14}>
                 <GrowthAreaChart
-                  title="Wallet Transaction Trends"
-                  data={wallet.trend.map(t => ({
-                    date: t.date,
-                    experts: t.amount,
-                    clients: t.amount * 0.8
-                  }))}
+                  title="Wallet Topup Trends"
+                  data={{
+                    experts: walletGraph.trend,
+                    clients: walletGraph.trend.map(v => v * 0.8)
+                  }}
+                  labels={meta.labels}
                   Icon={WalletIcon}
                 />
               </CustomGridItem>
