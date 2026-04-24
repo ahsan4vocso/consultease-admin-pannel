@@ -202,4 +202,3 @@ exports.VideoCall = VideoCall;
 exports.VoiceCall = VoiceCall;
 exports.WalletIcon = WalletIcon;
 exports.index = index;
-//# sourceMappingURL=index-D8ogax_i.js.map
