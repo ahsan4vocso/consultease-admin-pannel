@@ -18,6 +18,7 @@ import {
   ReferralIcon,
   TrendingUpIcon
 } from '../components/Icons';
+import OperationalBadges from '../components/stats/OperationalBadges';
 import * as Style from '../components/dashboard/styles';
 
 const CustomGrid = styled.div`
@@ -89,6 +90,8 @@ const StatsDashboardPage = () => {
     clientsByStatus = {},
     availability = {},
     badges = {},
+    pendingApprovals = 0,
+    pendingVerifications = 0,
     wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { audio: 0, video: 0 } }
   } = summary || {};
 
@@ -111,6 +114,13 @@ const StatsDashboardPage = () => {
 
         <Style.Main>
           <Flex direction="column" alignItems="stretch" gap={6}>
+            <CustomGridItem col={12} delayIndex={1}>
+              <OperationalBadges
+                pendingApprovals={pendingApprovals}
+                pendingVerifications={pendingVerifications}
+              />
+            </CustomGridItem>
+
             {/* User Overview Section */}
             <section>
               <SectionHeader>
@@ -120,7 +130,7 @@ const StatsDashboardPage = () => {
                 </SectionTitle>
               </SectionHeader>
               <CustomGrid col={12}>
-                <CustomGridItem col={3} delayIndex={1}>
+                <CustomGridItem col={3} delayIndex={2}>
                   <StatCard
                     title="Total Users"
                     value={(total || 0).toLocaleString()}
@@ -131,7 +141,7 @@ const StatsDashboardPage = () => {
                     Icon={UsersIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={3} delayIndex={2}>
+                <CustomGridItem col={3} delayIndex={3}>
                   <StatCard
                     title="Experts"
                     value={(experts || 0).toLocaleString()}
@@ -142,7 +152,7 @@ const StatsDashboardPage = () => {
                     Icon={BriefcaseIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={3} delayIndex={3}>
+                <CustomGridItem col={3} delayIndex={4}>
                   <StatCard
                     title="Clients"
                     value={(clients || 0).toLocaleString()}
@@ -153,7 +163,7 @@ const StatsDashboardPage = () => {
                     Icon={UserCheckIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={3} delayIndex={4}>
+                <CustomGridItem col={3} delayIndex={5}>
                   <StatCard
                     title="Test Users"
                     value={(test || 0).toLocaleString()}
@@ -169,21 +179,21 @@ const StatsDashboardPage = () => {
 
             {/* Workflow & Status Row */}
             <CustomGrid col={12}>
-              <CustomGridItem col={4} delayIndex={5}>
+              <CustomGridItem col={4} delayIndex={6}>
                 <AvailabilityDonut
                   title="Expert Availability"
                   data={availability}
                   Icon={BriefcaseIcon}
                 />
               </CustomGridItem>
-              <CustomGridItem col={4} delayIndex={6}>
+              <CustomGridItem col={4} delayIndex={7}>
                 <StatusProgress
                   title="Expert Status"
                   total={experts}
                   items={expertsByStatus}
                 />
               </CustomGridItem>
-              <CustomGridItem col={4} delayIndex={7}>
+              <CustomGridItem col={4} delayIndex={8}>
                 <StatusProgress
                   title="Client Status"
                   total={clients}
@@ -194,7 +204,7 @@ const StatsDashboardPage = () => {
 
             {/* Growth & Verification section */}
             <CustomGrid col={12}>
-              <CustomGridItem col={8} delayIndex={8}>
+              <CustomGridItem col={8} delayIndex={9}>
                 <GrowthAreaChart
                   title="Registration Growth"
                   data={growth}
@@ -202,7 +212,7 @@ const StatsDashboardPage = () => {
                   Icon={TrendingUpIcon}
                 />
               </CustomGridItem>
-              <CustomGridItem col={4} delayIndex={9}>
+              <CustomGridItem col={4} delayIndex={10}>
                 <StatusProgress
                   title="Expert Badge Distribution"
                   total={experts}
@@ -220,7 +230,7 @@ const StatsDashboardPage = () => {
                 </SectionTitle>
               </SectionHeader>
               <CustomGrid col={12}>
-                <CustomGridItem col={4} delayIndex={10}>
+                <CustomGridItem col={4} delayIndex={11}>
                   <StatCard
                     title="Total Wallet Topups"
                     value={`₹${(wallet.totalTopups || 0).toLocaleString()}`}
@@ -231,7 +241,7 @@ const StatsDashboardPage = () => {
                     Icon={WalletIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={4} delayIndex={11}>
+                <CustomGridItem col={4} delayIndex={12}>
                   <StatCard
                     title="Referral Expenses"
                     value={`₹${(wallet.referralDistributed || 0).toLocaleString()}`}
@@ -242,7 +252,7 @@ const StatsDashboardPage = () => {
                     Icon={ReferralIcon}
                   />
                 </CustomGridItem>
-                <CustomGridItem col={4} delayIndex={12}>
+                <CustomGridItem col={4} delayIndex={13}>
                   <StatCard
                     title="Platform Earnings"
                     value={`₹${(wallet.platformEarnings || 0).toLocaleString()}`}
@@ -258,12 +268,12 @@ const StatsDashboardPage = () => {
 
             {/* Activity & Trends */}
             <CustomGrid col={12}>
-              <CustomGridItem col={6} delayIndex={13}>
+              <CustomGridItem col={6} delayIndex={14}>
                 <EconomyBalanceCard
                   economy={wallet.economy}
                 />
               </CustomGridItem>
-              <CustomGridItem col={6} delayIndex={14}>
+              <CustomGridItem col={6} delayIndex={15}>
                 <GrowthAreaChart
                   title="Wallet Topup Trends"
                   data={{

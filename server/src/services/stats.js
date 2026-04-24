@@ -2,20 +2,87 @@
 
 const statsService = ({ strapi }) => ({
   /**
+   * Helper to fetch test account IDs.
+   */
+  async getTestUserIds() {
+    const appConfig = await strapi.db.query('api::app-config.app-config').findOne({
+      populate: ['test_accounts']
+    });
+    return appConfig?.test_accounts?.map(u => u.documentId).filter(Boolean) || [];
+  },
+
+  async getPendingExpertStats() {
+    const [tVer, tApp] = await Promise.all([
+      strapi.documents('api::expert-verification.expert-verification').count({ filters: { is_form_submitted: true } }),
+      strapi.documents('api::expert-profile-approval.expert-profile-approval').count({ filters: { is_approved: false } })
+    ]);
+    return { pendingVerifications: tVer, pendingApprovals: tApp };
+  },
+
+  async getPlatformReportStats({ startDate, endDate } = {}) {
+    try {
+      const ids = await this.getTestUserIds();
+      const range = (startDate || endDate) ? {
+        createdAt: { ...(startDate && { $gte: startDate }), ...(endDate && { $lte: endDate }) }
+      } : {};
+      const upRange = range.createdAt ? { updatedAt: range.createdAt } : {};
+
+      const [
+        tVer, nVer, tApp, nApp,
+        tClients, nClients, tExperts, nExperts, tBlocked, nBlocked, tDeleted, nDeleted, 
+        tTopups, nTopups, tRefs, nRefs
+      ] = await Promise.all([
+        strapi.documents('api::expert-verification.expert-verification').count({ filters: { is_form_submitted: true } }),
+        strapi.documents('api::expert-verification.expert-verification').count({ filters: { is_form_submitted: true, ...range } }),
+        strapi.documents('api::expert-profile-approval.expert-profile-approval').count({ filters: { is_approved: false } }),
+        strapi.documents('api::expert-profile-approval.expert-profile-approval').count({ filters: { is_approved: false, ...range } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { role: 'Client', documentId: { $notIn: ids } } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { role: 'Client', documentId: { $notIn: ids }, ...range } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { role: 'Expert', documentId: { $notIn: ids } } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { role: 'Expert', documentId: { $notIn: ids }, ...range } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { accountStatus: 'blocked', documentId: { $notIn: ids } } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { accountStatus: 'blocked', documentId: { $notIn: ids }, ...upRange } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { accountStatus: 'deleted', documentId: { $notIn: ids } } }),
+        strapi.documents('api::public-user.public-user').count({ filters: { accountStatus: 'deleted', documentId: { $notIn: ids }, ...upRange } }),
+        strapi.documents('api::transaction.transaction').findMany({ filters: { transactionType: 'topup', paymentStatus: 'success' }, fields: ['amount', 'metadata'], pagination: { limit: -1 } }),
+        strapi.documents('api::transaction.transaction').findMany({ filters: { transactionType: 'topup', paymentStatus: 'success', ...range }, fields: ['amount', 'metadata'], pagination: { limit: -1 } }),
+        strapi.documents('api::transaction.transaction').findMany({ filters: { method: 'Referral', paymentStatus: 'success' }, fields: ['amount'], pagination: { limit: -1 } }),
+        strapi.documents('api::transaction.transaction').findMany({ filters: { method: 'Referral', paymentStatus: 'success', ...range }, fields: ['amount'], pagination: { limit: -1 } })
+      ]);
+
+      const sumProd = (list) => list.reduce((s, t) => t.metadata?.appliedPayUConfig?.mode === 'production' ? s + (Number(t.amount) || 0) : s, 0);
+      const sumAll = (list) => list.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+
+      return {
+        pendingVerifications: { total: tVer, range: nVer },
+        pendingApprovals: { total: tApp, range: nApp },
+        clients: { total: tClients, range: nClients },
+        experts: { total: tExperts, range: nExperts },
+        blockedUsers: { total: tBlocked, range: nBlocked },
+        deletedUsers: { total: tDeleted, range: nDeleted },
+        topups: { total: sumProd(tTopups), range: sumProd(nTopups) },
+        referrals: { total: sumAll(tRefs), range: sumAll(nRefs) }
+      };
+    } catch (e) {
+      strapi.log.error('Platform Report Error:', e);
+      throw e;
+    }
+  },
+
+  /**
    * Fetches summary metrics for the dashboard.
    * Optimized using raw SQL to minimize overhead from multiple counts.
    */
+
   async getSummaryStats() {
     try {
 
       // 1. test users
-      const appConfig = await strapi.db.query('api::app-config.app-config').findOne({
-        populate: ['test_accounts']
-      });
-      const testIds = appConfig?.test_accounts?.map(u => u.documentId).filter(Boolean) || [];
+      const testIds = await this.getTestUserIds();
 
 
-      // 2. total users (excluding test accounts and active only)
+
+      // 2. total users (Active Experts + Clients only, excluding tests)
       const totalUsers = await strapi.documents('api::public-user.public-user').count({
         filters: {
           documentId: { $notIn: testIds },
@@ -85,14 +152,14 @@ const statsService = ({ strapi }) => ({
       const experts = expertsByStatus.Approved + expertsByStatus.Pending;
 
 
-      // 6. expert badges distribution (excluding test accounts)
-      const verifications = await strapi.documents('api::expert-verification.expert-verification').findMany({
+      // 6. expert verifications breakdown (Active experts only)
+      const verifiedVerifications = await strapi.documents('api::expert-verification.expert-verification').findMany({
         filters: {
-          Payment_Received: true,
           Verified_Badge: true,
           expert_profile: {
             user: {
-              documentId: { $notIn: testIds }
+              documentId: { $notIn: testIds },
+              accountStatus: 'active'
             }
           }
         },
@@ -108,7 +175,8 @@ const statsService = ({ strapi }) => ({
         'Bank Badge': 0
       };
 
-      verifications.forEach(v => {
+      verifiedVerifications.forEach(v => {
+        // Count active badges
         if (v.Identity_Verified) badges['Identity Badge']++;
         if (v.Address_Verified) badges['Address Badge']++;
         if (v.Education_Verified) badges['Education Badge']++;
@@ -116,6 +184,9 @@ const statsService = ({ strapi }) => ({
         if (v.GST_Verified) badges['GST Badge']++;
         if (v.Bank_Verified) badges['Bank Badge']++;
       });
+
+      // 6.5. Pending Expert Approvals & Verifications
+      const { pendingVerifications, pendingApprovals } = await this.getPendingExpertStats();
 
       // 7. wallet summary (lifetime success topups in production mode)
       const allTopups = await strapi.documents('api::transaction.transaction').findMany({
@@ -162,6 +233,8 @@ const statsService = ({ strapi }) => ({
         clientsByStatus,
         experts,
         expertsByStatus,
+        pendingApprovals,
+        pendingVerifications,
         availability,
         badges,
         wallet
@@ -178,10 +251,7 @@ const statsService = ({ strapi }) => ({
   async getGraphStats(interval = 'day wise') {
     try {
       // 1. Resolve Test Account IDs
-      const appConfig = await strapi.db.query('api::app-config.app-config').findOne({
-        populate: ['test_accounts']
-      });
-      const testIds = appConfig?.test_accounts?.map(u => u.documentId).filter(Boolean) || [];
+      const testIds = await this.getTestUserIds();
 
       // 2. Fetch Relevant Data Sets (Limited by interval and filtered by active/non-test status)
       const startDate = new Date();
@@ -199,6 +269,7 @@ const statsService = ({ strapi }) => ({
           fields: ['createdAt', 'accountStatus'],
           pagination: { limit: -1 }
         }),
+
         // Clients (Real, All)
         strapi.documents('api::public-user.public-user').findMany({
           filters: {
@@ -209,6 +280,7 @@ const statsService = ({ strapi }) => ({
           fields: ['createdAt', 'accountStatus'],
           pagination: { limit: -1 }
         }),
+
         // Experts (Real, All)
         strapi.documents('api::public-user.public-user').findMany({
           filters: {
@@ -219,6 +291,7 @@ const statsService = ({ strapi }) => ({
           fields: ['createdAt', 'accountStatus'],
           pagination: { limit: -1 }
         }),
+
         // Test Users
         strapi.documents('api::public-user.public-user').findMany({
           filters: {
@@ -228,6 +301,7 @@ const statsService = ({ strapi }) => ({
           fields: ['createdAt'],
           pagination: { limit: -1 }
         }),
+
         // Successful Transactions
         strapi.documents('api::transaction.transaction').findMany({
           filters: {
