@@ -1,10 +1,6 @@
 'use strict';
 
 const statsController = ({ strapi }) => ({
-  /**
-   * GET /admin-stats/summary
-   * Returns top-level summary metrics.
-   */
   async getSummary(ctx) {
     try {
       const data = await strapi.plugin('admin-pannel').service('stats').getSummaryStats();
@@ -15,10 +11,6 @@ const statsController = ({ strapi }) => ({
     }
   },
 
-  /**
-   * GET /admin-stats/graph
-   * Returns time-series data based on the interval filter.
-   */
   async getGraph(ctx) {
     try {
       const { filter = 'day wise' } = ctx.query;

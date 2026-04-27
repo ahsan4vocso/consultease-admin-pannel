@@ -5,7 +5,7 @@ import { useQuery, keepPreviousData, QueryClientProvider, QueryClient } from "@t
 import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import styled, { useTheme, css, keyframes } from "styled-components";
 import { Flex, Box, Typography, Divider, SubNav } from "@strapi/design-system";
-import { A as AnalyticalDashboardIcon, P as PLUGIN_ID, C as CallAnalyticsIcon, a as ChartIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, c as Cross, d as ChevronDown, T as Tick, e as ActiveCall, f as TotalCalls, D as DeclineCall, g as CompletedCall, E as Expert, h as CallTime, S as SearchIcon, i as ReferralIcon, j as ConversionIcon, U as UniqueIcon, W as WalletIcon, k as ActivityIcon, l as TrendingUpIcon, m as UsersIcon, B as BriefcaseIcon, n as UserCheckIcon, o as ExperimentIcon } from "./index-DYeizWGF.mjs";
+import { A as AnalyticalDashboardIcon, P as PLUGIN_ID, C as CallAnalyticsIcon, a as ChartIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, c as Cross, d as ChevronDown, T as Tick, e as ActiveCall, f as TotalCalls, D as DeclineCall, g as CompletedCall, E as Expert, h as CallTime, S as SearchIcon, i as ReferralIcon, j as ConversionIcon, U as UniqueIcon, W as WalletIcon, k as ActivityIcon, l as TrendingUpIcon, m as UsersIcon, B as BriefcaseIcon, n as UserCheckIcon, o as ExperimentIcon } from "./index-BWQGMYLP.mjs";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar, AreaChart, Area, CartesianGrid } from "recharts";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -4556,17 +4556,17 @@ const MiniBadge = styled.div`
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
-  border: 1px solid ${(props) => props.color};
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${(props) => props.color}80;
   border-radius: 100px;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease-in-out;
   user-select: none;
-  box-shadow: 0 2px 8px ${(props) => props.color}15;
+  box-shadow: ${({ theme }) => theme.shadows.filterShadow};
 
   &:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: translateY(-0.5px);
+    background: ${({ theme, color }) => `${color}10`};
+    border-color: ${(props) => props.color};
+    transform: translateY(-1px);
   }
 `;
 const Nucleus = styled.div`
@@ -4590,17 +4590,18 @@ const Label = styled.span`
   letter-spacing: 0.04em;
 `;
 const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0 }) => {
+  const theme = useTheme();
   return /* @__PURE__ */ jsxs(BadgeRow, { children: [
     /* @__PURE__ */ jsx(Typography, { variant: "sigma", textColor: "neutral500", style: { marginRight: "4px" }, children: "Pending Expert:" }),
     /* @__PURE__ */ jsxs(MiniBadge, { color: "#f59e0b", children: [
       /* @__PURE__ */ jsx(Nucleus, { color: "#f59e0b" }),
-      /* @__PURE__ */ jsx(Expert, { style: { width: "14px", height: "14px", color: "#3e3d3dff" } }),
+      /* @__PURE__ */ jsx(Expert, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
       /* @__PURE__ */ jsx(Label, { children: "Approvals" }),
       /* @__PURE__ */ jsx(Count, { children: pendingApprovals })
     ] }),
     /* @__PURE__ */ jsxs(MiniBadge, { color: "#3b82f6", children: [
       /* @__PURE__ */ jsx(Nucleus, { color: "#3b82f6" }),
-      /* @__PURE__ */ jsx(UniqueIcon, { style: { width: "14px", height: "14px", color: "#3c3c3dff" } }),
+      /* @__PURE__ */ jsx(UniqueIcon, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
       /* @__PURE__ */ jsx(Label, { children: "Verifications" }),
       /* @__PURE__ */ jsx(Count, { children: pendingVerifications })
     ] })
@@ -4675,7 +4676,7 @@ const StatsDashboardPage = () => {
     meta = { labels: [] },
     growth = { experts: [], clients: [] },
     wallet: walletGraph = { trend: [] },
-    sparklines = { users: [], experts: [], topups: [], referrals: [] }
+    sparklines = { users: [], experts: [], topups: [], referrals: [], earnings: [], test: [], total: [] }
   } = graph || {};
   return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
     /* @__PURE__ */ jsx(
@@ -4706,7 +4707,6 @@ const StatsDashboardPage = () => {
             {
               title: "Total Users",
               value: (total || 0).toLocaleString(),
-              trend: "12.5%",
               chartData: sparklines.total,
               labels: meta.labels,
               color: "#3b82f6",
@@ -4718,7 +4718,6 @@ const StatsDashboardPage = () => {
             {
               title: "Experts",
               value: (experts || 0).toLocaleString(),
-              trend: "8.2%",
               chartData: sparklines.experts,
               labels: meta.labels,
               color: "#8b5cf6",
@@ -4730,7 +4729,6 @@ const StatsDashboardPage = () => {
             {
               title: "Clients",
               value: (clients || 0).toLocaleString(),
-              trend: "15.1%",
               chartData: sparklines.users,
               labels: meta.labels,
               color: "#10b981",
@@ -4742,7 +4740,6 @@ const StatsDashboardPage = () => {
             {
               title: "Test Users",
               value: (test || 0).toLocaleString(),
-              trend: "-2.4%",
               chartData: sparklines.test,
               labels: meta.labels,
               color: "#f59e0b",
@@ -4807,7 +4804,6 @@ const StatsDashboardPage = () => {
             {
               title: "Total Wallet Topups",
               value: `₹${(wallet.totalTopups || 0).toLocaleString()}`,
-              trend: "22.4%",
               chartData: sparklines.topups,
               labels: meta.labels,
               color: "#10b981",
@@ -4819,7 +4815,6 @@ const StatsDashboardPage = () => {
             {
               title: "Referral Expenses",
               value: `₹${(wallet.referralDistributed || 0).toLocaleString()}`,
-              trend: "5.8%",
               chartData: sparklines.referrals,
               labels: meta.labels,
               color: "#f59e0b",
@@ -4831,8 +4826,7 @@ const StatsDashboardPage = () => {
             {
               title: "Platform Earnings",
               value: `₹${(wallet.platformEarnings || 0).toLocaleString()}`,
-              trend: "18.2%",
-              chartData: sparklines.topups.map((v) => v * 0.15),
+              chartData: sparklines.earnings,
               labels: meta.labels,
               color: "#3b82f6",
               Icon: TrendingUpIcon

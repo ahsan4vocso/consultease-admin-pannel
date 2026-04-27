@@ -1,5 +1,5 @@
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, useTheme } from 'styled-components';
 import { Flex, Typography } from '@strapi/design-system';
 import { Expert as ExpertIcon, UniqueIcon as VerifyIcon } from '../Icons';
 
@@ -22,17 +22,17 @@ const MiniBadge = styled.div`
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
-  border: 1px solid ${props => props.color};
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${props => props.color}80;
   border-radius: 100px;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease-in-out;
   user-select: none;
-  box-shadow: 0 2px 8px ${props => props.color}15;
+  box-shadow: ${({ theme }) => theme.shadows.filterShadow};
 
   &:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: translateY(-0.5px);
+    background: ${({ theme, color }) => `${color}10`};
+    border-color: ${props => props.color};
+    transform: translateY(-1px);
   }
 `;
 
@@ -60,6 +60,8 @@ const Label = styled.span`
 `;
 
 const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0 }) => {
+  const theme = useTheme();
+
   return (
     <BadgeRow>
       <Typography variant="sigma" textColor="neutral500" style={{ marginRight: '4px' }}>
@@ -68,14 +70,14 @@ const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0 }) =
 
       <MiniBadge color="#f59e0b">
         <Nucleus color="#f59e0b" />
-        <ExpertIcon style={{ width: '14px', height: '14px', color: "#3e3d3dff" }} />
+        <ExpertIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
         <Label>Approvals</Label>
         <Count>{pendingApprovals}</Count>
       </MiniBadge>
 
       <MiniBadge color="#3b82f6">
         <Nucleus color="#3b82f6" />
-        <VerifyIcon style={{ width: '14px', height: '14px', color: "#3c3c3dff" }} />
+        <VerifyIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
         <Label>Verifications</Label>
         <Count>{pendingVerifications}</Count>
       </MiniBadge>

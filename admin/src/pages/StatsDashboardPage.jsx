@@ -99,7 +99,7 @@ const StatsDashboardPage = () => {
     meta = { labels: [] },
     growth = { experts: [], clients: [] },
     wallet: walletGraph = { trend: [] },
-    sparklines = { users: [], experts: [], topups: [], referrals: [] }
+    sparklines = { users: [], experts: [], topups: [], referrals: [], earnings: [], test: [], total: [] }
   } = graph || {};
 
   return (
@@ -134,7 +134,6 @@ const StatsDashboardPage = () => {
                   <StatCard
                     title="Total Users"
                     value={(total || 0).toLocaleString()}
-                    trend="12.5%"
                     chartData={sparklines.total}
                     labels={meta.labels}
                     color="#3b82f6"
@@ -145,7 +144,6 @@ const StatsDashboardPage = () => {
                   <StatCard
                     title="Experts"
                     value={(experts || 0).toLocaleString()}
-                    trend="8.2%"
                     chartData={sparklines.experts}
                     labels={meta.labels}
                     color="#8b5cf6"
@@ -156,7 +154,6 @@ const StatsDashboardPage = () => {
                   <StatCard
                     title="Clients"
                     value={(clients || 0).toLocaleString()}
-                    trend="15.1%"
                     chartData={sparklines.users}
                     labels={meta.labels}
                     color="#10b981"
@@ -167,7 +164,6 @@ const StatsDashboardPage = () => {
                   <StatCard
                     title="Test Users"
                     value={(test || 0).toLocaleString()}
-                    trend="-2.4%"
                     chartData={sparklines.test}
                     labels={meta.labels}
                     color="#f59e0b"
@@ -234,7 +230,6 @@ const StatsDashboardPage = () => {
                   <StatCard
                     title="Total Wallet Topups"
                     value={`₹${(wallet.totalTopups || 0).toLocaleString()}`}
-                    trend="22.4%"
                     chartData={sparklines.topups}
                     labels={meta.labels}
                     color="#10b981"
@@ -245,7 +240,6 @@ const StatsDashboardPage = () => {
                   <StatCard
                     title="Referral Expenses"
                     value={`₹${(wallet.referralDistributed || 0).toLocaleString()}`}
-                    trend="5.8%"
                     chartData={sparklines.referrals}
                     labels={meta.labels}
                     color="#f59e0b"
@@ -256,8 +250,7 @@ const StatsDashboardPage = () => {
                   <StatCard
                     title="Platform Earnings"
                     value={`₹${(wallet.platformEarnings || 0).toLocaleString()}`}
-                    trend="18.2%"
-                    chartData={sparklines.topups.map(v => v * 0.15)}
+                    chartData={sparklines.earnings}
                     labels={meta.labels}
                     color="#3b82f6"
                     Icon={TrendingUpIcon}

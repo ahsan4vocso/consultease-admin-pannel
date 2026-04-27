@@ -1,9 +1,7 @@
 'use strict';
 
 const statsService = ({ strapi }) => ({
-  /**
-   * Helper to fetch test account IDs.
-   */
+
   async getTestUserIds() {
     const appConfig = await strapi.db.query('api::app-config.app-config').findOne({
       populate: ['test_accounts']
@@ -19,6 +17,66 @@ const statsService = ({ strapi }) => ({
     return { pendingVerifications: tVer, pendingApprovals: tApp };
   },
 
+  async getPlatformEarnings(range = {}) {
+    try {
+      let dateFilter = '';
+      const params = [];
+      if (range.createdAt) {
+        if (range.createdAt.$gte) {
+          dateFilter += ` AND t.created_at >= ?`;
+          params.push(range.createdAt.$gte);
+        }
+        if (range.createdAt.$lte) {
+          dateFilter += ` AND t.created_at <= ?`;
+          params.push(range.createdAt.$lte);
+        }
+      }
+
+      const allParams = [...params, ...params];
+
+      let sql = `
+        SELECT COALESCE(SUM(net_earning), 0) as total
+        FROM (
+          SELECT 
+            call_id, 
+            SUM(in_amt) - SUM(out_amt) as net_earning
+          FROM (
+            -- 1. incoming_transactions
+            SELECT tcl.call_id, t.amount as in_amt, 0 as out_amt
+            FROM wallets w
+            JOIN transactions_to_wallet_lnk twl ON w.id = twl.wallet_id
+            JOIN transactions t ON twl.transaction_id = t.id
+            JOIN transactions_call_lnk tcl ON t.id = tcl.transaction_id
+            WHERE w.wallet_type = 'EARNINGS_WALLET'
+            AND t.payment_status = 'success'
+            ${dateFilter}
+
+            UNION ALL
+
+            -- 2. outgoing_transactions
+            SELECT tcl.call_id, 0 as in_amt, t.amount as out_amt
+            FROM wallets w
+            JOIN transactions_from_wallet_lnk fwl ON w.id = fwl.wallet_id
+            JOIN transactions t ON fwl.transaction_id = t.id
+            JOIN transactions_call_lnk tcl ON t.id = tcl.transaction_id
+            WHERE w.wallet_type = 'EARNINGS_WALLET'
+            AND t.payment_status = 'success'
+            ${dateFilter}
+          ) AS combined
+          GROUP BY call_id
+        ) AS final
+      `;
+
+      const result = await strapi.db.connection.raw(sql, allParams);
+      const total = result.rows?.[0]?.total || 0;
+
+      return Number(total);
+    } catch (error) {
+      strapi.log.error('Platform Earnings Array SQL Error:', error);
+      return 0;
+    }
+  },
+
   async getPlatformReportStats({ startDate, endDate } = {}) {
     try {
       const ids = await this.getTestUserIds();
@@ -29,8 +87,9 @@ const statsService = ({ strapi }) => ({
 
       const [
         tVer, nVer, tApp, nApp,
-        tClients, nClients, tExperts, nExperts, tBlocked, nBlocked, tDeleted, nDeleted, 
-        tTopups, nTopups, tRefs, nRefs
+        tClients, nClients, tExperts, nExperts, tBlocked, nBlocked, tDeleted, nDeleted,
+        tTopups, nTopups, tRefs, nRefs,
+        // tEarnings, nEarnings
       ] = await Promise.all([
         strapi.documents('api::expert-verification.expert-verification').count({ filters: { is_form_submitted: true } }),
         strapi.documents('api::expert-verification.expert-verification').count({ filters: { is_form_submitted: true, ...range } }),
@@ -47,7 +106,9 @@ const statsService = ({ strapi }) => ({
         strapi.documents('api::transaction.transaction').findMany({ filters: { transactionType: 'topup', paymentStatus: 'success' }, fields: ['amount', 'metadata'], pagination: { limit: -1 } }),
         strapi.documents('api::transaction.transaction').findMany({ filters: { transactionType: 'topup', paymentStatus: 'success', ...range }, fields: ['amount', 'metadata'], pagination: { limit: -1 } }),
         strapi.documents('api::transaction.transaction').findMany({ filters: { method: 'Referral', paymentStatus: 'success' }, fields: ['amount'], pagination: { limit: -1 } }),
-        strapi.documents('api::transaction.transaction').findMany({ filters: { method: 'Referral', paymentStatus: 'success', ...range }, fields: ['amount'], pagination: { limit: -1 } })
+        strapi.documents('api::transaction.transaction').findMany({ filters: { method: 'Referral', paymentStatus: 'success', ...range }, fields: ['amount'], pagination: { limit: -1 } }),
+        // this.getPlatformEarnings(),
+        // this.getPlatformEarnings(range)
       ]);
 
       const sumProd = (list) => list.reduce((s, t) => t.metadata?.appliedPayUConfig?.mode === 'production' ? s + (Number(t.amount) || 0) : s, 0);
@@ -61,7 +122,8 @@ const statsService = ({ strapi }) => ({
         blockedUsers: { total: tBlocked, range: nBlocked },
         deletedUsers: { total: tDeleted, range: nDeleted },
         topups: { total: sumProd(tTopups), range: sumProd(nTopups) },
-        referrals: { total: sumAll(tRefs), range: sumAll(nRefs) }
+        referrals: { total: sumAll(tRefs), range: sumAll(nRefs) },
+        // platformEarnings: { total: tEarnings, range: nEarnings }
       };
     } catch (e) {
       strapi.log.error('Platform Report Error:', e);
@@ -69,20 +131,11 @@ const statsService = ({ strapi }) => ({
     }
   },
 
-  /**
-   * Fetches summary metrics for the dashboard.
-   * Optimized using raw SQL to minimize overhead from multiple counts.
-   */
-
   async getSummaryStats() {
     try {
-
-      // 1. test users
       const testIds = await this.getTestUserIds();
 
-
-
-      // 2. total users (Active Experts + Clients only, excluding tests)
+      // 1. total users (Active Experts + Clients only, excluding tests)
       const totalUsers = await strapi.documents('api::public-user.public-user').count({
         filters: {
           documentId: { $notIn: testIds },
@@ -90,8 +143,7 @@ const statsService = ({ strapi }) => ({
         }
       });
 
-
-      // 3. clients breakdown (excluding test accounts)
+      // 2. clients breakdown (excluding test accounts)
       const [activeClients, blockedClients, deletedClients] = await Promise.all([
         strapi.documents('api::public-user.public-user').count({
           filters: { role: 'Client', documentId: { $notIn: testIds }, accountStatus: 'active' }
@@ -111,8 +163,10 @@ const statsService = ({ strapi }) => ({
         Deleted: deletedClients
       };
 
+      // 3. Platform earnings (Incoming - Outgoing in Earnings Wallet for call-linked transactions)
+      const platformEarnings = await this.getPlatformEarnings();
 
-      // 4. experts data (fetching all non-test experts for status and availability)
+      // 3. experts data (fetching all non-test experts for status and availability)
       const allExperts = await strapi.documents('api::public-user.public-user').findMany({
         filters: {
           role: 'Expert',
@@ -219,6 +273,7 @@ const statsService = ({ strapi }) => ({
 
       const wallet = {
         totalTopups,
+        platformEarnings,
         referralDistributed: referralExpenses,
         economy: {
           audio: { clientSpent: 0, expertEarned: 0, commission: 0 },
@@ -257,7 +312,7 @@ const statsService = ({ strapi }) => ({
       const startDate = new Date();
       if (interval === 'day wise') startDate.setDate(startDate.getDate() - 30);
       else if (interval === 'monthly') startDate.setMonth(startDate.getMonth() - 12);
-      else startDate.setFullYear(startDate.getFullYear() - 1);
+      else startDate.setFullYear(startDate.getFullYear() - 12);
 
       const [totalUsers, clients, experts, testUsersRaw, transactions] = await Promise.all([
         // Total Users (Real, All)
@@ -312,6 +367,49 @@ const statsService = ({ strapi }) => ({
           pagination: { limit: -1 }
         })
       ]);
+
+      // Fetch Platform Earnings trend using Raw SQL
+      let format = 'YYYY-MM-DD';
+      if (interval === 'monthly') format = 'YYYY-MM';
+      else if (interval === 'yearly') format = 'YYYY';
+
+      const earningsSql = `
+        SELECT bucket, SUM(in_amt) - SUM(out_amt) as earnings
+        FROM (
+          -- Incoming
+          SELECT TRIM(TO_CHAR(t.created_at, ?)) as bucket, t.amount as in_amt, 0 as out_amt
+          FROM wallets w
+          JOIN transactions_to_wallet_lnk twl ON w.id = twl.wallet_id
+          JOIN transactions t ON twl.transaction_id = t.id
+          JOIN transactions_call_lnk tcl ON t.id = tcl.transaction_id
+          WHERE w.wallet_type = 'EARNINGS_WALLET'
+          AND t.payment_status = 'success'
+          AND t.created_at >= ?
+
+          UNION ALL
+
+          -- Outgoing
+          SELECT TRIM(TO_CHAR(t.created_at, ?)) as bucket, 0 as in_amt, t.amount as out_amt
+          FROM wallets w
+          JOIN transactions_from_wallet_lnk fwl ON w.id = fwl.wallet_id
+          JOIN transactions t ON fwl.transaction_id = t.id
+          JOIN transactions_call_lnk tcl ON t.id = tcl.transaction_id
+          WHERE w.wallet_type = 'EARNINGS_WALLET'
+          AND t.payment_status = 'success'
+          AND t.created_at >= ?
+        ) AS combined
+        GROUP BY bucket
+      `;
+
+      const earningsResult = await strapi.db.connection.raw(earningsSql, [
+        format, startDate.toISOString(),
+        format, startDate.toISOString()
+      ]);
+      const earningsRows = earningsResult.rows;
+      const earningsBuckets = {};
+      earningsRows?.forEach(row => {
+        earningsBuckets[row.bucket] = Number(row.earnings) || 0;
+      });
 
       // 3. Aggregate into Buckets
       const getBucket = (dateStr) => {
@@ -384,7 +482,8 @@ const statsService = ({ strapi }) => ({
           experts: mapToValues(expertsBucketsActive),
           test: mapToValues(testBuckets),
           topups: mapToValues(topupsBuckets),
-          referrals: mapToValues(referralsBuckets)
+          referrals: mapToValues(referralsBuckets),
+          earnings: mapToValues(earningsBuckets)
         }
       };
     } catch (error) {
