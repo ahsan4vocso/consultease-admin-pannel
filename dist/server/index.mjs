@@ -1591,10 +1591,10 @@ const statsService = ({ strapi: strapi2 }) => ({
             SELECT tcl.call_id, 0 as in_amt, t.amount as out_amt
             FROM wallets w
             JOIN transactions_from_wallet_lnk fwl ON w.id = fwl.wallet_id
-            JOIN transactions t ON fwl.transaction_id = fwl.transaction_id
+            JOIN transactions t ON t.id = fwl.transaction_id
             JOIN transactions_call_lnk tcl ON t.id = tcl.transaction_id
             WHERE w.wallet_type = 'EARNINGS_WALLET'
-            AND t.payment_status = 'success'
+            AND t.payment_status = 'success'                                                          
             ${dateFilter}
           ) AS combined
           JOIN calls c ON combined.call_id = c.id
@@ -1773,7 +1773,7 @@ const statsService = ({ strapi: strapi2 }) => ({
             p as period_date
           FROM generate_series(
             CURRENT_DATE - INTERVAL '${intervalConfig.series}', 
-            CURRENT_D,ATE 
+            CURRENT_DATE, 
             '${intervalConfig.step}'
           ) AS p
         ),

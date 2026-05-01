@@ -7,7 +7,7 @@ const reactQuery = require("@tanstack/react-query");
 const React = require("react");
 const styled = require("styled-components");
 const designSystem = require("@strapi/design-system");
-const index = require("./index-CakD73tY.js");
+const index = require("./index-CVJGtrht.js");
 const recharts = require("recharts");
 const reactToastify = require("react-toastify");
 const reactDom = require("react-dom");
@@ -5021,7 +5021,7 @@ const StatsDashboardPage = () => {
         /* @__PURE__ */ jsxRuntime.jsx(CustomGridItem, { col: 8, delayIndex: 9, children: /* @__PURE__ */ jsxRuntime.jsx(
           GrowthBarChart,
           {
-            title: "Registration Growth fg",
+            title: "Registration Growth",
             data: growth,
             labels: meta.labels,
             Icon: index.TrendingUpIcon

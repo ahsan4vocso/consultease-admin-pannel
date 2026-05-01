@@ -213,7 +213,7 @@ const StatsDashboardPage = () => {
             <CustomGrid col={12}>
               <CustomGridItem col={8} delayIndex={9}>
                 <GrowthAreaChart
-                  title="Registration Growth fg"
+                  title="Registration Growth"
                   data={growth}
                   labels={meta.labels}
                   Icon={TrendingUpIcon}

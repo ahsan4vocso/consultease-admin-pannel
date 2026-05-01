@@ -5,7 +5,7 @@ import { useQuery, keepPreviousData, QueryClientProvider, QueryClient } from "@t
 import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import styled, { useTheme, css, keyframes } from "styled-components";
 import { Flex, Box, Typography, Divider, SubNav } from "@strapi/design-system";
-import { A as AnalyticalDashboardIcon, P as PLUGIN_ID, C as CallAnalyticsIcon, a as ChartIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, c as Cross, d as ChevronDown, T as Tick, e as ActiveCall, f as TotalCalls, D as DeclineCall, g as CompletedCall, E as Expert, h as CallTime, S as SearchIcon, i as ReferralIcon, j as ConversionIcon, U as UniqueIcon, W as WalletIcon, k as ActivityIcon, l as TrendingUpIcon, m as UsersIcon, B as BriefcaseIcon, n as UserCheckIcon, o as ExperimentIcon } from "./index-BIwKnzvl.mjs";
+import { A as AnalyticalDashboardIcon, P as PLUGIN_ID, C as CallAnalyticsIcon, a as ChartIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, c as Cross, d as ChevronDown, T as Tick, e as ActiveCall, f as TotalCalls, D as DeclineCall, g as CompletedCall, E as Expert, h as CallTime, S as SearchIcon, i as ReferralIcon, j as ConversionIcon, U as UniqueIcon, W as WalletIcon, k as ActivityIcon, l as TrendingUpIcon, m as UsersIcon, B as BriefcaseIcon, n as UserCheckIcon, o as ExperimentIcon } from "./index-BQ-48OQ-.mjs";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar, AreaChart, Area, CartesianGrid } from "recharts";
 import { toast, ToastContainer } from "react-toastify";
 import { createPortal } from "react-dom";
@@ -5016,7 +5016,7 @@ const StatsDashboardPage = () => {
         /* @__PURE__ */ jsx(CustomGridItem, { col: 8, delayIndex: 9, children: /* @__PURE__ */ jsx(
           GrowthBarChart,
           {
-            title: "Registration Growth fg",
+            title: "Registration Growth",
             data: growth,
             labels: meta.labels,
             Icon: TrendingUpIcon
