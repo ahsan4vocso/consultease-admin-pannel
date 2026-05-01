@@ -59,29 +59,75 @@ const Label = styled.span`
   letter-spacing: 0.04em;
 `;
 
-const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0 }) => {
+import { Box } from '@strapi/design-system';
+
+const GraphFilterContainer = styled.div`
+  display: flex;
+  align-items: center;
+  background: ${({ theme }) => theme.colors.neutral100};
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  margin-left: auto;
+`;
+
+const GraphFilterButton = styled.button`
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: ${props => props.active ? props.theme.colors.neutral0 : 'transparent'};
+  color: ${props => props.active ? props.theme.colors.primary600 : props.theme.colors.neutral600};
+  box-shadow: ${props => props.active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'};
+  transition: all 0.2s;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary600};
+  }
+`;
+
+const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0, filter = 'monthly', onFilterChange }) => {
   const theme = useTheme();
 
   return (
-    <BadgeRow>
-      <Typography variant="sigma" textColor="neutral500" style={{ marginRight: '4px' }}>
-        Pending Expert:
-      </Typography>
+    <Box display="flex" alignItems="center" width="100%">
+      <BadgeRow style={{ marginBottom: 0, marginTop: 0 }}>
+        <Typography variant="sigma" textColor="neutral500" style={{ marginRight: '4px' }}>
+          Pending Expert:
+        </Typography>
 
-      <MiniBadge color="#f59e0b">
-        <Nucleus color="#f59e0b" />
-        <ExpertIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
-        <Label>Approvals</Label>
-        <Count>{pendingApprovals}</Count>
-      </MiniBadge>
+        <MiniBadge color="#f59e0b">
+          <Nucleus color="#f59e0b" />
+          <ExpertIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
+          <Label>Approvals</Label>
+          <Count>{pendingApprovals}</Count>
+        </MiniBadge>
 
-      <MiniBadge color="#3b82f6">
-        <Nucleus color="#3b82f6" />
-        <VerifyIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
-        <Label>Verifications</Label>
-        <Count>{pendingVerifications}</Count>
-      </MiniBadge>
-    </BadgeRow>
+        <MiniBadge color="#3b82f6">
+          <Nucleus color="#3b82f6" />
+          <VerifyIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
+          <Label>Verifications</Label>
+          <Count>{pendingVerifications}</Count>
+        </MiniBadge>
+      </BadgeRow>
+
+      <GraphFilterContainer>
+        <Typography variant="sigma" textColor="neutral500" style={{ padding: '0 8px', fontSize: '10px' }}>
+          Graph Period:
+        </Typography>
+        {['day wise', 'monthly', 'quarterly', 'yearly'].map((period) => (
+          <GraphFilterButton
+            key={period}
+            active={filter === period}
+            onClick={() => onFilterChange(period)}
+          >
+            {period === 'day wise' ? 'Day' : period.charAt(0).toUpperCase() + period.slice(1)}
+          </GraphFilterButton>
+        ))}
+      </GraphFilterContainer>
+    </Box>
   );
 };
 

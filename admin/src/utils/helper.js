@@ -171,6 +171,10 @@ export const getDateRange = (filter, customRange) => {
         };
     }
 
+    if (filter === 'all_time') {
+        return { start: '2020-01-01T00:00:00.000Z', end: now.toISOString() };
+    }
+
     start.setHours(0, 0, 0, 0);
     return { start: start.toISOString(), end: now.toISOString() };
 };

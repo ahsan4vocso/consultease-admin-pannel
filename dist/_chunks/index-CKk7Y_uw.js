@@ -152,7 +152,7 @@ const index = {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: "Dashboards"
       },
-      Component: () => Promise.resolve().then(() => require("./App-BiZq6_7O.js"))
+      Component: () => Promise.resolve().then(() => require("./App-KWOXCdkg.js"))
     });
     app.registerPlugin({
       id: PLUGIN_ID,

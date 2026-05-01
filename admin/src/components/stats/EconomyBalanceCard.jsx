@@ -183,17 +183,16 @@ const formatCurrency = (val) => {
 };
 
 const EconomyBalanceCard = ({ economy }) => {
-  const theme = useTheme();
+  const voice = economy?.voiceCall || { clientSpend: 0, expertReceived: 0, platformEarning: 0 };
+  const video = economy?.videoCall || { clientSpend: 0, expertReceived: 0, platformEarning: 0 };
 
   const totals = {
-    spent: economy.audio.clientSpent + economy.video.clientSpent,
-    earned: economy.audio.expertEarned + economy.video.expertEarned,
-    commission: economy.audio.commission + economy.video.commission
+    spent: voice.clientSpend + video.clientSpend,
+    earned: voice.expertReceived + video.expertReceived,
+    commission: voice.platformEarning + video.platformEarning
   };
 
-  const renderRow = (data, icon, color) => {
-    const ratio = data.clientSpent > 0 ? (data.expertEarned / data.clientSpent) * 100 : 0;
-    
+  const renderRow = (label, data, icon, color) => {
     return (
       <TableRow>
         <TypeInfo>
@@ -201,27 +200,20 @@ const EconomyBalanceCard = ({ economy }) => {
             {icon}
           </IconBox>
         </TypeInfo>
-        
+
         <MetricCell>
-          <MetricSubLabel>Client Spent</MetricSubLabel>
-          <MetricMainVal>{formatCurrency(data.clientSpent)}</MetricMainVal>
+          <MetricSubLabel>Client Spend</MetricSubLabel>
+          <MetricMainVal>{formatCurrency(data.clientSpend)}</MetricMainVal>
         </MetricCell>
 
         <MetricCell>
           <MetricSubLabel>Expert Receive</MetricSubLabel>
-          <MetricMainVal>{formatCurrency(data.expertEarned)}</MetricMainVal>
+          <MetricMainVal>{formatCurrency(data.expertReceived)}</MetricMainVal>
         </MetricCell>
 
         <MetricCell align="flex-end">
-          <PayIndicator>
-            <RatioLabel>
-              <ActivityIcon style={{ width: 10 }} />
-              {ratio.toFixed(0)}% Pay
-            </RatioLabel>
-            <MiniTrack>
-              <MiniBar percentage={ratio} />
-            </MiniTrack>
-          </PayIndicator>
+          <MetricSubLabel>Co. Earning</MetricSubLabel>
+          <MetricMainVal style={{ color: '#3b82f6' }}>{formatCurrency(data.platformEarning)}</MetricMainVal>
         </MetricCell>
       </TableRow>
     );
@@ -234,25 +226,21 @@ const EconomyBalanceCard = ({ economy }) => {
           <IconWrapper>
             <ActivityIcon style={{ width: 18, height: 18 }} />
           </IconWrapper>
-          Revenue & Settlement
+          Revenue & Payout Distribution
         </Title>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 700, color: theme.colors.neutral500 }}>MARGIN</span>
-          <span style={{ fontSize: '12px', fontWeight: 800, color: '#3b82f6' }}>
-            ~{(totals.spent > 0 ? (totals.commission / totals.spent * 100) : 0).toFixed(1)}%
-          </span>
-        </div>
       </div>
 
       <BreakdownTable>
         {renderRow(
-          economy.audio, 
-          <VoiceCall style={{ width: 14 }} />, 
+          'Voice Call',
+          voice,
+          <VoiceCall style={{ width: 14 }} />,
           '#3b82f6'
         )}
         {renderRow(
-          economy.video, 
-          <VideoCall style={{ width: 14 }} />, 
+          'Video Call',
+          video,
+          <VideoCall style={{ width: 14 }} />,
           '#10b981'
         )}
       </BreakdownTable>
@@ -262,11 +250,11 @@ const EconomyBalanceCard = ({ economy }) => {
           <SummaryItem>
             <SummaryLabel>
               <WalletIcon style={{ width: 10 }} />
-              Total Client Spent
+              Total Client Spend
             </SummaryLabel>
             <SummaryVal>{formatCurrency(totals.spent)}</SummaryVal>
           </SummaryItem>
-          
+
           <SummaryItem>
             <SummaryLabel>
               <TrendingUpIcon style={{ width: 10 }} />
@@ -274,11 +262,11 @@ const EconomyBalanceCard = ({ economy }) => {
             </SummaryLabel>
             <SummaryVal accent="#10b981">{formatCurrency(totals.earned)}</SummaryVal>
           </SummaryItem>
-          
+
           <SummaryItem>
             <SummaryLabel>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#3b82f6' }} />
-              Platform Revenue
+              Total Co. Earning
             </SummaryLabel>
             <SummaryVal accent="#3b82f6">{formatCurrency(totals.commission)}</SummaryVal>
           </SummaryItem>

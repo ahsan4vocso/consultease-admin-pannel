@@ -9,6 +9,7 @@ import GrowthAreaChart from '../components/stats/GrowthAreaChart';
 import StatusProgress from '../components/stats/StatusProgress';
 import EconomyBalanceCard from '../components/stats/EconomyBalanceCard';
 import StatsHeader from '../components/stats/StatsHeader';
+import WalletTrendBarChart from '../components/stats/WalletTrendBarChart';
 import {
   UsersIcon,
   BriefcaseIcon,
@@ -75,16 +76,22 @@ const SectionTitle = styled.h2`
 `;
 
 const StatsDashboardPage = () => {
-  const [filter, setFilter] = useState('monthly');
+  const [globalFilter, setGlobalFilter] = useState('all_time');
+  const [customRange, setCustomRange] = useState({
+    start: new Date().toISOString().split('T')[0],
+    end: new Date().toISOString().split('T')[0]
+  });
+  const [graphFilter, setGraphFilter] = useState('monthly');
 
-  const { data: summary, isLoading: isSummaryLoading } = useAdminSummary();
-  const { data: graph, isLoading: isGraphLoading } = useAdminGraph(filter);
+  const { data: summary } = useAdminSummary(globalFilter, customRange);
+  const { data: graph } = useAdminGraph(graphFilter);
 
 
   const {
     total = 0,
     test = 0,
     experts = 0,
+    expertsCount = 0,
     clients = 0,
     expertsByStatus = {},
     clientsByStatus = {},
@@ -92,7 +99,7 @@ const StatsDashboardPage = () => {
     badges = {},
     pendingApprovals = 0,
     pendingVerifications = 0,
-    wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { audio: 0, video: 0 } }
+    wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { voiceCall: { clientSpend: 0, expertReceived: 0, platformEarning: 0 }, videoCall: { clientSpend: 0, expertReceived: 0, platformEarning: 0 } } },
   } = summary || {};
 
   const {
@@ -108,8 +115,10 @@ const StatsDashboardPage = () => {
         <StatsHeader
           total={total}
           online={availability.Online || 0}
-          filter={filter}
-          onFilterChange={setFilter}
+          filter={globalFilter}
+          onFilterChange={setGlobalFilter}
+          customRange={customRange}
+          onCustomRangeChange={setCustomRange}
         />
 
         <Style.Main>
@@ -118,6 +127,8 @@ const StatsDashboardPage = () => {
               <OperationalBadges
                 pendingApprovals={pendingApprovals}
                 pendingVerifications={pendingVerifications}
+                filter={graphFilter}
+                onFilterChange={setGraphFilter}
               />
             </CustomGridItem>
 
@@ -202,7 +213,7 @@ const StatsDashboardPage = () => {
             <CustomGrid col={12}>
               <CustomGridItem col={8} delayIndex={9}>
                 <GrowthAreaChart
-                  title="Registration Growth"
+                  title="Registration Growth fg"
                   data={growth}
                   labels={meta.labels}
                   Icon={TrendingUpIcon}
@@ -211,7 +222,7 @@ const StatsDashboardPage = () => {
               <CustomGridItem col={4} delayIndex={10}>
                 <StatusProgress
                   title="Expert Badge Distribution"
-                  total={experts}
+                  total={expertsCount}
                   items={badges}
                 />
               </CustomGridItem>
@@ -267,12 +278,9 @@ const StatsDashboardPage = () => {
                 />
               </CustomGridItem>
               <CustomGridItem col={6} delayIndex={15}>
-                <GrowthAreaChart
-                  title="Wallet Topup Trends"
-                  data={{
-                    experts: walletGraph.trend,
-                    clients: walletGraph.trend.map(v => v * 0.8)
-                  }}
+                <WalletTrendBarChart
+                  title="Wallet Topup Trends (Client)"
+                  data={walletGraph.trend}
                   labels={meta.labels}
                   Icon={WalletIcon}
                 />

@@ -3,7 +3,8 @@
 const statsController = ({ strapi }) => ({
   async getSummary(ctx) {
     try {
-      const data = await strapi.plugin('admin-pannel').service('stats').getSummaryStats();
+      const { filters = {} } = ctx.query;
+      const data = await strapi.plugin('admin-pannel').service('stats').getSummaryStats(filters);
       ctx.send(data);
     } catch (error) {
       strapi.log.error('Stats Controller (Summary) Error:', error);

@@ -5,7 +5,7 @@ import { useQuery, keepPreviousData, QueryClientProvider, QueryClient } from "@t
 import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import styled, { useTheme, css, keyframes } from "styled-components";
 import { Flex, Box, Typography, Divider, SubNav } from "@strapi/design-system";
-import { A as AnalyticalDashboardIcon, P as PLUGIN_ID, C as CallAnalyticsIcon, a as ChartIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, c as Cross, d as ChevronDown, T as Tick, e as ActiveCall, f as TotalCalls, D as DeclineCall, g as CompletedCall, E as Expert, h as CallTime, S as SearchIcon, i as ReferralIcon, j as ConversionIcon, U as UniqueIcon, W as WalletIcon, k as ActivityIcon, l as TrendingUpIcon, m as UsersIcon, B as BriefcaseIcon, n as UserCheckIcon, o as ExperimentIcon } from "./index-BWQGMYLP.mjs";
+import { A as AnalyticalDashboardIcon, P as PLUGIN_ID, C as CallAnalyticsIcon, a as ChartIcon, R as ReferralLogo, V as VoiceCall, b as VideoCall, c as Cross, d as ChevronDown, T as Tick, e as ActiveCall, f as TotalCalls, D as DeclineCall, g as CompletedCall, E as Expert, h as CallTime, S as SearchIcon, i as ReferralIcon, j as ConversionIcon, U as UniqueIcon, W as WalletIcon, k as ActivityIcon, l as TrendingUpIcon, m as UsersIcon, B as BriefcaseIcon, n as UserCheckIcon, o as ExperimentIcon } from "./index-Cml_fXMD.mjs";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, XAxis, YAxis, Bar, AreaChart, Area, CartesianGrid } from "recharts";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -60,7 +60,7 @@ const NavButton = styled(NavLink)`
     transition: color 0.2s;
   }
 `;
-const IconWrapper$4 = styled.div`
+const IconWrapper$5 = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,7 +86,7 @@ const PluginLayout = ({ children }) => {
             to: `/plugins/${PLUGIN_ID}`,
             end: true,
             children: [
-              /* @__PURE__ */ jsx(IconWrapper$4, { children: /* @__PURE__ */ jsx(CallAnalyticsIcon, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(IconWrapper$5, { children: /* @__PURE__ */ jsx(CallAnalyticsIcon, { style: { width: "2rem", height: "2rem" } }) }),
               /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Call Analytics" })
             ]
           }
@@ -96,7 +96,7 @@ const PluginLayout = ({ children }) => {
           {
             to: `/plugins/${PLUGIN_ID}/statistics`,
             children: [
-              /* @__PURE__ */ jsx(IconWrapper$4, { children: /* @__PURE__ */ jsx(ChartIcon, { style: { width: "1.8rem", height: "1.8rem" } }) }),
+              /* @__PURE__ */ jsx(IconWrapper$5, { children: /* @__PURE__ */ jsx(ChartIcon, { style: { width: "1.8rem", height: "1.8rem" } }) }),
               /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Statistics" })
             ]
           }
@@ -106,7 +106,7 @@ const PluginLayout = ({ children }) => {
           {
             to: `/plugins/${PLUGIN_ID}/referral-analytics`,
             children: [
-              /* @__PURE__ */ jsx(IconWrapper$4, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsx(IconWrapper$5, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
               /* @__PURE__ */ jsx(Typography, { variant: "beta", children: "Referral Analytics" })
             ]
           }
@@ -182,7 +182,7 @@ const DashboardContainer$1 = styled.div`
   animation: ${fadeIn$2} 0.5s ease-out both;
   ${scrollbarStyles$1}
 `;
-const Header$4 = styled.header`
+const Header$5 = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -206,7 +206,7 @@ const IconBox$3 = styled.div`
   color: ${({ theme }) => theme.colors.primary600};
 `;
 const TitleBox = styled.div``;
-const Title$5 = styled.h1`
+const Title$6 = styled.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
@@ -1318,6 +1318,9 @@ const getDateRange = (filter, customRange) => {
       end: customEnd.toISOString()
     };
   }
+  if (filter === "all_time") {
+    return { start: "2020-01-01T00:00:00.000Z", end: now.toISOString() };
+  }
   start.setHours(0, 0, 0, 0);
   return { start: start.toISOString(), end: now.toISOString() };
 };
@@ -1414,12 +1417,22 @@ const useCategoryStats = (filter = "today", customRange) => {
     }
   });
 };
-const useAdminSummary = () => {
+const useAdminSummary = (filter = "all_time", customRange) => {
   const { get } = useFetchClient();
+  const { start, end } = getDateRange(filter, customRange);
+  const params = {};
+  if (filter !== "all_time") {
+    params.filters = {
+      createdAt: {
+        $gte: start,
+        $lte: end
+      }
+    };
+  }
   return useQuery({
-    queryKey: ["admin-stats-summary"],
+    queryKey: ["admin-stats-summary", filter, customRange],
     queryFn: async () => {
-      const { data } = await get("/admin-pannel/stats/summary");
+      const { data } = await get("/admin-pannel/stats/summary", { params });
       return data;
     }
   });
@@ -1531,7 +1544,7 @@ const DashboardProvider = ({ children }) => {
   };
   return /* @__PURE__ */ jsx(DashboardContext.Provider, { value, children });
 };
-function Header$3() {
+function Header$4() {
   const { stats, filter, handleFilterChange, customRange } = useDashboardContext();
   const { voice = {}, video = {} } = stats || {};
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
@@ -1551,11 +1564,11 @@ function Header$3() {
   const handlePresetChange = (preset) => {
     handleFilterChange(preset);
   };
-  return /* @__PURE__ */ jsxs(Header$4, { children: [
+  return /* @__PURE__ */ jsxs(Header$5, { children: [
     /* @__PURE__ */ jsxs(HeaderLeft$1, { children: [
       /* @__PURE__ */ jsx(IconBox$3, { children: /* @__PURE__ */ jsx(CallAnalyticsIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsx(Title$5, { children: "Call Analytics" }),
+        /* @__PURE__ */ jsx(Title$6, { children: "Call Analytics" }),
         /* @__PURE__ */ jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
         /* @__PURE__ */ jsxs(MetaText, { children: [
           totalCallsToday,
@@ -1708,10 +1721,10 @@ function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
         ))
       }
     ),
-    /* @__PURE__ */ jsx(Tooltip, { content: /* @__PURE__ */ jsx(CustomTooltip$1, {}), cursor: { fill: "transparent" } })
+    /* @__PURE__ */ jsx(Tooltip, { content: /* @__PURE__ */ jsx(CustomTooltip$2, {}), cursor: { fill: "transparent" } })
   ] }) });
 }
-function CustomTooltip$1({ active, payload }) {
+function CustomTooltip$2({ active, payload }) {
   if (active && payload && payload.length) {
     const { name, value, realValue, fill } = payload[0].payload;
     const displayValue = realValue !== void 0 ? realValue : value;
@@ -1793,7 +1806,7 @@ const CHART_COLORS = {
   voice: "#7476f1ff",
   video: "#48ecbbff"
 };
-const CustomTooltip = ({ active, payload, label, theme }) => {
+const CustomTooltip$1 = ({ active, payload, label, theme }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return /* @__PURE__ */ jsxs("div", { style: {
@@ -1904,7 +1917,7 @@ function CategoryGrid() {
         }
       ),
       /* @__PURE__ */ jsx(YAxis, { hide: true, axisLine: false, tickLine: false }),
-      /* @__PURE__ */ jsx(Tooltip, { content: /* @__PURE__ */ jsx(CustomTooltip, { theme }), cursor: { fill: theme.colors.neutral100 } }),
+      /* @__PURE__ */ jsx(Tooltip, { content: /* @__PURE__ */ jsx(CustomTooltip$1, { theme }), cursor: { fill: theme.colors.neutral100 } }),
       /* @__PURE__ */ jsx(Bar, { dataKey: "calls", radius: [6, 6, 0, 0], fill: CHART_COLORS.voice }),
       /* @__PURE__ */ jsx(Bar, { dataKey: "videoCalls", radius: [6, 6, 0, 0], fill: CHART_COLORS.video })
     ] }) }) })
@@ -2367,7 +2380,7 @@ function KpiSection() {
 const queryClient$1 = new QueryClient();
 const HomePage = () => {
   return /* @__PURE__ */ jsx(PluginLayout, { children: /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsx(DashboardProvider, { children: /* @__PURE__ */ jsxs(DashboardContainer$1, { children: [
-    /* @__PURE__ */ jsx(Header$3, {}),
+    /* @__PURE__ */ jsx(Header$4, {}),
     /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxs(Column, { children: [
         /* @__PURE__ */ jsx(KpiSection, {}),
@@ -2466,7 +2479,7 @@ const scrollbarStyles = css`
   scrollbar-width: thin;
   scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
 `;
-const Header$2 = styled.header`
+const Header$3 = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3635,7 +3648,7 @@ const DashboardHeader = () => {
   const totalRefs = d.referrals?.total || 0;
   const conversions = d.referral_conversion?.total || 0;
   const convRate = d.referral_conversion?.percentage || 0;
-  return /* @__PURE__ */ jsxs(Header$2, { children: [
+  return /* @__PURE__ */ jsxs(Header$3, { children: [
     /* @__PURE__ */ jsxs(HeaderLeft, { children: [
       /* @__PURE__ */ jsx(IconBox$2, { children: /* @__PURE__ */ jsx(ReferralLogo, { style: { width: "38px", height: "38px" } }) }),
       /* @__PURE__ */ jsxs(HeaderTitleBox, { children: [
@@ -3707,7 +3720,7 @@ const LabelSection = styled.div`
   align-items: center;
   gap: 10px;
 `;
-const IconWrapper$3 = styled.div`
+const IconWrapper$4 = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3718,7 +3731,7 @@ const IconWrapper$3 = styled.div`
   color: ${(props) => props.color};
   flex-shrink: 0;
 `;
-const Title$4 = styled.p`
+const Title$5 = styled.p`
   font-size: 11px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral500};
@@ -3782,8 +3795,8 @@ const StatCard = ({ title, value, trend, chartData = [], labels = [], color = "#
   return /* @__PURE__ */ jsxs(Card, { color, children: [
     /* @__PURE__ */ jsxs(TopRow, { children: [
       /* @__PURE__ */ jsxs(LabelSection, { children: [
-        Icon && /* @__PURE__ */ jsx(IconWrapper$3, { color, children: /* @__PURE__ */ jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
-        /* @__PURE__ */ jsx(Title$4, { children: title })
+        Icon && /* @__PURE__ */ jsx(IconWrapper$4, { color, children: /* @__PURE__ */ jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
+        /* @__PURE__ */ jsx(Title$5, { children: title })
       ] }),
       trend && /* @__PURE__ */ jsxs(TrendContainer, { positive: isPositive, children: [
         isPositive ? "↑" : "↓",
@@ -3851,7 +3864,7 @@ const StatCard = ({ title, value, trend, chartData = [], labels = [], color = "#
     ] })
   ] });
 };
-const Container$3 = styled.div`
+const Container$4 = styled.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -3862,7 +3875,7 @@ const Container$3 = styled.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   position: relative;
 `;
-const Title$3 = styled.h3`
+const Title$4 = styled.h3`
   font-size: 14px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -3871,7 +3884,7 @@ const Title$3 = styled.h3`
   align-items: center;
   gap: 12px;
 `;
-const IconWrapper$2 = styled.div`
+const IconWrapper$3 = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -3957,9 +3970,9 @@ const AvailabilityDonut = ({ data = {}, title, Icon }) => {
   const theme = useTheme();
   const dataEntries = Array.isArray(data) ? data : Object.entries(data || {}).map(([name, value]) => ({ name, value }));
   const total = dataEntries.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
-  return /* @__PURE__ */ jsxs(Container$3, { children: [
-    /* @__PURE__ */ jsx("div", { style: { marginBottom: "16px", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxs(Title$3, { children: [
-      Icon && /* @__PURE__ */ jsx(IconWrapper$2, { children: /* @__PURE__ */ jsx(Icon, { style: { width: 18, height: 18 } }) }),
+  return /* @__PURE__ */ jsxs(Container$4, { children: [
+    /* @__PURE__ */ jsx("div", { style: { marginBottom: "16px", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxs(Title$4, { children: [
+      Icon && /* @__PURE__ */ jsx(IconWrapper$3, { children: /* @__PURE__ */ jsx(Icon, { style: { width: 18, height: 18 } }) }),
       title
     ] }) }),
     /* @__PURE__ */ jsxs(ContentWrapper, { children: [
@@ -4030,7 +4043,7 @@ const AvailabilityDonut = ({ data = {}, title, Icon }) => {
     ] })
   ] });
 };
-const Container$2 = styled.div`
+const Container$3 = styled.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -4038,13 +4051,13 @@ const Container$2 = styled.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   height: 100%;
 `;
-const Header$1 = styled.div`
+const Header$2 = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 `;
-const Title$2 = styled.h3`
+const Title$3 = styled.h3`
   font-size: 16px;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -4053,7 +4066,7 @@ const Title$2 = styled.h3`
   align-items: center;
   gap: 12px;
 `;
-const IconWrapper$1 = styled.div`
+const IconWrapper$2 = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -4088,10 +4101,10 @@ const GrowthBarChart = ({ data = {}, labels = [], title, Icon }) => {
     experts: data.experts[i] || 0,
     clients: data.clients[i] || 0
   })) : data;
-  return /* @__PURE__ */ jsxs(Container$2, { children: [
-    /* @__PURE__ */ jsxs(Header$1, { children: [
-      /* @__PURE__ */ jsxs(Title$2, { children: [
-        Icon && /* @__PURE__ */ jsx(IconWrapper$1, { children: /* @__PURE__ */ jsx(Icon, { style: { width: 18, height: 18 } }) }),
+  return /* @__PURE__ */ jsxs(Container$3, { children: [
+    /* @__PURE__ */ jsxs(Header$2, { children: [
+      /* @__PURE__ */ jsxs(Title$3, { children: [
+        Icon && /* @__PURE__ */ jsx(IconWrapper$2, { children: /* @__PURE__ */ jsx(Icon, { style: { width: 18, height: 18 } }) }),
         title
       ] }),
       /* @__PURE__ */ jsxs(Legend, { children: [
@@ -4170,7 +4183,7 @@ const GrowthBarChart = ({ data = {}, labels = [], title, Icon }) => {
     ] }) }) })
   ] });
 };
-const Container$1 = styled.div`
+const Container$2 = styled.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -4181,7 +4194,7 @@ const Container$1 = styled.div`
   gap: 14px;
   height: 100%;
 `;
-const Header = styled.div`
+const Header$1 = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -4197,7 +4210,7 @@ const IconBox$1 = styled.div`
   background: ${({ theme }) => theme.colors.primary100};
   color: ${({ theme }) => theme.colors.primary600};
 `;
-const Title$1 = styled.h3`
+const Title$2 = styled.h3`
   font-size: 14px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -4238,12 +4251,25 @@ const ProgressBar = styled.div`
   border-radius: 10px;
   box-shadow: 0 0 6px ${(props) => `${props.color}33`};
 `;
+const PercentageBadge = styled.span`
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: ${(props) => `${props.color}15`};
+  color: ${(props) => props.color};
+  border: 1px solid ${(props) => `${props.color}30`};
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+`;
 const StatusProgress = ({ title, items = {}, total }) => {
   const dataEntries = Object.entries(items).map(([name, value]) => ({ name, value }));
-  return /* @__PURE__ */ jsxs(Container$1, { children: [
-    /* @__PURE__ */ jsxs(Header, { children: [
+  return /* @__PURE__ */ jsxs(Container$2, { children: [
+    /* @__PURE__ */ jsxs(Header$1, { children: [
       /* @__PURE__ */ jsx(IconBox$1, { children: /* @__PURE__ */ jsx(ActivityIcon, { style: { width: "14px", height: "14px" } }) }),
-      /* @__PURE__ */ jsx(Title$1, { children: title })
+      /* @__PURE__ */ jsx(Title$2, { children: title })
     ] }),
     dataEntries.map((item, index) => {
       const percentage = total > 0 ? item.value / total * 100 : 0;
@@ -4260,11 +4286,16 @@ const StatusProgress = ({ title, items = {}, total }) => {
       return /* @__PURE__ */ jsxs(StatItem, { children: [
         /* @__PURE__ */ jsxs(ItemHeader, { children: [
           /* @__PURE__ */ jsx(ItemLabel, { children: item.name }),
-          /* @__PURE__ */ jsxs(ItemValue, { children: [
-            (item.value || 0).toLocaleString(),
-            " (",
-            Math.round(percentage),
-            "%)"
+          /* @__PURE__ */ jsxs(Flex, { align: "center", children: [
+            /* @__PURE__ */ jsxs(ItemValue, { children: [
+              (item.value || 0).toLocaleString(),
+              " / ",
+              (total || 0).toLocaleString()
+            ] }),
+            /* @__PURE__ */ jsxs(PercentageBadge, { color: barColor, children: [
+              Math.round(percentage),
+              "%"
+            ] })
           ] })
         ] }),
         /* @__PURE__ */ jsx(ProgressTrack, { children: /* @__PURE__ */ jsx(ProgressBar, { width: percentage, color: barColor }) })
@@ -4272,7 +4303,7 @@ const StatusProgress = ({ title, items = {}, total }) => {
     })
   ] });
 };
-const Container = styled.div`
+const Container$1 = styled.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -4282,7 +4313,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
 `;
-const Title = styled.h2`
+const Title$1 = styled.h2`
   font-size: 15px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -4291,7 +4322,7 @@ const Title = styled.h2`
   align-items: center;
   gap: 12px;
 `;
-const IconWrapper = styled.div`
+const IconWrapper$1 = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -4351,13 +4382,13 @@ const MetricMainVal = styled.span`
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
 `;
-const PayIndicator = styled.div`
+styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
 `;
-const RatioLabel = styled.div`
+styled.div`
   font-size: 10px;
   font-weight: 800;
   color: #10b981;
@@ -4365,14 +4396,14 @@ const RatioLabel = styled.div`
   align-items: center;
   gap: 4px;
 `;
-const MiniTrack = styled.div`
+styled.div`
   width: 100%;
   height: 4px;
   background: ${({ theme }) => theme.colors.neutral100};
   border-radius: 2px;
   overflow: hidden;
 `;
-const MiniBar = styled.div`
+styled.div`
   height: 100%;
   width: ${(props) => props.percentage}%;
   background: #10b981;
@@ -4433,57 +4464,45 @@ const formatCurrency = (val) => {
   }).format(val);
 };
 const EconomyBalanceCard = ({ economy }) => {
-  const theme = useTheme();
+  const voice = economy?.voiceCall || { clientSpend: 0, expertReceived: 0, platformEarning: 0 };
+  const video = economy?.videoCall || { clientSpend: 0, expertReceived: 0, platformEarning: 0 };
   const totals = {
-    spent: economy.audio.clientSpent + economy.video.clientSpent,
-    earned: economy.audio.expertEarned + economy.video.expertEarned,
-    commission: economy.audio.commission + economy.video.commission
+    spent: voice.clientSpend + video.clientSpend,
+    earned: voice.expertReceived + video.expertReceived,
+    commission: voice.platformEarning + video.platformEarning
   };
-  const renderRow = (data, icon, color) => {
-    const ratio = data.clientSpent > 0 ? data.expertEarned / data.clientSpent * 100 : 0;
+  const renderRow = (label, data, icon, color) => {
     return /* @__PURE__ */ jsxs(TableRow, { children: [
       /* @__PURE__ */ jsx(TypeInfo, { children: /* @__PURE__ */ jsx(IconBox, { color, children: icon }) }),
       /* @__PURE__ */ jsxs(MetricCell, { children: [
-        /* @__PURE__ */ jsx(MetricSubLabel, { children: "Client Spent" }),
-        /* @__PURE__ */ jsx(MetricMainVal, { children: formatCurrency(data.clientSpent) })
+        /* @__PURE__ */ jsx(MetricSubLabel, { children: "Client Spend" }),
+        /* @__PURE__ */ jsx(MetricMainVal, { children: formatCurrency(data.clientSpend) })
       ] }),
       /* @__PURE__ */ jsxs(MetricCell, { children: [
         /* @__PURE__ */ jsx(MetricSubLabel, { children: "Expert Receive" }),
-        /* @__PURE__ */ jsx(MetricMainVal, { children: formatCurrency(data.expertEarned) })
+        /* @__PURE__ */ jsx(MetricMainVal, { children: formatCurrency(data.expertReceived) })
       ] }),
-      /* @__PURE__ */ jsx(MetricCell, { align: "flex-end", children: /* @__PURE__ */ jsxs(PayIndicator, { children: [
-        /* @__PURE__ */ jsxs(RatioLabel, { children: [
-          /* @__PURE__ */ jsx(ActivityIcon, { style: { width: 10 } }),
-          ratio.toFixed(0),
-          "% Pay"
-        ] }),
-        /* @__PURE__ */ jsx(MiniTrack, { children: /* @__PURE__ */ jsx(MiniBar, { percentage: ratio }) })
-      ] }) })
+      /* @__PURE__ */ jsxs(MetricCell, { align: "flex-end", children: [
+        /* @__PURE__ */ jsx(MetricSubLabel, { children: "Co. Earning" }),
+        /* @__PURE__ */ jsx(MetricMainVal, { style: { color: "#3b82f6" }, children: formatCurrency(data.platformEarning) })
+      ] })
     ] });
   };
-  return /* @__PURE__ */ jsxs(Container, { children: [
-    /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
-      /* @__PURE__ */ jsxs(Title, { children: [
-        /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(ActivityIcon, { style: { width: 18, height: 18 } }) }),
-        "Revenue & Settlement"
-      ] }),
-      /* @__PURE__ */ jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-        /* @__PURE__ */ jsx("span", { style: { fontSize: "10px", fontWeight: 700, color: theme.colors.neutral500 }, children: "MARGIN" }),
-        /* @__PURE__ */ jsxs("span", { style: { fontSize: "12px", fontWeight: 800, color: "#3b82f6" }, children: [
-          "~",
-          (totals.spent > 0 ? totals.commission / totals.spent * 100 : 0).toFixed(1),
-          "%"
-        ] })
-      ] })
-    ] }),
+  return /* @__PURE__ */ jsxs(Container$1, { children: [
+    /* @__PURE__ */ jsx("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: /* @__PURE__ */ jsxs(Title$1, { children: [
+      /* @__PURE__ */ jsx(IconWrapper$1, { children: /* @__PURE__ */ jsx(ActivityIcon, { style: { width: 18, height: 18 } }) }),
+      "Revenue & Payout Distribution"
+    ] }) }),
     /* @__PURE__ */ jsxs(BreakdownTable, { children: [
       renderRow(
-        economy.audio,
+        "Voice Call",
+        voice,
         /* @__PURE__ */ jsx(VoiceCall, { style: { width: 14 } }),
         "#3b82f6"
       ),
       renderRow(
-        economy.video,
+        "Video Call",
+        video,
         /* @__PURE__ */ jsx(VideoCall, { style: { width: 14 } }),
         "#10b981"
       )
@@ -4492,7 +4511,7 @@ const EconomyBalanceCard = ({ economy }) => {
       /* @__PURE__ */ jsxs(SummaryItem, { children: [
         /* @__PURE__ */ jsxs(SummaryLabel, { children: [
           /* @__PURE__ */ jsx(WalletIcon, { style: { width: 10 } }),
-          "Total Client Spent"
+          "Total Client Spend"
         ] }),
         /* @__PURE__ */ jsx(SummaryVal, { children: formatCurrency(totals.spent) })
       ] }),
@@ -4506,19 +4525,30 @@ const EconomyBalanceCard = ({ economy }) => {
       /* @__PURE__ */ jsxs(SummaryItem, { children: [
         /* @__PURE__ */ jsxs(SummaryLabel, { children: [
           /* @__PURE__ */ jsx("div", { style: { width: 6, height: 6, borderRadius: "50%", background: "#3b82f6" } }),
-          "Platform Revenue"
+          "Total Co. Earning"
         ] }),
         /* @__PURE__ */ jsx(SummaryVal, { accent: "#3b82f6", children: formatCurrency(totals.commission) })
       ] })
     ] }) })
   ] });
 };
-const StatsHeader = ({ total = 0, online = 0, filter, onFilterChange }) => {
-  return /* @__PURE__ */ jsxs(Header$4, { children: [
+const StatsHeader = ({ total = 0, online = 0, filter, onFilterChange, customRange, onCustomRangeChange }) => {
+  const presets = [
+    { label: "All Time", value: "all_time" },
+    { label: "Today", value: "today" },
+    { label: "Yesterday", value: "yesterday" },
+    { label: "Week", value: "week" },
+    { label: "Month", value: "month" },
+    { label: "Last Month", value: "last_month" },
+    { label: "Last 3 Months", value: "last_3_months" },
+    { label: "Year", value: "year" },
+    { label: "Custom", value: "custom" }
+  ];
+  return /* @__PURE__ */ jsxs(Header$5, { children: [
     /* @__PURE__ */ jsxs(HeaderLeft$1, { children: [
       /* @__PURE__ */ jsx(IconBox$3, { children: /* @__PURE__ */ jsx(ChartIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsx(Title$5, { children: "Platform Statistics" }),
+        /* @__PURE__ */ jsx(Title$6, { children: "Platform Statistics" }),
         /* @__PURE__ */ jsx(Subtitle, { children: "Comprehensive overview of users, growth, and financial metrics." }),
         /* @__PURE__ */ jsxs(MetaText, { children: [
           (total || 0).toLocaleString(),
@@ -4528,15 +4558,170 @@ const StatsHeader = ({ total = 0, online = 0, filter, onFilterChange }) => {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsx(HeaderRight$1, { children: /* @__PURE__ */ jsx(FilterContainer, { children: ["day wise", "monthly", "quarterly", "yearly"].map((period) => /* @__PURE__ */ jsx(
-      FilterButton,
-      {
-        active: filter === period,
-        onClick: () => onFilterChange(period),
-        children: period === "day wise" ? "Day Wise" : period.charAt(0).toUpperCase() + period.slice(1)
-      },
-      period
-    )) }) })
+    /* @__PURE__ */ jsx(HeaderRight$1, { children: /* @__PURE__ */ jsxs(FilterContainer, { style: { gap: "4px" }, children: [
+      presets.map((p) => /* @__PURE__ */ jsx(
+        FilterButton,
+        {
+          active: filter === p.value,
+          onClick: () => onFilterChange(p.value),
+          style: { padding: "6px 12px", fontSize: "11px" },
+          children: p.label
+        },
+        p.value
+      )),
+      filter === "custom" && /* @__PURE__ */ jsxs(Flex, { gap: 2, style: { marginLeft: "12px" }, children: [
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            type: "date",
+            value: customRange?.start,
+            onChange: (e) => onCustomRangeChange({ ...customRange, start: e.target.value }),
+            style: { border: "1px solid #dcdce4", borderRadius: "4px", padding: "4px 8px", fontSize: "12px" }
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            type: "date",
+            value: customRange?.end,
+            onChange: (e) => onCustomRangeChange({ ...customRange, end: e.target.value }),
+            style: { border: "1px solid #dcdce4", borderRadius: "4px", padding: "4px 8px", fontSize: "12px" }
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+};
+const Container = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+`;
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+const Title = styled.h3`
+  font-size: 16px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+const IconWrapper = styled.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.colors.primary100};
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const CustomTooltip = styled.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+`;
+const TooltipLabel = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  margin-bottom: 4px;
+`;
+const TooltipValue = styled.div`
+  font-size: 14px;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const WalletTrendBarChart = ({ data = [], labels = [], title, Icon }) => {
+  const theme = useTheme();
+  const formattedData = labels.map((label, i) => ({
+    date: label,
+    amount: data[i] || 0
+  }));
+  const CustomTooltipContent = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return /* @__PURE__ */ jsxs(CustomTooltip, { children: [
+        /* @__PURE__ */ jsx(TooltipLabel, { children: label }),
+        /* @__PURE__ */ jsxs(TooltipValue, { children: [
+          "₹",
+          payload[0].value.toLocaleString()
+        ] })
+      ] });
+    }
+    return null;
+  };
+  return /* @__PURE__ */ jsxs(Container, { children: [
+    /* @__PURE__ */ jsx(Header, { children: /* @__PURE__ */ jsxs(Title, { children: [
+      Icon && /* @__PURE__ */ jsx(IconWrapper, { children: /* @__PURE__ */ jsx(Icon, { style: { width: 18, height: 18 } }) }),
+      title
+    ] }) }),
+    /* @__PURE__ */ jsx("div", { style: { height: "240px", width: "100%" }, children: /* @__PURE__ */ jsx(ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxs(BarChart, { data: formattedData, margin: { top: 10, right: 10, left: -10, bottom: 0 }, children: [
+      /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsxs("linearGradient", { id: "barGradient", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+        /* @__PURE__ */ jsx("stop", { offset: "0%", stopColor: "#10b981", stopOpacity: 1 }),
+        /* @__PURE__ */ jsx("stop", { offset: "100%", stopColor: "#10b981", stopOpacity: 0.4 })
+      ] }) }),
+      /* @__PURE__ */ jsx(
+        CartesianGrid,
+        {
+          strokeDasharray: "3 3",
+          vertical: false,
+          stroke: theme.colors.neutral200,
+          opacity: 0.5
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        XAxis,
+        {
+          dataKey: "date",
+          axisLine: false,
+          tickLine: false,
+          tick: { fontSize: 10, fontWeight: 600, fill: theme.colors.neutral500 },
+          dy: 10
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        YAxis,
+        {
+          axisLine: false,
+          tickLine: false,
+          tick: { fontSize: 10, fontWeight: 600, fill: theme.colors.neutral500 },
+          tickFormatter: (value) => `₹${value >= 1e3 ? (value / 1e3).toFixed(1) + "k" : value}`
+        }
+      ),
+      /* @__PURE__ */ jsx(Tooltip, { content: /* @__PURE__ */ jsx(CustomTooltipContent, {}), cursor: { fill: theme.colors.neutral100, radius: 8 } }),
+      /* @__PURE__ */ jsx(
+        Bar,
+        {
+          dataKey: "amount",
+          fill: "url(#barGradient)",
+          radius: [6, 6, 0, 0],
+          barSize: 20,
+          animationBegin: 0,
+          animationDuration: 1500,
+          children: formattedData.map((entry, index) => /* @__PURE__ */ jsx(
+            Cell,
+            {
+              fillOpacity: 0.8 + index / formattedData.length * 0.2
+            },
+            `cell-${index}`
+          ))
+        }
+      )
+    ] }) }) })
   ] });
 };
 const pulse = keyframes`
@@ -4589,21 +4774,60 @@ const Label = styled.span`
   text-transform: uppercase;
   letter-spacing: 0.04em;
 `;
-const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0 }) => {
+const GraphFilterContainer = styled.div`
+  display: flex;
+  align-items: center;
+  background: ${({ theme }) => theme.colors.neutral100};
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  margin-left: auto;
+`;
+const GraphFilterButton = styled.button`
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: ${(props) => props.active ? props.theme.colors.neutral0 : "transparent"};
+  color: ${(props) => props.active ? props.theme.colors.primary600 : props.theme.colors.neutral600};
+  box-shadow: ${(props) => props.active ? "0 1px 3px rgba(0,0,0,0.1)" : "none"};
+  transition: all 0.2s;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary600};
+  }
+`;
+const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0, filter = "monthly", onFilterChange }) => {
   const theme = useTheme();
-  return /* @__PURE__ */ jsxs(BadgeRow, { children: [
-    /* @__PURE__ */ jsx(Typography, { variant: "sigma", textColor: "neutral500", style: { marginRight: "4px" }, children: "Pending Expert:" }),
-    /* @__PURE__ */ jsxs(MiniBadge, { color: "#f59e0b", children: [
-      /* @__PURE__ */ jsx(Nucleus, { color: "#f59e0b" }),
-      /* @__PURE__ */ jsx(Expert, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
-      /* @__PURE__ */ jsx(Label, { children: "Approvals" }),
-      /* @__PURE__ */ jsx(Count, { children: pendingApprovals })
+  return /* @__PURE__ */ jsxs(Box, { display: "flex", alignItems: "center", width: "100%", children: [
+    /* @__PURE__ */ jsxs(BadgeRow, { style: { marginBottom: 0, marginTop: 0 }, children: [
+      /* @__PURE__ */ jsx(Typography, { variant: "sigma", textColor: "neutral500", style: { marginRight: "4px" }, children: "Pending Expert:" }),
+      /* @__PURE__ */ jsxs(MiniBadge, { color: "#f59e0b", children: [
+        /* @__PURE__ */ jsx(Nucleus, { color: "#f59e0b" }),
+        /* @__PURE__ */ jsx(Expert, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
+        /* @__PURE__ */ jsx(Label, { children: "Approvals" }),
+        /* @__PURE__ */ jsx(Count, { children: pendingApprovals })
+      ] }),
+      /* @__PURE__ */ jsxs(MiniBadge, { color: "#3b82f6", children: [
+        /* @__PURE__ */ jsx(Nucleus, { color: "#3b82f6" }),
+        /* @__PURE__ */ jsx(UniqueIcon, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
+        /* @__PURE__ */ jsx(Label, { children: "Verifications" }),
+        /* @__PURE__ */ jsx(Count, { children: pendingVerifications })
+      ] })
     ] }),
-    /* @__PURE__ */ jsxs(MiniBadge, { color: "#3b82f6", children: [
-      /* @__PURE__ */ jsx(Nucleus, { color: "#3b82f6" }),
-      /* @__PURE__ */ jsx(UniqueIcon, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
-      /* @__PURE__ */ jsx(Label, { children: "Verifications" }),
-      /* @__PURE__ */ jsx(Count, { children: pendingVerifications })
+    /* @__PURE__ */ jsxs(GraphFilterContainer, { children: [
+      /* @__PURE__ */ jsx(Typography, { variant: "sigma", textColor: "neutral500", style: { padding: "0 8px", fontSize: "10px" }, children: "Graph Period:" }),
+      ["day wise", "monthly", "quarterly", "yearly"].map((period) => /* @__PURE__ */ jsx(
+        GraphFilterButton,
+        {
+          active: filter === period,
+          onClick: () => onFilterChange(period),
+          children: period === "day wise" ? "Day" : period.charAt(0).toUpperCase() + period.slice(1)
+        },
+        period
+      ))
     ] })
   ] });
 };
@@ -4656,13 +4880,19 @@ const SectionTitle = styled.h2`
   letter-spacing: 0.05em;
 `;
 const StatsDashboardPage = () => {
-  const [filter, setFilter] = useState("monthly");
-  const { data: summary, isLoading: isSummaryLoading } = useAdminSummary();
-  const { data: graph, isLoading: isGraphLoading } = useAdminGraph(filter);
+  const [globalFilter, setGlobalFilter] = useState("all_time");
+  const [customRange, setCustomRange] = useState({
+    start: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+    end: (/* @__PURE__ */ new Date()).toISOString().split("T")[0]
+  });
+  const [graphFilter, setGraphFilter] = useState("monthly");
+  const { data: summary } = useAdminSummary(globalFilter, customRange);
+  const { data: graph } = useAdminGraph(graphFilter);
   const {
     total = 0,
     test = 0,
     experts = 0,
+    expertsCount = 0,
     clients = 0,
     expertsByStatus = {},
     clientsByStatus = {},
@@ -4670,7 +4900,7 @@ const StatsDashboardPage = () => {
     badges = {},
     pendingApprovals = 0,
     pendingVerifications = 0,
-    wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { audio: 0, video: 0 } }
+    wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { voiceCall: { clientSpend: 0, expertReceived: 0, platformEarning: 0 }, videoCall: { clientSpend: 0, expertReceived: 0, platformEarning: 0 } } }
   } = summary || {};
   const {
     meta = { labels: [] },
@@ -4684,8 +4914,10 @@ const StatsDashboardPage = () => {
       {
         total,
         online: availability.Online || 0,
-        filter,
-        onFilterChange: setFilter
+        filter: globalFilter,
+        onFilterChange: setGlobalFilter,
+        customRange,
+        onCustomRangeChange: setCustomRange
       }
     ),
     /* @__PURE__ */ jsx(Main, { children: /* @__PURE__ */ jsxs(Flex, { direction: "column", alignItems: "stretch", gap: 6, children: [
@@ -4693,7 +4925,9 @@ const StatsDashboardPage = () => {
         OperationalBadges,
         {
           pendingApprovals,
-          pendingVerifications
+          pendingVerifications,
+          filter: graphFilter,
+          onFilterChange: setGraphFilter
         }
       ) }),
       /* @__PURE__ */ jsxs("section", { children: [
@@ -4778,7 +5012,7 @@ const StatsDashboardPage = () => {
         /* @__PURE__ */ jsx(CustomGridItem, { col: 8, delayIndex: 9, children: /* @__PURE__ */ jsx(
           GrowthBarChart,
           {
-            title: "Registration Growth",
+            title: "Registration Growth fg",
             data: growth,
             labels: meta.labels,
             Icon: TrendingUpIcon
@@ -4788,7 +5022,7 @@ const StatsDashboardPage = () => {
           StatusProgress,
           {
             title: "Expert Badge Distribution",
-            total: experts,
+            total: expertsCount,
             items: badges
           }
         ) })
@@ -4842,13 +5076,10 @@ const StatsDashboardPage = () => {
           }
         ) }),
         /* @__PURE__ */ jsx(CustomGridItem, { col: 6, delayIndex: 15, children: /* @__PURE__ */ jsx(
-          GrowthBarChart,
+          WalletTrendBarChart,
           {
-            title: "Wallet Topup Trends",
-            data: {
-              experts: walletGraph.trend,
-              clients: walletGraph.trend.map((v) => v * 0.8)
-            },
+            title: "Wallet Topup Trends (Client)",
+            data: walletGraph.trend,
             labels: meta.labels,
             Icon: WalletIcon
           }

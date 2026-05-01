@@ -99,13 +99,24 @@ export const useCategoryStats = (filter = 'today', customRange) => {
 
 
 
-export const useAdminSummary = () => {
+export const useAdminSummary = (filter = 'all_time', customRange) => {
     const { get } = useFetchClient();
+    const { start, end } = getDateRange(filter, customRange);
+
+    const params = {};
+    if (filter !== 'all_time') {
+        params.filters = {
+            createdAt: {
+                $gte: start,
+                $lte: end
+            }
+        };
+    }
 
     return useQuery({
-        queryKey: ["admin-stats-summary"],
+        queryKey: ["admin-stats-summary", filter, customRange],
         queryFn: async () => {
-            const { data } = await get("/admin-pannel/stats/summary");
+            const { data } = await get("/admin-pannel/stats/summary", { params });
             return data;
         }
     });

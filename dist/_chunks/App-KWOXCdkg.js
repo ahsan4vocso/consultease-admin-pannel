@@ -7,7 +7,7 @@ const reactQuery = require("@tanstack/react-query");
 const React = require("react");
 const styled = require("styled-components");
 const designSystem = require("@strapi/design-system");
-const index = require("./index-oU3Pc8jL.js");
+const index = require("./index-CKk7Y_uw.js");
 const recharts = require("recharts");
 const reactToastify = require("react-toastify");
 require("react-toastify/dist/ReactToastify.css");
@@ -65,7 +65,7 @@ const NavButton = styled__default.default(reactRouterDom.NavLink)`
     transition: color 0.2s;
   }
 `;
-const IconWrapper$4 = styled__default.default.div`
+const IconWrapper$5 = styled__default.default.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -91,7 +91,7 @@ const PluginLayout = ({ children }) => {
             to: `/plugins/${index.PLUGIN_ID}`,
             end: true,
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$4, { children: /* @__PURE__ */ jsxRuntime.jsx(index.CallAnalyticsIcon, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$5, { children: /* @__PURE__ */ jsxRuntime.jsx(index.CallAnalyticsIcon, { style: { width: "2rem", height: "2rem" } }) }),
               /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", children: "Call Analytics" })
             ]
           }
@@ -101,7 +101,7 @@ const PluginLayout = ({ children }) => {
           {
             to: `/plugins/${index.PLUGIN_ID}/statistics`,
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$4, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ChartIcon, { style: { width: "1.8rem", height: "1.8rem" } }) }),
+              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$5, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ChartIcon, { style: { width: "1.8rem", height: "1.8rem" } }) }),
               /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", children: "Statistics" })
             ]
           }
@@ -111,7 +111,7 @@ const PluginLayout = ({ children }) => {
           {
             to: `/plugins/${index.PLUGIN_ID}/referral-analytics`,
             children: [
-              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$4, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
+              /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$5, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ReferralLogo, { style: { width: "2rem", height: "2rem" } }) }),
               /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "beta", children: "Referral Analytics" })
             ]
           }
@@ -187,7 +187,7 @@ const DashboardContainer$1 = styled__default.default.div`
   animation: ${fadeIn$2} 0.5s ease-out both;
   ${scrollbarStyles$1}
 `;
-const Header$4 = styled__default.default.header`
+const Header$5 = styled__default.default.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -211,7 +211,7 @@ const IconBox$3 = styled__default.default.div`
   color: ${({ theme }) => theme.colors.primary600};
 `;
 const TitleBox = styled__default.default.div``;
-const Title$5 = styled__default.default.h1`
+const Title$6 = styled__default.default.h1`
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.025em;
@@ -1323,6 +1323,9 @@ const getDateRange = (filter, customRange) => {
       end: customEnd.toISOString()
     };
   }
+  if (filter === "all_time") {
+    return { start: "2020-01-01T00:00:00.000Z", end: now.toISOString() };
+  }
   start.setHours(0, 0, 0, 0);
   return { start: start.toISOString(), end: now.toISOString() };
 };
@@ -1419,12 +1422,22 @@ const useCategoryStats = (filter = "today", customRange) => {
     }
   });
 };
-const useAdminSummary = () => {
+const useAdminSummary = (filter = "all_time", customRange) => {
   const { get } = admin.useFetchClient();
+  const { start, end } = getDateRange(filter, customRange);
+  const params = {};
+  if (filter !== "all_time") {
+    params.filters = {
+      createdAt: {
+        $gte: start,
+        $lte: end
+      }
+    };
+  }
   return reactQuery.useQuery({
-    queryKey: ["admin-stats-summary"],
+    queryKey: ["admin-stats-summary", filter, customRange],
     queryFn: async () => {
-      const { data } = await get("/admin-pannel/stats/summary");
+      const { data } = await get("/admin-pannel/stats/summary", { params });
       return data;
     }
   });
@@ -1536,7 +1549,7 @@ const DashboardProvider = ({ children }) => {
   };
   return /* @__PURE__ */ jsxRuntime.jsx(DashboardContext.Provider, { value, children });
 };
-function Header$3() {
+function Header$4() {
   const { stats, filter, handleFilterChange, customRange } = useDashboardContext();
   const { voice = {}, video = {} } = stats || {};
   const totalCallsToday = (voice.callsToday || 0) + (video.callsToday || 0);
@@ -1556,11 +1569,11 @@ function Header$3() {
   const handlePresetChange = (preset) => {
     handleFilterChange(preset);
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs(Header$4, { children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs(Header$5, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft$1, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(IconBox$3, { children: /* @__PURE__ */ jsxRuntime.jsx(index.CallAnalyticsIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxRuntime.jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Title$5, { children: "Call Analytics" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Title$6, { children: "Call Analytics" }),
         /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Realtime view of ConsultEase calls, categories & expert load." }),
         /* @__PURE__ */ jsxRuntime.jsxs(MetaText, { children: [
           totalCallsToday,
@@ -1713,10 +1726,10 @@ function PieChartWithPaddingAngle({ isAnimationActive = true, data, tone }) {
         ))
       }
     ),
-    /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip$1, {}), cursor: { fill: "transparent" } })
+    /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip$2, {}), cursor: { fill: "transparent" } })
   ] }) });
 }
-function CustomTooltip$1({ active, payload }) {
+function CustomTooltip$2({ active, payload }) {
   if (active && payload && payload.length) {
     const { name, value, realValue, fill } = payload[0].payload;
     const displayValue = realValue !== void 0 ? realValue : value;
@@ -1798,7 +1811,7 @@ const CHART_COLORS = {
   voice: "#7476f1ff",
   video: "#48ecbbff"
 };
-const CustomTooltip = ({ active, payload, label, theme }) => {
+const CustomTooltip$1 = ({ active, payload, label, theme }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return /* @__PURE__ */ jsxRuntime.jsxs("div", { style: {
@@ -1909,7 +1922,7 @@ function CategoryGrid() {
         }
       ),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.YAxis, { hide: true, axisLine: false, tickLine: false }),
-      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip, { theme }), cursor: { fill: theme.colors.neutral100 } }),
+      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltip$1, { theme }), cursor: { fill: theme.colors.neutral100 } }),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "calls", radius: [6, 6, 0, 0], fill: CHART_COLORS.voice }),
       /* @__PURE__ */ jsxRuntime.jsx(recharts.Bar, { dataKey: "videoCalls", radius: [6, 6, 0, 0], fill: CHART_COLORS.video })
     ] }) }) })
@@ -2372,7 +2385,7 @@ function KpiSection() {
 const queryClient$1 = new reactQuery.QueryClient();
 const HomePage = () => {
   return /* @__PURE__ */ jsxRuntime.jsx(PluginLayout, { children: /* @__PURE__ */ jsxRuntime.jsx(reactQuery.QueryClientProvider, { client: queryClient$1, children: /* @__PURE__ */ jsxRuntime.jsx(DashboardProvider, { children: /* @__PURE__ */ jsxRuntime.jsxs(DashboardContainer$1, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(Header$3, {}),
+    /* @__PURE__ */ jsxRuntime.jsx(Header$4, {}),
     /* @__PURE__ */ jsxRuntime.jsx(Main, { children: /* @__PURE__ */ jsxRuntime.jsxs(GridContainer, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs(Column, { children: [
         /* @__PURE__ */ jsxRuntime.jsx(KpiSection, {}),
@@ -2471,7 +2484,7 @@ const scrollbarStyles = styled.css`
   scrollbar-width: thin;
   scrollbar-color: ${({ theme }) => `${theme.colors.neutral300} transparent`};
 `;
-const Header$2 = styled__default.default.header`
+const Header$3 = styled__default.default.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3640,7 +3653,7 @@ const DashboardHeader = () => {
   const totalRefs = d.referrals?.total || 0;
   const conversions = d.referral_conversion?.total || 0;
   const convRate = d.referral_conversion?.percentage || 0;
-  return /* @__PURE__ */ jsxRuntime.jsxs(Header$2, { children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs(Header$3, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(IconBox$2, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ReferralLogo, { style: { width: "38px", height: "38px" } }) }),
       /* @__PURE__ */ jsxRuntime.jsxs(HeaderTitleBox, { children: [
@@ -3712,7 +3725,7 @@ const LabelSection = styled__default.default.div`
   align-items: center;
   gap: 10px;
 `;
-const IconWrapper$3 = styled__default.default.div`
+const IconWrapper$4 = styled__default.default.div`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3723,7 +3736,7 @@ const IconWrapper$3 = styled__default.default.div`
   color: ${(props) => props.color};
   flex-shrink: 0;
 `;
-const Title$4 = styled__default.default.p`
+const Title$5 = styled__default.default.p`
   font-size: 11px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral500};
@@ -3787,8 +3800,8 @@ const StatCard = ({ title, value, trend, chartData = [], labels = [], color = "#
   return /* @__PURE__ */ jsxRuntime.jsxs(Card, { color, children: [
     /* @__PURE__ */ jsxRuntime.jsxs(TopRow, { children: [
       /* @__PURE__ */ jsxRuntime.jsxs(LabelSection, { children: [
-        Icon && /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$3, { color, children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
-        /* @__PURE__ */ jsxRuntime.jsx(Title$4, { children: title })
+        Icon && /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$4, { color, children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: "18px", height: "18px" } }) }),
+        /* @__PURE__ */ jsxRuntime.jsx(Title$5, { children: title })
       ] }),
       trend && /* @__PURE__ */ jsxRuntime.jsxs(TrendContainer, { positive: isPositive, children: [
         isPositive ? "↑" : "↓",
@@ -3856,7 +3869,7 @@ const StatCard = ({ title, value, trend, chartData = [], labels = [], color = "#
     ] })
   ] });
 };
-const Container$3 = styled__default.default.div`
+const Container$4 = styled__default.default.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -3867,7 +3880,7 @@ const Container$3 = styled__default.default.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   position: relative;
 `;
-const Title$3 = styled__default.default.h3`
+const Title$4 = styled__default.default.h3`
   font-size: 14px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -3876,7 +3889,7 @@ const Title$3 = styled__default.default.h3`
   align-items: center;
   gap: 12px;
 `;
-const IconWrapper$2 = styled__default.default.div`
+const IconWrapper$3 = styled__default.default.div`
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -3962,9 +3975,9 @@ const AvailabilityDonut = ({ data = {}, title, Icon }) => {
   const theme = styled.useTheme();
   const dataEntries = Array.isArray(data) ? data : Object.entries(data || {}).map(([name, value]) => ({ name, value }));
   const total = dataEntries.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
-  return /* @__PURE__ */ jsxRuntime.jsxs(Container$3, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx("div", { style: { marginBottom: "16px", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntime.jsxs(Title$3, { children: [
-      Icon && /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$2, { children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: 18, height: 18 } }) }),
+  return /* @__PURE__ */ jsxRuntime.jsxs(Container$4, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { style: { marginBottom: "16px", display: "flex", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntime.jsxs(Title$4, { children: [
+      Icon && /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$3, { children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: 18, height: 18 } }) }),
       title
     ] }) }),
     /* @__PURE__ */ jsxRuntime.jsxs(ContentWrapper, { children: [
@@ -4035,7 +4048,7 @@ const AvailabilityDonut = ({ data = {}, title, Icon }) => {
     ] })
   ] });
 };
-const Container$2 = styled__default.default.div`
+const Container$3 = styled__default.default.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -4043,13 +4056,13 @@ const Container$2 = styled__default.default.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   height: 100%;
 `;
-const Header$1 = styled__default.default.div`
+const Header$2 = styled__default.default.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 `;
-const Title$2 = styled__default.default.h3`
+const Title$3 = styled__default.default.h3`
   font-size: 16px;
   font-weight: 600;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -4058,7 +4071,7 @@ const Title$2 = styled__default.default.h3`
   align-items: center;
   gap: 12px;
 `;
-const IconWrapper$1 = styled__default.default.div`
+const IconWrapper$2 = styled__default.default.div`
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -4093,10 +4106,10 @@ const GrowthBarChart = ({ data = {}, labels = [], title, Icon }) => {
     experts: data.experts[i] || 0,
     clients: data.clients[i] || 0
   })) : data;
-  return /* @__PURE__ */ jsxRuntime.jsxs(Container$2, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(Header$1, { children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(Title$2, { children: [
-        Icon && /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$1, { children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: 18, height: 18 } }) }),
+  return /* @__PURE__ */ jsxRuntime.jsxs(Container$3, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(Header$2, { children: [
+      /* @__PURE__ */ jsxRuntime.jsxs(Title$3, { children: [
+        Icon && /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$2, { children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: 18, height: 18 } }) }),
         title
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(Legend, { children: [
@@ -4175,7 +4188,7 @@ const GrowthBarChart = ({ data = {}, labels = [], title, Icon }) => {
     ] }) }) })
   ] });
 };
-const Container$1 = styled__default.default.div`
+const Container$2 = styled__default.default.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -4186,7 +4199,7 @@ const Container$1 = styled__default.default.div`
   gap: 14px;
   height: 100%;
 `;
-const Header = styled__default.default.div`
+const Header$1 = styled__default.default.div`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -4202,7 +4215,7 @@ const IconBox$1 = styled__default.default.div`
   background: ${({ theme }) => theme.colors.primary100};
   color: ${({ theme }) => theme.colors.primary600};
 `;
-const Title$1 = styled__default.default.h3`
+const Title$2 = styled__default.default.h3`
   font-size: 14px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -4243,12 +4256,25 @@ const ProgressBar = styled__default.default.div`
   border-radius: 10px;
   box-shadow: 0 0 6px ${(props) => `${props.color}33`};
 `;
+const PercentageBadge = styled__default.default.span`
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: ${(props) => `${props.color}15`};
+  color: ${(props) => props.color};
+  border: 1px solid ${(props) => `${props.color}30`};
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+`;
 const StatusProgress = ({ title, items = {}, total }) => {
   const dataEntries = Object.entries(items).map(([name, value]) => ({ name, value }));
-  return /* @__PURE__ */ jsxRuntime.jsxs(Container$1, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs(Header, { children: [
+  return /* @__PURE__ */ jsxRuntime.jsxs(Container$2, { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(Header$1, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(IconBox$1, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ActivityIcon, { style: { width: "14px", height: "14px" } }) }),
-      /* @__PURE__ */ jsxRuntime.jsx(Title$1, { children: title })
+      /* @__PURE__ */ jsxRuntime.jsx(Title$2, { children: title })
     ] }),
     dataEntries.map((item, index2) => {
       const percentage = total > 0 ? item.value / total * 100 : 0;
@@ -4265,11 +4291,16 @@ const StatusProgress = ({ title, items = {}, total }) => {
       return /* @__PURE__ */ jsxRuntime.jsxs(StatItem, { children: [
         /* @__PURE__ */ jsxRuntime.jsxs(ItemHeader, { children: [
           /* @__PURE__ */ jsxRuntime.jsx(ItemLabel, { children: item.name }),
-          /* @__PURE__ */ jsxRuntime.jsxs(ItemValue, { children: [
-            (item.value || 0).toLocaleString(),
-            " (",
-            Math.round(percentage),
-            "%)"
+          /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Flex, { align: "center", children: [
+            /* @__PURE__ */ jsxRuntime.jsxs(ItemValue, { children: [
+              (item.value || 0).toLocaleString(),
+              " / ",
+              (total || 0).toLocaleString()
+            ] }),
+            /* @__PURE__ */ jsxRuntime.jsxs(PercentageBadge, { color: barColor, children: [
+              Math.round(percentage),
+              "%"
+            ] })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntime.jsx(ProgressTrack, { children: /* @__PURE__ */ jsxRuntime.jsx(ProgressBar, { width: percentage, color: barColor }) })
@@ -4277,7 +4308,7 @@ const StatusProgress = ({ title, items = {}, total }) => {
     })
   ] });
 };
-const Container = styled__default.default.div`
+const Container$1 = styled__default.default.div`
   background: ${({ theme }) => theme.colors.neutral0};
   border: 1px solid ${({ theme }) => theme.colors.neutral150};
   border-radius: 12px;
@@ -4287,7 +4318,7 @@ const Container = styled__default.default.div`
   display: flex;
   flex-direction: column;
 `;
-const Title = styled__default.default.h2`
+const Title$1 = styled__default.default.h2`
   font-size: 15px;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
@@ -4296,7 +4327,7 @@ const Title = styled__default.default.h2`
   align-items: center;
   gap: 12px;
 `;
-const IconWrapper = styled__default.default.div`
+const IconWrapper$1 = styled__default.default.div`
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -4356,13 +4387,13 @@ const MetricMainVal = styled__default.default.span`
   font-weight: 700;
   color: ${({ theme }) => theme.colors.neutral800};
 `;
-const PayIndicator = styled__default.default.div`
+styled__default.default.div`
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
 `;
-const RatioLabel = styled__default.default.div`
+styled__default.default.div`
   font-size: 10px;
   font-weight: 800;
   color: #10b981;
@@ -4370,14 +4401,14 @@ const RatioLabel = styled__default.default.div`
   align-items: center;
   gap: 4px;
 `;
-const MiniTrack = styled__default.default.div`
+styled__default.default.div`
   width: 100%;
   height: 4px;
   background: ${({ theme }) => theme.colors.neutral100};
   border-radius: 2px;
   overflow: hidden;
 `;
-const MiniBar = styled__default.default.div`
+styled__default.default.div`
   height: 100%;
   width: ${(props) => props.percentage}%;
   background: #10b981;
@@ -4438,57 +4469,45 @@ const formatCurrency = (val) => {
   }).format(val);
 };
 const EconomyBalanceCard = ({ economy }) => {
-  const theme = styled.useTheme();
+  const voice = economy?.voiceCall || { clientSpend: 0, expertReceived: 0, platformEarning: 0 };
+  const video = economy?.videoCall || { clientSpend: 0, expertReceived: 0, platformEarning: 0 };
   const totals = {
-    spent: economy.audio.clientSpent + economy.video.clientSpent,
-    earned: economy.audio.expertEarned + economy.video.expertEarned,
-    commission: economy.audio.commission + economy.video.commission
+    spent: voice.clientSpend + video.clientSpend,
+    earned: voice.expertReceived + video.expertReceived,
+    commission: voice.platformEarning + video.platformEarning
   };
-  const renderRow = (data, icon, color) => {
-    const ratio = data.clientSpent > 0 ? data.expertEarned / data.clientSpent * 100 : 0;
+  const renderRow = (label, data, icon, color) => {
     return /* @__PURE__ */ jsxRuntime.jsxs(TableRow, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(TypeInfo, { children: /* @__PURE__ */ jsxRuntime.jsx(IconBox, { color, children: icon }) }),
       /* @__PURE__ */ jsxRuntime.jsxs(MetricCell, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(MetricSubLabel, { children: "Client Spent" }),
-        /* @__PURE__ */ jsxRuntime.jsx(MetricMainVal, { children: formatCurrency(data.clientSpent) })
+        /* @__PURE__ */ jsxRuntime.jsx(MetricSubLabel, { children: "Client Spend" }),
+        /* @__PURE__ */ jsxRuntime.jsx(MetricMainVal, { children: formatCurrency(data.clientSpend) })
       ] }),
       /* @__PURE__ */ jsxRuntime.jsxs(MetricCell, { children: [
         /* @__PURE__ */ jsxRuntime.jsx(MetricSubLabel, { children: "Expert Receive" }),
-        /* @__PURE__ */ jsxRuntime.jsx(MetricMainVal, { children: formatCurrency(data.expertEarned) })
+        /* @__PURE__ */ jsxRuntime.jsx(MetricMainVal, { children: formatCurrency(data.expertReceived) })
       ] }),
-      /* @__PURE__ */ jsxRuntime.jsx(MetricCell, { align: "flex-end", children: /* @__PURE__ */ jsxRuntime.jsxs(PayIndicator, { children: [
-        /* @__PURE__ */ jsxRuntime.jsxs(RatioLabel, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx(index.ActivityIcon, { style: { width: 10 } }),
-          ratio.toFixed(0),
-          "% Pay"
-        ] }),
-        /* @__PURE__ */ jsxRuntime.jsx(MiniTrack, { children: /* @__PURE__ */ jsxRuntime.jsx(MiniBar, { percentage: ratio }) })
-      ] }) })
+      /* @__PURE__ */ jsxRuntime.jsxs(MetricCell, { align: "flex-end", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(MetricSubLabel, { children: "Co. Earning" }),
+        /* @__PURE__ */ jsxRuntime.jsx(MetricMainVal, { style: { color: "#3b82f6" }, children: formatCurrency(data.platformEarning) })
+      ] })
     ] });
   };
-  return /* @__PURE__ */ jsxRuntime.jsxs(Container, { children: [
-    /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
-      /* @__PURE__ */ jsxRuntime.jsxs(Title, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(IconWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ActivityIcon, { style: { width: 18, height: 18 } }) }),
-        "Revenue & Settlement"
-      ] }),
-      /* @__PURE__ */ jsxRuntime.jsxs("div", { style: { display: "flex", alignItems: "center", gap: "8px" }, children: [
-        /* @__PURE__ */ jsxRuntime.jsx("span", { style: { fontSize: "10px", fontWeight: 700, color: theme.colors.neutral500 }, children: "MARGIN" }),
-        /* @__PURE__ */ jsxRuntime.jsxs("span", { style: { fontSize: "12px", fontWeight: 800, color: "#3b82f6" }, children: [
-          "~",
-          (totals.spent > 0 ? totals.commission / totals.spent * 100 : 0).toFixed(1),
-          "%"
-        ] })
-      ] })
-    ] }),
+  return /* @__PURE__ */ jsxRuntime.jsxs(Container$1, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntime.jsxs(Title$1, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(IconWrapper$1, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ActivityIcon, { style: { width: 18, height: 18 } }) }),
+      "Revenue & Payout Distribution"
+    ] }) }),
     /* @__PURE__ */ jsxRuntime.jsxs(BreakdownTable, { children: [
       renderRow(
-        economy.audio,
+        "Voice Call",
+        voice,
         /* @__PURE__ */ jsxRuntime.jsx(index.VoiceCall, { style: { width: 14 } }),
         "#3b82f6"
       ),
       renderRow(
-        economy.video,
+        "Video Call",
+        video,
         /* @__PURE__ */ jsxRuntime.jsx(index.VideoCall, { style: { width: 14 } }),
         "#10b981"
       )
@@ -4497,7 +4516,7 @@ const EconomyBalanceCard = ({ economy }) => {
       /* @__PURE__ */ jsxRuntime.jsxs(SummaryItem, { children: [
         /* @__PURE__ */ jsxRuntime.jsxs(SummaryLabel, { children: [
           /* @__PURE__ */ jsxRuntime.jsx(index.WalletIcon, { style: { width: 10 } }),
-          "Total Client Spent"
+          "Total Client Spend"
         ] }),
         /* @__PURE__ */ jsxRuntime.jsx(SummaryVal, { children: formatCurrency(totals.spent) })
       ] }),
@@ -4511,19 +4530,30 @@ const EconomyBalanceCard = ({ economy }) => {
       /* @__PURE__ */ jsxRuntime.jsxs(SummaryItem, { children: [
         /* @__PURE__ */ jsxRuntime.jsxs(SummaryLabel, { children: [
           /* @__PURE__ */ jsxRuntime.jsx("div", { style: { width: 6, height: 6, borderRadius: "50%", background: "#3b82f6" } }),
-          "Platform Revenue"
+          "Total Co. Earning"
         ] }),
         /* @__PURE__ */ jsxRuntime.jsx(SummaryVal, { accent: "#3b82f6", children: formatCurrency(totals.commission) })
       ] })
     ] }) })
   ] });
 };
-const StatsHeader = ({ total = 0, online = 0, filter, onFilterChange }) => {
-  return /* @__PURE__ */ jsxRuntime.jsxs(Header$4, { children: [
+const StatsHeader = ({ total = 0, online = 0, filter, onFilterChange, customRange, onCustomRangeChange }) => {
+  const presets = [
+    { label: "All Time", value: "all_time" },
+    { label: "Today", value: "today" },
+    { label: "Yesterday", value: "yesterday" },
+    { label: "Week", value: "week" },
+    { label: "Month", value: "month" },
+    { label: "Last Month", value: "last_month" },
+    { label: "Last 3 Months", value: "last_3_months" },
+    { label: "Year", value: "year" },
+    { label: "Custom", value: "custom" }
+  ];
+  return /* @__PURE__ */ jsxRuntime.jsxs(Header$5, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(HeaderLeft$1, { children: [
       /* @__PURE__ */ jsxRuntime.jsx(IconBox$3, { children: /* @__PURE__ */ jsxRuntime.jsx(index.ChartIcon, { style: { width: "32px", height: "32px" } }) }),
       /* @__PURE__ */ jsxRuntime.jsxs(TitleBox, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx(Title$5, { children: "Platform Statistics" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Title$6, { children: "Platform Statistics" }),
         /* @__PURE__ */ jsxRuntime.jsx(Subtitle, { children: "Comprehensive overview of users, growth, and financial metrics." }),
         /* @__PURE__ */ jsxRuntime.jsxs(MetaText, { children: [
           (total || 0).toLocaleString(),
@@ -4533,15 +4563,170 @@ const StatsHeader = ({ total = 0, online = 0, filter, onFilterChange }) => {
         ] })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsx(HeaderRight$1, { children: /* @__PURE__ */ jsxRuntime.jsx(FilterContainer, { children: ["day wise", "monthly", "quarterly", "yearly"].map((period) => /* @__PURE__ */ jsxRuntime.jsx(
-      FilterButton,
-      {
-        active: filter === period,
-        onClick: () => onFilterChange(period),
-        children: period === "day wise" ? "Day Wise" : period.charAt(0).toUpperCase() + period.slice(1)
-      },
-      period
-    )) }) })
+    /* @__PURE__ */ jsxRuntime.jsx(HeaderRight$1, { children: /* @__PURE__ */ jsxRuntime.jsxs(FilterContainer, { style: { gap: "4px" }, children: [
+      presets.map((p) => /* @__PURE__ */ jsxRuntime.jsx(
+        FilterButton,
+        {
+          active: filter === p.value,
+          onClick: () => onFilterChange(p.value),
+          style: { padding: "6px 12px", fontSize: "11px" },
+          children: p.label
+        },
+        p.value
+      )),
+      filter === "custom" && /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Flex, { gap: 2, style: { marginLeft: "12px" }, children: [
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "input",
+          {
+            type: "date",
+            value: customRange?.start,
+            onChange: (e) => onCustomRangeChange({ ...customRange, start: e.target.value }),
+            style: { border: "1px solid #dcdce4", borderRadius: "4px", padding: "4px 8px", fontSize: "12px" }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(
+          "input",
+          {
+            type: "date",
+            value: customRange?.end,
+            onChange: (e) => onCustomRangeChange({ ...customRange, end: e.target.value }),
+            style: { border: "1px solid #dcdce4", borderRadius: "4px", padding: "4px 8px", fontSize: "12px" }
+          }
+        )
+      ] })
+    ] }) })
+  ] });
+};
+const Container = styled__default.default.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral150};
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+`;
+const Header = styled__default.default.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+`;
+const Title = styled__default.default.h3`
+  font-size: 16px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral800};
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+const IconWrapper = styled__default.default.div`
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.colors.primary100};
+  color: ${({ theme }) => theme.colors.primary600};
+`;
+const CustomTooltip = styled__default.default.div`
+  background: ${({ theme }) => theme.colors.neutral0};
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+`;
+const TooltipLabel = styled__default.default.div`
+  font-size: 10px;
+  font-weight: 700;
+  color: ${({ theme }) => theme.colors.neutral500};
+  text-transform: uppercase;
+  margin-bottom: 4px;
+`;
+const TooltipValue = styled__default.default.div`
+  font-size: 14px;
+  font-weight: 800;
+  color: ${({ theme }) => theme.colors.neutral800};
+`;
+const WalletTrendBarChart = ({ data = [], labels = [], title, Icon }) => {
+  const theme = styled.useTheme();
+  const formattedData = labels.map((label, i) => ({
+    date: label,
+    amount: data[i] || 0
+  }));
+  const CustomTooltipContent = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return /* @__PURE__ */ jsxRuntime.jsxs(CustomTooltip, { children: [
+        /* @__PURE__ */ jsxRuntime.jsx(TooltipLabel, { children: label }),
+        /* @__PURE__ */ jsxRuntime.jsxs(TooltipValue, { children: [
+          "₹",
+          payload[0].value.toLocaleString()
+        ] })
+      ] });
+    }
+    return null;
+  };
+  return /* @__PURE__ */ jsxRuntime.jsxs(Container, { children: [
+    /* @__PURE__ */ jsxRuntime.jsx(Header, { children: /* @__PURE__ */ jsxRuntime.jsxs(Title, { children: [
+      Icon && /* @__PURE__ */ jsxRuntime.jsx(IconWrapper, { children: /* @__PURE__ */ jsxRuntime.jsx(Icon, { style: { width: 18, height: 18 } }) }),
+      title
+    ] }) }),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { style: { height: "240px", width: "100%" }, children: /* @__PURE__ */ jsxRuntime.jsx(recharts.ResponsiveContainer, { width: "100%", height: "100%", children: /* @__PURE__ */ jsxRuntime.jsxs(recharts.BarChart, { data: formattedData, margin: { top: 10, right: 10, left: -10, bottom: 0 }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("defs", { children: /* @__PURE__ */ jsxRuntime.jsxs("linearGradient", { id: "barGradient", x1: "0", y1: "0", x2: "0", y2: "1", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "0%", stopColor: "#10b981", stopOpacity: 1 }),
+        /* @__PURE__ */ jsxRuntime.jsx("stop", { offset: "100%", stopColor: "#10b981", stopOpacity: 0.4 })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        recharts.CartesianGrid,
+        {
+          strokeDasharray: "3 3",
+          vertical: false,
+          stroke: theme.colors.neutral200,
+          opacity: 0.5
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        recharts.XAxis,
+        {
+          dataKey: "date",
+          axisLine: false,
+          tickLine: false,
+          tick: { fontSize: 10, fontWeight: 600, fill: theme.colors.neutral500 },
+          dy: 10
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        recharts.YAxis,
+        {
+          axisLine: false,
+          tickLine: false,
+          tick: { fontSize: 10, fontWeight: 600, fill: theme.colors.neutral500 },
+          tickFormatter: (value) => `₹${value >= 1e3 ? (value / 1e3).toFixed(1) + "k" : value}`
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(recharts.Tooltip, { content: /* @__PURE__ */ jsxRuntime.jsx(CustomTooltipContent, {}), cursor: { fill: theme.colors.neutral100, radius: 8 } }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        recharts.Bar,
+        {
+          dataKey: "amount",
+          fill: "url(#barGradient)",
+          radius: [6, 6, 0, 0],
+          barSize: 20,
+          animationBegin: 0,
+          animationDuration: 1500,
+          children: formattedData.map((entry, index2) => /* @__PURE__ */ jsxRuntime.jsx(
+            recharts.Cell,
+            {
+              fillOpacity: 0.8 + index2 / formattedData.length * 0.2
+            },
+            `cell-${index2}`
+          ))
+        }
+      )
+    ] }) }) })
   ] });
 };
 const pulse = styled.keyframes`
@@ -4594,21 +4779,60 @@ const Label = styled__default.default.span`
   text-transform: uppercase;
   letter-spacing: 0.04em;
 `;
-const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0 }) => {
+const GraphFilterContainer = styled__default.default.div`
+  display: flex;
+  align-items: center;
+  background: ${({ theme }) => theme.colors.neutral100};
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+  margin-left: auto;
+`;
+const GraphFilterButton = styled__default.default.button`
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: ${(props) => props.active ? props.theme.colors.neutral0 : "transparent"};
+  color: ${(props) => props.active ? props.theme.colors.primary600 : props.theme.colors.neutral600};
+  box-shadow: ${(props) => props.active ? "0 1px 3px rgba(0,0,0,0.1)" : "none"};
+  transition: all 0.2s;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary600};
+  }
+`;
+const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0, filter = "monthly", onFilterChange }) => {
   const theme = styled.useTheme();
-  return /* @__PURE__ */ jsxRuntime.jsxs(BadgeRow, { children: [
-    /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "sigma", textColor: "neutral500", style: { marginRight: "4px" }, children: "Pending Expert:" }),
-    /* @__PURE__ */ jsxRuntime.jsxs(MiniBadge, { color: "#f59e0b", children: [
-      /* @__PURE__ */ jsxRuntime.jsx(Nucleus, { color: "#f59e0b" }),
-      /* @__PURE__ */ jsxRuntime.jsx(index.Expert, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
-      /* @__PURE__ */ jsxRuntime.jsx(Label, { children: "Approvals" }),
-      /* @__PURE__ */ jsxRuntime.jsx(Count, { children: pendingApprovals })
+  return /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Box, { display: "flex", alignItems: "center", width: "100%", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(BadgeRow, { style: { marginBottom: 0, marginTop: 0 }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "sigma", textColor: "neutral500", style: { marginRight: "4px" }, children: "Pending Expert:" }),
+      /* @__PURE__ */ jsxRuntime.jsxs(MiniBadge, { color: "#f59e0b", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Nucleus, { color: "#f59e0b" }),
+        /* @__PURE__ */ jsxRuntime.jsx(index.Expert, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
+        /* @__PURE__ */ jsxRuntime.jsx(Label, { children: "Approvals" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Count, { children: pendingApprovals })
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs(MiniBadge, { color: "#3b82f6", children: [
+        /* @__PURE__ */ jsxRuntime.jsx(Nucleus, { color: "#3b82f6" }),
+        /* @__PURE__ */ jsxRuntime.jsx(index.UniqueIcon, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
+        /* @__PURE__ */ jsxRuntime.jsx(Label, { children: "Verifications" }),
+        /* @__PURE__ */ jsxRuntime.jsx(Count, { children: pendingVerifications })
+      ] })
     ] }),
-    /* @__PURE__ */ jsxRuntime.jsxs(MiniBadge, { color: "#3b82f6", children: [
-      /* @__PURE__ */ jsxRuntime.jsx(Nucleus, { color: "#3b82f6" }),
-      /* @__PURE__ */ jsxRuntime.jsx(index.UniqueIcon, { style: { width: "14px", height: "14px", color: theme.colors.neutral800 } }),
-      /* @__PURE__ */ jsxRuntime.jsx(Label, { children: "Verifications" }),
-      /* @__PURE__ */ jsxRuntime.jsx(Count, { children: pendingVerifications })
+    /* @__PURE__ */ jsxRuntime.jsxs(GraphFilterContainer, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(designSystem.Typography, { variant: "sigma", textColor: "neutral500", style: { padding: "0 8px", fontSize: "10px" }, children: "Graph Period:" }),
+      ["day wise", "monthly", "quarterly", "yearly"].map((period) => /* @__PURE__ */ jsxRuntime.jsx(
+        GraphFilterButton,
+        {
+          active: filter === period,
+          onClick: () => onFilterChange(period),
+          children: period === "day wise" ? "Day" : period.charAt(0).toUpperCase() + period.slice(1)
+        },
+        period
+      ))
     ] })
   ] });
 };
@@ -4661,13 +4885,19 @@ const SectionTitle = styled__default.default.h2`
   letter-spacing: 0.05em;
 `;
 const StatsDashboardPage = () => {
-  const [filter, setFilter] = React.useState("monthly");
-  const { data: summary, isLoading: isSummaryLoading } = useAdminSummary();
-  const { data: graph, isLoading: isGraphLoading } = useAdminGraph(filter);
+  const [globalFilter, setGlobalFilter] = React.useState("all_time");
+  const [customRange, setCustomRange] = React.useState({
+    start: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+    end: (/* @__PURE__ */ new Date()).toISOString().split("T")[0]
+  });
+  const [graphFilter, setGraphFilter] = React.useState("monthly");
+  const { data: summary } = useAdminSummary(globalFilter, customRange);
+  const { data: graph } = useAdminGraph(graphFilter);
   const {
     total = 0,
     test = 0,
     experts = 0,
+    expertsCount = 0,
     clients = 0,
     expertsByStatus = {},
     clientsByStatus = {},
@@ -4675,7 +4905,7 @@ const StatsDashboardPage = () => {
     badges = {},
     pendingApprovals = 0,
     pendingVerifications = 0,
-    wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { audio: 0, video: 0 } }
+    wallet = { totalTopups: 0, referralDistributed: 0, platformEarnings: 0, economy: { voiceCall: { clientSpend: 0, expertReceived: 0, platformEarning: 0 }, videoCall: { clientSpend: 0, expertReceived: 0, platformEarning: 0 } } }
   } = summary || {};
   const {
     meta = { labels: [] },
@@ -4689,8 +4919,10 @@ const StatsDashboardPage = () => {
       {
         total,
         online: availability.Online || 0,
-        filter,
-        onFilterChange: setFilter
+        filter: globalFilter,
+        onFilterChange: setGlobalFilter,
+        customRange,
+        onCustomRangeChange: setCustomRange
       }
     ),
     /* @__PURE__ */ jsxRuntime.jsx(Main, { children: /* @__PURE__ */ jsxRuntime.jsxs(designSystem.Flex, { direction: "column", alignItems: "stretch", gap: 6, children: [
@@ -4698,7 +4930,9 @@ const StatsDashboardPage = () => {
         OperationalBadges,
         {
           pendingApprovals,
-          pendingVerifications
+          pendingVerifications,
+          filter: graphFilter,
+          onFilterChange: setGraphFilter
         }
       ) }),
       /* @__PURE__ */ jsxRuntime.jsxs("section", { children: [
@@ -4783,7 +5017,7 @@ const StatsDashboardPage = () => {
         /* @__PURE__ */ jsxRuntime.jsx(CustomGridItem, { col: 8, delayIndex: 9, children: /* @__PURE__ */ jsxRuntime.jsx(
           GrowthBarChart,
           {
-            title: "Registration Growth",
+            title: "Registration Growth fg",
             data: growth,
             labels: meta.labels,
             Icon: index.TrendingUpIcon
@@ -4793,7 +5027,7 @@ const StatsDashboardPage = () => {
           StatusProgress,
           {
             title: "Expert Badge Distribution",
-            total: experts,
+            total: expertsCount,
             items: badges
           }
         ) })
@@ -4847,13 +5081,10 @@ const StatsDashboardPage = () => {
           }
         ) }),
         /* @__PURE__ */ jsxRuntime.jsx(CustomGridItem, { col: 6, delayIndex: 15, children: /* @__PURE__ */ jsxRuntime.jsx(
-          GrowthBarChart,
+          WalletTrendBarChart,
           {
-            title: "Wallet Topup Trends",
-            data: {
-              experts: walletGraph.trend,
-              clients: walletGraph.trend.map((v) => v * 0.8)
-            },
+            title: "Wallet Topup Trends (Client)",
+            data: walletGraph.trend,
             labels: meta.labels,
             Icon: index.WalletIcon
           }

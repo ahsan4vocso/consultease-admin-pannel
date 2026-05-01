@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ActivityIcon } from '../Icons';
+import { Flex } from '@strapi/design-system';
 
 const Container = styled.div`
   background: ${({ theme }) => theme.colors.neutral0};
@@ -80,6 +81,20 @@ const ProgressBar = styled.div`
   box-shadow: 0 0 6px ${props => `${props.color}33`};
 `;
 
+const PercentageBadge = styled.span`
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: ${props => `${props.color}15`};
+  color: ${props => props.color};
+  border: 1px solid ${props => `${props.color}30`};
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+`;
+
 const StatusProgress = ({ title, items = {}, total }) => {
   // Convert object to array for mapping
   const dataEntries = Object.entries(items).map(([name, value]) => ({ name, value }));
@@ -111,7 +126,10 @@ const StatusProgress = ({ title, items = {}, total }) => {
           <StatItem key={index}>
             <ItemHeader>
               <ItemLabel>{item.name}</ItemLabel>
-              <ItemValue>{(item.value || 0).toLocaleString()} ({Math.round(percentage)}%)</ItemValue>
+              <Flex align="center">
+                <ItemValue>{(item.value || 0).toLocaleString()} / {(total || 0).toLocaleString()}</ItemValue>
+                <PercentageBadge color={barColor}>{Math.round(percentage)}%</PercentageBadge>
+              </Flex>
             </ItemHeader>
             <ProgressTrack>
               <ProgressBar width={percentage} color={barColor} />
