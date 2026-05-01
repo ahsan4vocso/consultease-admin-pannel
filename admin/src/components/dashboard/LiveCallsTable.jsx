@@ -9,6 +9,8 @@ import { VideoCall, VoiceCall, Cross } from "../Icons";
 import { useMovingTime } from "../../hooks/helper";
 import { useDashboardContext } from "../../context/DashboardContext";
 
+import { createPortal } from "react-dom";
+
 export default function LiveCallsTable() {
     const { stats, liveCalls } = useDashboardContext();
     const s = stats || {};
@@ -109,7 +111,7 @@ export default function LiveCallsTable() {
                 </Style.Table>
             </Style.TableContainer>
 
-            {selectedCall && (
+            {selectedCall && createPortal(
                 <Style.ModalOverlay onClick={closeModal}>
                     <Style.ModalContent onClick={(e) => e.stopPropagation()}>
                         <Style.ModalHeader>
@@ -177,7 +179,8 @@ export default function LiveCallsTable() {
                             </Style.ModalButton>
                         </Style.ModalFooter>
                     </Style.ModalContent>
-                </Style.ModalOverlay>
+                </Style.ModalOverlay>,
+                document.body
             )}
         </Style.TableSection>
     );

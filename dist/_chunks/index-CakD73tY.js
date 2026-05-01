@@ -93,10 +93,10 @@ const SearchIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style
   /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "11", cy: "11", r: "8" }),
   /* @__PURE__ */ jsxRuntime.jsx("path", { d: "m21 21-4.3-4.3" })
 ] });
-const ChartIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
-  /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "18", y1: "20", x2: "18", y2: "10" }),
-  /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "12", y1: "20", x2: "12", y2: "4" }),
-  /* @__PURE__ */ jsxRuntime.jsx("line", { x1: "6", y1: "20", x2: "6", y2: "14" })
+const AnalyticalDashboardIcon = ({ style, ...props }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style: { width: "24px", height: "24px", ...style }, viewBox: "0 0 24 24", fill: "none", xmlns: "http://www.w3.org/2000/svg", ...props, children: [
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M16 11.5C16 10.6716 16.6716 10 17.5 10H17.5C18.3284 10 19 10.6716 19 11.5V18.5C19 19.3284 18.3284 20 17.5 20H17.5C16.6716 20 16 19.3284 16 18.5V11.5Z", fill: "currentColor" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M10.5 5.5C10.5 4.67157 11.1716 4 12 4H12C12.8284 4 13.5 4.67157 13.5 5.5V18.5C13.5 19.3284 12.8284 20 12 20H12C11.1716 20 10.5 19.3284 10.5 18.5V5.5Z", fill: "currentColor" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M5 15.5C5 14.6716 5.67157 14 6.5 14H6.5C7.32843 14 8 14.6716 8 15.5V18.5C8 19.3284 7.32843 20 6.5 20H6.5C5.67157 20 5 19.3284 5 18.5V15.5Z", fill: "currentColor" })
 ] });
 const UsersIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [
   /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" }),
@@ -122,7 +122,7 @@ const ExperimentIcon = ({ style }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { s
   /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M12 2L2 22H22L12 2Z", fill: "none", stroke: "currentColor", strokeWidth: "2" }),
   /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "12", cy: "14", r: "3", stroke: "currentColor", strokeWidth: "2" })
 ] });
-const AnalyticalDashboardIcon = ({ style, ...props }) => /* @__PURE__ */ jsxRuntime.jsxs(
+const ChartIcon = ({ style, ...props }) => /* @__PURE__ */ jsxRuntime.jsxs(
   "svg",
   {
     width: "24",
@@ -152,7 +152,7 @@ const index = {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: "Dashboards"
       },
-      Component: () => Promise.resolve().then(() => require("./App-KWOXCdkg.js"))
+      Component: () => Promise.resolve().then(() => require("./App-BtxJPaOn.js"))
     });
     app.registerPlugin({
       id: PLUGIN_ID,

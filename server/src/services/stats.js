@@ -478,5 +478,4 @@ const statsService = ({ strapi }) => ({
     }
   }
 });
-
 export default statsService;
