@@ -28,6 +28,7 @@ const MiniBadge = styled.div`
   transition: all 0.2s ease-in-out;
   user-select: none;
   box-shadow: ${({ theme }) => theme.shadows.filterShadow};
+  cursor: pointer;
 
   &:hover {
     background: ${({ theme, color }) => `${color}10`};
@@ -91,6 +92,14 @@ const GraphFilterButton = styled.button`
 const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0, filter = 'monthly', onFilterChange }) => {
   const theme = useTheme();
 
+  const handleApprovalsClick = () => {
+    window.open('/admin/content-manager/collection-types/api::expert-profile-approval.expert-profile-approval?page=1&pageSize=10&sort=createdAt:DESC&filters[$and][0][is_approved][$eq]=false', '_blank');
+  };
+
+  const handleVerificationsClick = () => {
+    window.open('/admin/content-manager/collection-types/api::expert-verification.expert-verification?page=1&pageSize=100&sort=createdAt:DESC&filters[$and][0][is_form_submitted][$eq]=true', '_blank');
+  };
+
   return (
     <Box display="flex" alignItems="center" width="100%">
       <BadgeRow style={{ marginBottom: 0, marginTop: 0 }}>
@@ -98,14 +107,14 @@ const OperationalBadges = ({ pendingApprovals = 0, pendingVerifications = 0, fil
           Pending Expert:
         </Typography>
 
-        <MiniBadge color="#f59e0b">
+        <MiniBadge color="#f59e0b" onClick={handleApprovalsClick}>
           <Nucleus color="#f59e0b" />
           <ExpertIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
           <Label>Approvals</Label>
           <Count>{pendingApprovals}</Count>
         </MiniBadge>
 
-        <MiniBadge color="#3b82f6">
+        <MiniBadge color="#3b82f6" onClick={handleVerificationsClick}>
           <Nucleus color="#3b82f6" />
           <VerifyIcon style={{ width: '14px', height: '14px', color: theme.colors.neutral800 }} />
           <Label>Verifications</Label>
