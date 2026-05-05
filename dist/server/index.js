@@ -1113,10 +1113,30 @@ const statsController = ({ strapi: strapi2 }) => ({
     }
   }
 });
+const maintenanceController = ({ strapi: strapi2 }) => ({
+  /**
+   * Triggers the cancellation of stale pending transactions
+   */
+  async cancelStaleTransactions(ctx) {
+    try {
+      strapi2.log.info("Admin triggered: cancelStaleTransactions");
+      const summary = await strapi2.service("api::transaction.transaction").cancelStalePendingTransactions();
+      ctx.body = {
+        message: "Successfully processed stale transactions.",
+        summary
+      };
+    } catch (error) {
+      strapi2.log.error("Maintenance Controller Error (Cancel Stale Transactions):", error);
+      ctx.throw(500, error.message);
+    }
+  }
+  // Future maintenance tasks can be added here
+});
 const controllers = {
   calling,
   referral,
-  stats: statsController
+  stats: statsController,
+  maintenance: maintenanceController
 };
 const middlewares = {};
 const policies = {};
@@ -1180,6 +1200,17 @@ const referralRoutes = {
       method: "GET",
       path: "/referral-table-data",
       handler: "referral.table_data",
+      config: { policies: [] }
+    }
+  ]
+};
+const maintenanceRoutes = {
+  type: "admin",
+  routes: [
+    {
+      method: "POST",
+      path: "/maintenance/cancel-stale-transactions",
+      handler: "maintenance.cancelStaleTransactions",
       config: { policies: [] }
     }
   ]
@@ -1867,7 +1898,8 @@ const index = {
   policies,
   routes: {
     calling: callingRoutes,
-    referral: referralRoutes
+    referral: referralRoutes,
+    maintenance: maintenanceRoutes
   },
   services
 };

@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const queryClient = new QueryClient();
 
 import StatsDashboardPage from './StatsDashboardPage';
+import SettingsPage from './SettingsPage';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route index element={<HomePage />} />
         <Route path="referral-analytics" element={<ReferralAnalyticsPage />} />
         <Route path="statistics" element={<StatsDashboardPage />} />
+        <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<Page.Error />} />
       </Routes>
     </QueryClientProvider>

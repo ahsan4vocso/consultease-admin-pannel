@@ -143,6 +143,10 @@ const ChartIcon = ({ style, ...props }) => /* @__PURE__ */ jsxRuntime.jsxs(
     ]
   }
 );
+const SettingsIcon = ({ style, ...props }) => /* @__PURE__ */ jsxRuntime.jsxs("svg", { style: { width: "24px", height: "24px", ...style }, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", ...props, children: [
+  /* @__PURE__ */ jsxRuntime.jsx("circle", { cx: "12", cy: "12", r: "3" }),
+  /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" })
+] });
 const index = {
   register(app) {
     app.addMenuLink({
@@ -152,7 +156,7 @@ const index = {
         id: `${PLUGIN_ID}.plugin.name`,
         defaultMessage: "Dashboards"
       },
-      Component: () => Promise.resolve().then(() => require("./App-TOlhjGpI.js"))
+      Component: () => Promise.resolve().then(() => require("./App-DvmPvrHL.js"))
     });
     app.registerPlugin({
       id: PLUGIN_ID,
@@ -192,6 +196,7 @@ exports.PLUGIN_ID = PLUGIN_ID;
 exports.ReferralIcon = ReferralIcon;
 exports.ReferralLogo = ReferralLogo;
 exports.SearchIcon = SearchIcon;
+exports.SettingsIcon = SettingsIcon;
 exports.Tick = Tick;
 exports.TotalCalls = TotalCalls;
 exports.TrendingUpIcon = TrendingUpIcon;

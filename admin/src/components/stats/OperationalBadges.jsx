@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { keyframes, useTheme } from 'styled-components';
-import { Flex, Typography } from '@strapi/design-system';
+import { Typography } from '@strapi/design-system';
 import { Expert as ExpertIcon, UniqueIcon as VerifyIcon } from '../Icons';
 
 const pulse = keyframes`

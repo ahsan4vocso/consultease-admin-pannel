@@ -120,12 +120,10 @@ const Count = styled.span`
 
 const AvailabilityDonut = ({ data = {}, title, Icon }) => {
   const theme = useTheme();
-  
-  // Robustly handle data as either a flat object or an array of {name, value}
-  const dataEntries = Array.isArray(data) 
-    ? data 
+  const dataEntries = Array.isArray(data)
+    ? data
     : Object.entries(data || {}).map(([name, value]) => ({ name, value }));
-    
+
   const total = dataEntries.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
 
   return (
@@ -163,16 +161,16 @@ const AvailabilityDonut = ({ data = {}, title, Icon }) => {
                   return <Cell key={`cell-${index}`} fill={fillColor} />;
                 })}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 wrapperStyle={{ zIndex: 1000 }}
-                contentStyle={{ 
-                  borderRadius: '12px', 
-                  border: 'none', 
+                contentStyle={{
+                  borderRadius: '12px',
+                  border: 'none',
                   boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
                   fontSize: '11px',
                   background: theme.colors.neutral0,
                   color: theme.colors.neutral800
-                }} 
+                }}
                 itemStyle={{ color: theme.colors.neutral800 }}
               />
             </PieChart>
@@ -184,18 +182,18 @@ const AvailabilityDonut = ({ data = {}, title, Icon }) => {
         </ChartContainer>
         <Legend>
           {dataEntries.map((item, index) => (
-    <LegendItem key={index}>
-      <Badge>
-        <Dot color={{
-          'Approved': '#10b981', 'Active': '#10b981', 'Online': '#10b981',
-          'Pending': '#f59e0b', 'Busy': '#f59e0b',
-          'Blocked': '#ef4444',
-          'Deleted': '#6b7280', 'Offline': '#6b7280'
-        }[item.name] || '#8b5cf6'} />
-        <Label>{item.name}</Label>
-      </Badge>
-      <Count>{(item.value || 0).toLocaleString()}</Count>
-    </LegendItem>
+            <LegendItem key={index}>
+              <Badge>
+                <Dot color={{
+                  'Approved': '#10b981', 'Active': '#10b981', 'Online': '#10b981',
+                  'Pending': '#f59e0b', 'Busy': '#f59e0b',
+                  'Blocked': '#ef4444',
+                  'Deleted': '#6b7280', 'Offline': '#6b7280'
+                }[item.name] || '#8b5cf6'} />
+                <Label>{item.name}</Label>
+              </Badge>
+              <Count>{(item.value || 0).toLocaleString()}</Count>
+            </LegendItem>
           ))}
         </Legend>
       </ContentWrapper>
